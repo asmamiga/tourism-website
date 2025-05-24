@@ -1,0 +1,25 @@
+# Laravel Backend
+visit-morocco-backend/vendor/
+visit-morocco-backend/.env
+visit-morocco-backend/storage/*.key
+visit-morocco-backend/storage/logs/
+visit-morocco-backend/storage/framework/cache/
+visit-morocco-backend/storage/framework/sessions/
+visit-morocco-backend/storage/framework/views/
+visit-morocco-backend/bootstrap/cache/
+
+# React Frontend
+visit-morocco-frontend/node_modules/
+visit-morocco-frontend/build/
+visit-morocco-frontend/dist/
+visit-morocco-frontend/.env.local
+visit-morocco-frontend/.env.development.local
+visit-morocco-frontend/.env.test.local
+visit-morocco-frontend/.env.production.local
+
+# General
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
