@@ -26,6 +26,38 @@ import { FaSearch, FaStar, FaMapMarkerAlt, FaInfoCircle } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { attractionService, cityService, regionService } from '../services/api';
 
+// Helper function to get attraction images based on type
+const getAttractionImageByType = (type) => {
+  const typeImages = {
+    'historical': '1557680510-5b4d0f23d5b5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80', // Historical sites
+    'cultural': '1486911278254-a96cdee8f61a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80', // Cultural sites
+    'natural': '1565353938851-20361937fcf2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80', // Natural landmarks
+    'beach': '1555400038-63f5eb0cb97a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80', // Beaches
+    'garden': '1528820810856-ec912ff49071?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80', // Gardens
+    'market': '1550452333-48cf320bbcb4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80', // Markets
+    'mosque': '1539980184962-811164d3bd55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1474&q=80', // Mosques
+    'palace': '1582376352720-84de28742c18?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80', // Palaces
+    'desert': '1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1421&q=80', // Desert
+    'mountain': '1486771586447-de892eecbb6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80', // Mountains
+  };
+  
+  return typeImages[type.toLowerCase()] || getRandomMoroccoAttraction();
+};
+
+// Helper function for random Moroccan attraction images
+const getRandomMoroccoAttraction = () => {
+  const attractionImages = [
+    '1595991209486-01c05fa9e812?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80', // Moroccan doorway
+    '1539072692047-3bd38673d8ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80', // Moroccan architecture
+    '1548240693-c7d69e8c2583?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80', // Moroccan fountain
+    '1539020140153-e8c237425f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80', // Moroccan landscape
+    '15454240-049a21ef9eea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80', // Moroccan tiled fountain
+  ];
+  
+  const randomIndex = Math.floor(Math.random() * attractionImages.length);
+  return attractionImages[randomIndex];
+};
+
 const MotionBox = motion(Box);
 
 const AttractionCard = ({ attraction }) => {
@@ -44,17 +76,37 @@ const AttractionCard = ({ attraction }) => {
       display="flex"
       flexDirection="column"
     >
-      <Box h="200px" overflow="hidden">
+      <Box h="200px" overflow="hidden" position="relative">
+        {attraction.is_featured && (
+          <Box
+            position="absolute"
+            top="10px"
+            right="10px"
+            zIndex="1"
+            bg="brand.accent"
+            color="white"
+            fontWeight="bold"
+            px={2}
+            py={1}
+            borderRadius="md"
+            fontSize="xs"
+            boxShadow="0 2px 10px rgba(0,0,0,0.2)"
+            transform="rotate(5deg)"
+          >
+            Featured
+          </Box>
+        )}
         <Image
           src={attraction.photos && attraction.photos.length > 0 
-            ? `http://localhost:8000/storage/${attraction.photos[0].photo_path}` 
-            : 'https://images.unsplash.com/photo-1539020140153-e479b8c64e3c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'}
+            ? `https://images.unsplash.com/photo-${getAttractionImageByType(attraction.type || 'cultural')}` 
+            : `https://images.unsplash.com/photo-${getRandomMoroccoAttraction()}`}
           alt={attraction.name}
           objectFit="cover"
           w="100%"
           h="100%"
-          transition="transform 0.5s ease"
-          _hover={{ transform: 'scale(1.1)' }}
+          transition="transform 0.3s ease"
+          _hover={{ transform: 'scale(1.05)' }}
+          fallbackSrc="https://images.unsplash.com/photo-1539020140153-e8c237425f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
         />
       </Box>
       
@@ -358,12 +410,66 @@ const AttractionsPage = () => {
   }
 
   return (
-    <Box py={10}>
-      <Container maxW="container.xl">
-        <Heading as="h1" mb={2}>Tourist Attractions</Heading>
-        <Text mb={8} color="gray.600">
-          Discover Morocco's cultural, historical, and natural wonders
-        </Text>
+    <Box py={10} position="relative" overflow="hidden">
+      {/* Decorative Elements */}
+      <Box
+        position="absolute"
+        top="5%"
+        left="-10%"
+        width="300px"
+        height="300px"
+        borderRadius="full"
+        bg="rgba(236, 201, 75, 0.15)"
+        zIndex="0"
+      />
+      <Box
+        position="absolute"
+        bottom="10%"
+        right="-5%"
+        width="250px"
+        height="250px"
+        borderRadius="full"
+        bg="rgba(214, 93, 14, 0.1)"
+        zIndex="0"
+      />
+      <Box
+        position="absolute"
+        top="30%"
+        right="10%"
+        width="150px"
+        height="150px"
+        borderRadius="full"
+        bg="rgba(26, 54, 93, 0.08)"
+        zIndex="0"
+      />
+      
+      <Container maxW="container.xl" position="relative" zIndex="1">
+        <Box 
+          mb={10}
+          py={8}
+          px={6}
+          borderRadius="xl"
+          bgGradient="linear(to-r, rgba(255,255,255,0.8), rgba(255,255,255,0.9), rgba(255,255,255,0.8))"
+          boxShadow="sm"
+          position="relative"
+          overflow="hidden"
+        >
+          <Box 
+            position="absolute" 
+            top="0" 
+            left="0" 
+            right="0" 
+            height="4px" 
+            bgGradient="linear(to-r, brand.primary, brand.accent)" 
+          />
+          
+          <Heading as="h1" size="2xl" mb={4} color="brand.primary" textShadow="0 1px 2px rgba(0,0,0,0.1)">
+            Discover Morocco's Attractions
+          </Heading>
+          <Text fontSize="lg" mb={4} maxW="container.md" mx="auto" textAlign="center">
+            Explore the most breathtaking and culturally significant places across Morocco, from ancient medinas to stunning natural landscapes.
+          </Text>
+        </Box>
         
         {/* Filters */}
         <Box
@@ -480,28 +586,85 @@ const AttractionsPage = () => {
         <Box
           mt={16}
           p={8}
-          borderRadius="lg"
-          bg="brand.primary"
-          color="white"
+          borderRadius="xl"
+          position="relative"
+          overflow="hidden"
+          boxShadow="lg"
           textAlign="center"
         >
-          <Heading as="h3" size="lg" mb={4}>
-            Explore Attractions on the Map
-          </Heading>
-          <Text fontSize="lg" mb={6}>
-            Discover attractions near your location or plan your route between multiple sites.
-          </Text>
-          <Button
-            as={RouterLink}
-            to="/attractions-map"
-            size="lg"
-            colorScheme="white"
-            variant="outline"
-            _hover={{ bg: 'rgba(255,255,255,0.2)' }}
-            leftIcon={<FaMapMarkerAlt />}
-          >
-            Open Interactive Map
-          </Button>
+          {/* Background with pattern overlay */}
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bgGradient="linear(to-r, brand.primary, brand.dark)"
+            opacity="0.95"
+            zIndex="0"
+          />
+          
+          {/* Decorative patterns */}
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            backgroundImage="url('https://www.transparenttextures.com/patterns/arabesque.png')"
+            opacity="0.1"
+            zIndex="1"
+          />
+          
+          {/* Corner accent elements */}
+          <Box
+            position="absolute"
+            top="-30px"
+            left="-30px"
+            width="100px"
+            height="100px"
+            borderRadius="full"
+            bg="brand.accent"
+            opacity="0.2"
+            zIndex="1"
+          />
+          <Box
+            position="absolute"
+            bottom="-20px"
+            right="-20px"
+            width="80px"
+            height="80px"
+            borderRadius="full"
+            bg="brand.accent"
+            opacity="0.2"
+            zIndex="1"
+          />
+          
+          {/* Content */}
+          <Box position="relative" zIndex="2" color="white">
+            <Heading as="h3" size="lg" mb={4} textShadow="0 2px 4px rgba(0,0,0,0.3)">
+              Explore Attractions on the Map
+            </Heading>
+            <Text fontSize="lg" mb={6} maxW="container.md" mx="auto">
+              Discover attractions near your location or plan your route between multiple sites.
+              Find hidden gems across Morocco's diverse landscapes.
+            </Text>
+            <Button
+              as={RouterLink}
+              to="/attractions-map"
+              size="lg"
+              colorScheme="white"
+              variant="outline"
+              _hover={{ bg: 'rgba(255,255,255,0.2)' }}
+              leftIcon={<FaMapMarkerAlt />}
+              boxShadow="0 4px 8px rgba(0,0,0,0.2)"
+              borderWidth="2px"
+              py={6}
+              px={8}
+            >
+              Open Interactive Map
+            </Button>
+          </Box>
         </Box>
       </Container>
     </Box>

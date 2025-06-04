@@ -201,12 +201,31 @@ const HomePage = () => {
       <Box
         ref={heroRef}
         position="relative"
-        height={{ base: '90vh', md: '100vh' }}
-        bgImage="url('https://images.unsplash.com/photo-1548018560-c7196548e84d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80')"
-        bgPosition="center"
-        bgRepeat="no-repeat"
-        bgSize="cover"
+        height={{ base: '100vh', md: '100vh' }}
+        overflow="hidden"
       >
+        {/* Video or Image Background */}
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          zIndex={-1}
+          bgImage="url('https://images.unsplash.com/photo-1548018560-c7196548e84d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80')"
+          bgPosition="center"
+          bgSize="cover"
+          _before={{
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%)',
+            zIndex: 0
+          }}
+        ></Box>
         <Box
           position="absolute"
           top={0}
@@ -226,19 +245,28 @@ const HomePage = () => {
         >
           <MotionHeading
             as="h1"
-            size="2xl"
-            mb={4}
-            className="hero-element"
-          >
-            Discover Morocco's Magic
-          </MotionHeading>
-          <MotionText
-            fontSize="xl"
-            maxW="container.md"
+            fontSize={{ base: "4xl", md: "6xl" }}
+            fontWeight="800"
+            lineHeight="1.2"
             mb={6}
             className="hero-element"
+            bgGradient="linear(to-r, white, brand.tan)"
+            bgClip="text"
+            textShadow="0px 0px 20px rgba(0,0,0,0.2)"
           >
-            Explore ancient cities, vibrant markets, breathtaking landscapes, and authentic cultural experiences. Your journey through Morocco starts here.
+            Discover Morocco's<br />
+            <Box as="span" color="brand.accent">Magic</Box>
+          </MotionHeading>
+          <MotionText
+            fontSize={{ base: "xl", md: "2xl" }}
+            maxW="container.md"
+            mb={8}
+            className="hero-element"
+            textShadow="0px 0px 10px rgba(0,0,0,0.3)"
+            fontWeight="400"
+          >
+            Explore ancient cities, vibrant markets, breathtaking landscapes,
+            and authentic cultural experiences. Your journey through Morocco starts here.
           </MotionText>
           <Stack
             direction={{ base: 'column', md: 'row' }}
@@ -249,9 +277,32 @@ const HomePage = () => {
               as={RouterLink}
               to="/businesses"
               size="lg"
+              variant="primary"
               bg="brand.primary"
               color="white"
-              _hover={{ bg: 'brand.secondary' }}
+              px={8}
+              py={6}
+              fontSize="md"
+              boxShadow="0px 10px 20px rgba(0,0,0,0.15)"
+              position="relative"
+              overflow="hidden"
+              _after={{
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(to right, rgba(255,255,255,0.1), rgba(255,255,255,0.4), rgba(255,255,255,0.1))',
+                transform: 'translateX(-100%)',
+                transition: 'transform 0.6s ease-out',
+              }}
+              _hover={{ 
+                bg: 'brand.secondary',
+                _after: {
+                  transform: 'translateX(100%)',
+                }
+              }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -263,8 +314,18 @@ const HomePage = () => {
               size="lg"
               variant="outline"
               colorScheme="white"
+              borderWidth="2px"
+              px={8}
+              py={6}
+              fontSize="md"
+              _hover={{
+                bg: 'rgba(255, 255, 255, 0.1)',
+                borderColor: 'brand.accent',
+                color: 'brand.accent',
+              }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              boxShadow="0px 10px 20px rgba(0,0,0,0.15)"
             >
               Plan Your Trip
             </MotionButton>
@@ -273,17 +334,60 @@ const HomePage = () => {
       </Box>
 
       {/* Features Section */}
-      <Box py={20} bg="gray.50" ref={featuresRef}>
+      <Box py={20} bg="brand.light" ref={featuresRef} position="relative" overflow="hidden">
+        {/* Decorative Elements */}
+        <Box 
+          position="absolute" 
+          top="10%" 
+          left="-5%" 
+          w="200px" 
+          h="200px" 
+          borderRadius="full" 
+          bg="brand.primary" 
+          opacity="0.05" 
+          zIndex="0"
+        />
+        <Box 
+          position="absolute" 
+          bottom="10%" 
+          right="-5%" 
+          w="300px" 
+          h="300px" 
+          borderRadius="full" 
+          bg="brand.secondary" 
+          opacity="0.05" 
+          zIndex="0"
+        />
         <Container maxW="container.xl">
           <MotionHeading
             textAlign="center"
-            mb={12}
+            mb={4}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            fontWeight="800"
+            fontSize={{ base: "3xl", md: "4xl" }}
+            position="relative"
+            zIndex="1"
+            bgGradient="linear(to-r, brand.primary, brand.secondary)"
+            bgClip="text"
+            letterSpacing="tight"
           >
             Your Complete Morocco Experience
           </MotionHeading>
+          <MotionText
+            textAlign="center"
+            maxW="container.md"
+            mx="auto"
+            mb={12}
+            color="gray.600"
+            fontSize="lg"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            Immerse yourself in authentic Moroccan culture and discover everything this magical country has to offer
+          </MotionText>
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={10}>
             <Feature
               title="Discover Places"
@@ -316,9 +420,37 @@ const HomePage = () => {
       {/* Popular Destinations */}
       <Box py={20} ref={destinationsRef}>
         <Container maxW="container.xl">
-          <Heading textAlign="center" mb={12} className="section-title">
+          <Heading 
+            textAlign="center" 
+            mb={4} 
+            className="section-title"
+            fontWeight="800"
+            fontSize={{ base: "3xl", md: "4xl" }}
+            position="relative"
+            _after={{
+              content: '""',
+              position: 'absolute',
+              bottom: '-15px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '80px',
+              height: '4px',
+              borderRadius: 'full',
+              bgGradient: 'linear(to-r, brand.primary, brand.secondary)'
+            }}
+          >
             Popular Destinations
           </Heading>
+          <Text
+            textAlign="center"
+            maxW="container.md"
+            mx="auto"
+            mb={12}
+            color="gray.600"
+            fontSize="lg"
+          >
+            Explore these incredible locations that showcase the diversity and beauty of Morocco
+          </Text>
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
             <Destination
               name="Marrakech"
@@ -372,13 +504,51 @@ const HomePage = () => {
         bg="brand.primary"
         color="white"
         ref={ctaRef}
+        position="relative"
+        overflow="hidden"
+        bgGradient="linear(to-r, brand.primary, brand.blue)"
       >
+        {/* Decorative background elements */}
+        <Box
+          position="absolute"
+          top="-100px"
+          right="-100px"
+          w="300px"
+          h="300px"
+          borderRadius="full"
+          bg="rgba(255,255,255,0.1)"
+        />
+        <Box
+          position="absolute"
+          bottom="-50px"
+          left="-50px"
+          w="200px"
+          h="200px"
+          borderRadius="full"
+          bg="rgba(255,255,255,0.1)"
+        />
         <Container maxW="container.xl" textAlign="center">
-          <Heading mb={4} className="cta-element">
+          <Heading 
+            mb={4} 
+            className="cta-element"
+            fontSize={{ base: "3xl", md: "5xl" }}
+            fontWeight="800"
+            letterSpacing="tight"
+            textShadow="0 2px 10px rgba(0,0,0,0.2)"
+          >
             Ready to Experience Morocco?
           </Heading>
-          <Text fontSize="xl" mb={8} maxW="container.md" mx="auto" className="cta-element">
-            Start planning your perfect Moroccan adventure today. Discover local businesses, connect with guides, and create unforgettable memories.
+          <Text 
+            fontSize={{ base: "lg", md: "xl" }} 
+            mb={8} 
+            maxW="container.md" 
+            mx="auto" 
+            className="cta-element"
+            opacity="0.9"
+            lineHeight="1.8"
+          >
+            Start planning your perfect Moroccan adventure today. Discover local businesses,
+            connect with authentic guides, and create unforgettable memories in this enchanting country.
           </Text>
           <Stack
             direction={{ base: 'column', md: 'row' }}
@@ -392,7 +562,17 @@ const HomePage = () => {
               size="lg"
               bg="white"
               color="brand.primary"
-              _hover={{ bg: 'gray.100' }}
+              px={8}
+              py={7}
+              fontWeight="600"
+              fontSize="md"
+              _hover={{ 
+                bg: 'brand.yellow',
+                transform: 'translateY(-5px)',
+                boxShadow: 'xl'
+              }}
+              boxShadow="0 10px 20px rgba(0,0,0,0.1)"
+              transition="all 0.3s ease"
             >
               Sign Up Now
             </Button>
@@ -402,6 +582,18 @@ const HomePage = () => {
               size="lg"
               variant="outline"
               colorScheme="white"
+              borderWidth="2px"
+              px={8}
+              py={7}
+              fontWeight="600"
+              fontSize="md"
+              _hover={{ 
+                bg: 'rgba(255,255,255,0.1)', 
+                transform: 'translateY(-5px)',
+                boxShadow: 'xl'
+              }}
+              boxShadow="0 10px 20px rgba(0,0,0,0.1)"
+              transition="all 0.3s ease"
             >
               Plan Your Trip
             </Button>

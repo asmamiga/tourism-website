@@ -105,8 +105,32 @@ export default function Header() {
                 }}
               >
                 <Flex align="center">
-                  {/* Replace with your logo */}
-                  <Text fontSize="2xl" fontWeight="bold">Visit Morocco</Text>
+                  <Flex align="center">
+                    <Box
+                      w="40px"
+                      h="40px"
+                      bg="brand.primary"
+                      borderRadius="full"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      color="white"
+                      fontWeight="bold"
+                      fontSize="xl"
+                      mr={2}
+                    >
+                      M
+                    </Box>
+                    <Text 
+                      fontSize="2xl" 
+                      fontWeight="bold" 
+                      bgGradient="linear(to-r, brand.primary, brand.secondary)" 
+                      bgClip="text"
+                      letterSpacing="wide"
+                    >
+                      Visit Morocco
+                    </Text>
+                  </Flex>
                 </Flex>
               </Link>
             </MotionBox>
@@ -231,13 +255,17 @@ const DesktopNav = ({ scrolled, isHomePage }) => {
             {navItem.children && (
               <PopoverContent
                 border={0}
-                boxShadow={'xl'}
+                boxShadow={'0 4px 20px rgba(0,0,0,0.15)'}
                 bg={popoverContentBgColor}
                 p={4}
                 rounded={'xl'}
                 minW={'sm'}
+                mt={2}
+                zIndex={10}
+                borderTop={'3px solid'}
+                borderTopColor={'brand.primary'}
               >
-                <Stack>
+                <Stack spacing={3}>
                   {navItem.children.map((child) => (
                     <DesktopSubNav key={child.label} {...child} />
                   ))}
@@ -266,12 +294,19 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
         <Box>
           <Text
             transition={'all .3s ease'}
+            color={'gray.700'}
             _groupHover={{ color: 'white' }}
             fontWeight={500}
           >
             {label}
           </Text>
-          <Text fontSize={'sm'} _groupHover={{ color: 'white' }}>{subLabel}</Text>
+          <Text 
+            fontSize={'sm'} 
+            color={'gray.600'}
+            _groupHover={{ color: 'white' }}
+          >
+            {subLabel}
+          </Text>
         </Box>
         <Flex
           transition={'all .3s ease'}

@@ -33,15 +33,43 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const toast = useToast();
   
+  // Helper function to get Moroccan-themed profile images
+  const getMoroccanProfileImage = () => {
+    const profileImages = [
+      'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80',
+      'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=761&q=80',
+      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
+      'https://images.unsplash.com/photo-1619895862022-09114b41f16f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
+    ];
+    const randomIndex = Math.floor(Math.random() * profileImages.length);
+    return profileImages[randomIndex];
+  };
+
   // Mock user data
   const [userData, setUserData] = useState({
     name: 'Sarah Johnson',
     email: 'sarah.j@example.com',
     bio: "Travel enthusiast with a passion for exploring new cultures. I've visited 15 countries so far and Morocco is at the top of my list!",
     location: 'New York, USA',
-    profileImage: 'https://source.unsplash.com/random/300x300/?portrait',
+    profileImage: getMoroccanProfileImage(),
     joinDate: 'January 2023'
   });
+
+  // Helper function for Moroccan city images
+  const getMoroccanCityImage = (city) => {
+    const cityImages = {
+      marrakech: 'https://images.unsplash.com/photo-1597212618440-806262de4f6b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+      fes: 'https://images.unsplash.com/photo-1548017881-0fce1e14c28c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+      chefchaouen: 'https://images.unsplash.com/photo-1553506762-d7a8363a2d6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+      casablanca: 'https://images.unsplash.com/photo-1570033434502-c9549ba6fa3e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80',
+      essaouira: 'https://images.unsplash.com/photo-1534800891164-a1d96b5114e7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1478&q=80',
+      sahara: 'https://images.unsplash.com/photo-1518855706573-84b565ac5449?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+      rabat: 'https://images.unsplash.com/photo-1541452170232-bd856519313e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80',
+      tangier: 'https://images.unsplash.com/photo-1548450848-172fdbc35d62?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
+    };
+    
+    return cityImages[city.toLowerCase()] || 'https://images.unsplash.com/photo-1539020140153-e8c237425f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80';
+  };
 
   // Mock trips data
   const [trips, setTrips] = useState([
@@ -49,21 +77,28 @@ const ProfilePage = () => {
       id: 1,
       title: 'Marrakech Adventure',
       date: 'March 2024',
-      image: 'https://source.unsplash.com/random/300x200/?marrakech',
+      image: getMoroccanCityImage('marrakech'),
       status: 'completed'
     },
     {
       id: 2,
       title: 'Coastal Tour: Casablanca to Essaouira',
       date: 'July 2024',
-      image: 'https://source.unsplash.com/random/300x200/?essaouira',
+      image: getMoroccanCityImage('essaouira'),
       status: 'upcoming'
     },
     {
       id: 3,
       title: 'Desert Expedition',
       date: 'October 2024',
-      image: 'https://source.unsplash.com/random/300x200/?sahara',
+      image: getMoroccanCityImage('sahara'),
+      status: 'planning'
+    },
+    {
+      id: 4,
+      title: 'Blue City of Chefchaouen',
+      date: 'December 2024',
+      image: getMoroccanCityImage('chefchaouen'),
       status: 'planning'
     }
   ]);
@@ -111,14 +146,47 @@ const ProfilePage = () => {
   return (
     <Container maxW="container.xl" py={8}>
       <Box bg="white" borderRadius="lg" boxShadow="md" overflow="hidden">
-        {/* Profile Header */}
+        {/* Profile Header with Moroccan Theme */}
         <Flex 
-          bg="teal.500" 
+          bg="linear-gradient(to right, brand.primary, brand.dark)" 
           color="white" 
           p={6} 
           direction={{ base: 'column', md: 'row' }}
           align="center"
+          position="relative"
+          overflow="hidden"
         >
+          {/* Decorative Moroccan Pattern Elements */}
+          <Box
+            position="absolute"
+            top="-10%"
+            left="-5%"
+            w="25%"
+            h="50%"
+            borderRadius="full"
+            bg="rgba(255,255,255,0.08)"
+            zIndex="0"
+          />
+          <Box
+            position="absolute"
+            bottom="-10%"
+            right="-5%"
+            w="35%"
+            h="70%"
+            borderRadius="full"
+            bg="rgba(255,255,255,0.05)"
+            zIndex="0"
+          />
+          <Box
+            position="absolute"
+            top="30%"
+            right="30%"
+            w="15%"
+            h="30%"
+            borderRadius="full"
+            bg="rgba(255,255,255,0.07)"
+            zIndex="0"
+          />
           <Avatar 
             size="xl" 
             src={userData.profileImage} 

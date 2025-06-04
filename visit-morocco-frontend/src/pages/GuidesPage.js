@@ -27,6 +27,55 @@ import { FaSearch, FaStar, FaMapMarkerAlt, FaLanguage, FaCalendarAlt } from 'rea
 import { motion } from 'framer-motion';
 import { guideService, cityService } from '../services/api';
 
+// Helper function to get guide profile images based on specialization
+const getGuideImageBySpecialization = (specialization) => {
+  const specializationImages = {
+    'cultural': '1572102079369-df4d9f0ae9d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+    'adventure': '1530262929451-cec235c36c4c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+    'culinary': '1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    'historical': '1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80',
+    'desert': '1482690205767-61deebe15ef2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+    'photography': '1529665253569-6d01c0eaf7b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    'nature': '1480429370139-e0132c086e2a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+    'shopping': '1516914675197-3d6321e48a3b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+  };
+  
+  return specializationImages[specialization?.toLowerCase()] || getRandomGuideImage();
+};
+
+// Helper function to get guide avatar images
+const getGuideAvatarImage = (gender = 'male') => {
+  const maleAvatars = [
+    '1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+    '1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1760&q=80',
+    '1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+  ];
+  
+  const femaleAvatars = [
+    '1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80',
+    '1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1376&q=80',
+    '1531123897727-8f129e1688ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+  ];
+  
+  const avatars = gender.toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
+  const randomIndex = Math.floor(Math.random() * avatars.length);
+  return avatars[randomIndex];
+};
+
+// Helper function for random Moroccan guide cover images
+const getRandomGuideImage = () => {
+  const guideImages = [
+    '1548013146-72479768bada?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1476&q=80',
+    '1528820810855-6d5f471cbc3f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    '1539735619554-718435224a31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
+    '1489493585363-d69e7a23ef72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+    '1539647245284-d58df7c23725?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+  ];
+  
+  const randomIndex = Math.floor(Math.random() * guideImages.length);
+  return guideImages[randomIndex];
+};
+
 const MotionBox = motion(Box);
 
 const GuideCard = ({ guide }) => {
@@ -41,28 +90,43 @@ const GuideCard = ({ guide }) => {
       bg="white"
       boxShadow="md"
       _hover={{ transform: 'translateY(-5px)', boxShadow: 'lg' }}
+      position="relative"
     >
-      <Flex direction="column" height="100%">
-        <Box position="relative">
+      {/* Decorative corner accent */}
+      <Box
+        position="absolute"
+        top="-10px"
+        right="-10px"
+        width="60px"
+        height="60px"
+        borderRadius="full"
+        bg="rgba(214, 93, 14, 0.1)"
+        zIndex="0"
+      />
+      
+      <Flex direction="column" height="100%" position="relative" zIndex="1">
+        <Box position="relative" height="180px" overflow="hidden">
           <Image
             src={guide.cover_photo 
-              ? `http://localhost:8000/storage/${guide.cover_photo}` 
-              : 'https://images.unsplash.com/photo-1548013146-72479768bada?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1476&q=80'}
+              ? `https://images.unsplash.com/photo-${getGuideImageBySpecialization(guide.specializations?.[0])}` 
+              : `https://images.unsplash.com/photo-${getRandomGuideImage()}`}
             alt={`${guide.first_name} ${guide.last_name}`}
             objectFit="cover"
             h="200px"
             w="100%"
           />
-          <Avatar
-            src={guide.profile_picture ? `http://localhost:8000/storage/${guide.profile_picture}` : null}
-            name={`${guide.first_name} ${guide.last_name}`}
-            size="xl"
-            position="absolute"
-            bottom="-30px"
-            left="50%"
-            transform="translateX(-50%)"
-            border="4px solid white"
-          />
+          <Box position="absolute" bottom="-28px" left="24px">
+            <Avatar 
+              src={`https://images.unsplash.com/photo-${getGuideAvatarImage(guide.gender || 'male')}`} 
+              name={`${guide.first_name} ${guide.last_name}`} 
+              size="lg"
+              border="3px solid white"
+              boxShadow="md"
+              borderRadius="full"
+              bg="brand.primary"
+              p="2px"
+            />
+          </Box>
         </Box>
         
         <Box p={6} pt={12} flex="1">
@@ -262,17 +326,31 @@ const GuidesPage = () => {
           setGuides(mockGuides);
           setFilteredGuides(mockGuides);
           
-          // Extract unique cities from guides
-          const uniqueCities = [...new Set(
-            mockGuides.flatMap(guide => guide.cities || [])
-          )];
-          setCities(uniqueCities);
+          // Extract unique cities from guides with proper object handling
+          const uniqueCitiesMap = {};
+          mockGuides.forEach(guide => {
+            if (guide.cities && Array.isArray(guide.cities)) {
+              guide.cities.forEach(city => {
+                if (city && city.city_id) {
+                  uniqueCitiesMap[city.city_id] = city;
+                }
+              });
+            }
+          });
+          setCities(Object.values(uniqueCitiesMap));
           
           // Extract unique specialties from guides
-          const uniqueSpecialties = [...new Set(
-            mockGuides.flatMap(guide => guide.specialties || [])
-          )];
-          setSpecialties(uniqueSpecialties);
+          const specialtiesSet = new Set();
+          mockGuides.forEach(guide => {
+            if (guide.specialties && Array.isArray(guide.specialties)) {
+              guide.specialties.forEach(specialty => {
+                if (specialty) {
+                  specialtiesSet.add(specialty);
+                }
+              });
+            }
+          });
+          setSpecialties(Array.from(specialtiesSet));
           
           setLoading(false);
         }, 1000);
@@ -292,43 +370,59 @@ const GuidesPage = () => {
 
   useEffect(() => {
     // Apply filters whenever filter criteria change
-    let results = guides;
+    // Ensure guides is an array with defensive check
+    if (!Array.isArray(guides)) {
+      console.error('Guides is not an array:', guides);
+      return; // Exit early if guides is not an array
+    }
+    
+    let results = [...guides]; // Create a copy to avoid mutation
     
     // Apply search term filter
-    if (searchTerm) {
+    if (searchTerm && searchTerm.trim() !== '') {
       results = results.filter(guide => 
-        `${guide.first_name} ${guide.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (guide.bio && guide.bio.toLowerCase().includes(searchTerm.toLowerCase()))
+        (guide.first_name && guide.last_name && 
+          `${guide.first_name} ${guide.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (guide.bio && typeof guide.bio === 'string' && 
+          guide.bio.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
     // Apply city filter
-    if (selectedCity) {
+    if (selectedCity && selectedCity.trim() !== '') {
       results = results.filter(guide => 
-        guide.cities && guide.cities.some(city => city.city_id === parseInt(selectedCity))
+        guide.cities && Array.isArray(guide.cities) && 
+        guide.cities.some(city => city && city.city_id === parseInt(selectedCity))
       );
     }
     
     // Apply specialty filter
-    if (selectedSpecialty) {
+    if (selectedSpecialty && selectedSpecialty.trim() !== '') {
       results = results.filter(guide => 
-        guide.specialties && guide.specialties.includes(selectedSpecialty)
+        guide.specialties && Array.isArray(guide.specialties) && 
+        guide.specialties.includes(selectedSpecialty)
       );
     }
     
-    // Apply sorting
-    results = [...results].sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
-        case 'rating':
-          return (b.avg_rating || 0) - (a.avg_rating || 0);
-        case 'reviews':
-          return (b.reviews_count || 0) - (a.reviews_count || 0);
-        default:
-          return 0;
-      }
-    });
+    // Apply sorting - ensure results is still an array
+    if (Array.isArray(results) && results.length > 0) {
+      results.sort((a, b) => {
+        if (!a || !b) return 0;
+        
+        switch (sortBy) {
+          case 'name':
+            return `${a.first_name || ''} ${a.last_name || ''}`.localeCompare(
+              `${b.first_name || ''} ${b.last_name || ''}`
+            );
+          case 'rating':
+            return (b.avg_rating || 0) - (a.avg_rating || 0);
+          case 'reviews':
+            return (b.reviews_count || 0) - (a.reviews_count || 0);
+          default:
+            return 0;
+        }
+      });
+    }
     
     setFilteredGuides(results);
   }, [guides, searchTerm, selectedCity, selectedSpecialty, sortBy]);
@@ -367,12 +461,71 @@ const GuidesPage = () => {
   }
 
   return (
-    <Box py={10}>
-      <Container maxW="container.xl">
-        <Heading as="h1" mb={2}>Professional Local Guides</Heading>
-        <Text mb={8} color="gray.600">
-          Connect with experienced guides for authentic Moroccan experiences
-        </Text>
+    <Box py={10} position="relative">
+      {/* Decorative background elements */}
+      <Box
+        position="absolute"
+        top="-50px"
+        left="-20px"
+        width="150px"
+        height="150px"
+        borderRadius="full"
+        bg="rgba(214, 93, 14, 0.1)"
+        zIndex="0"
+      />
+      <Box
+        position="absolute"
+        top="30px"
+        right="-30px"
+        width="200px"
+        height="200px"
+        borderRadius="full"
+        bg="rgba(26, 104, 59, 0.08)"
+        zIndex="0"
+      />
+      
+      <Container maxW="container.xl" position="relative" zIndex="1">
+        {/* Hero section with Moroccan styling */}
+        <Box 
+          mb={10}
+          py={8}
+          px={6}
+          borderRadius="xl"
+          bgGradient="linear(to-r, rgba(255,255,255,0.8), rgba(255,255,255,0.9), rgba(255,255,255,0.8))"
+          boxShadow="sm"
+          position="relative"
+          overflow="hidden"
+        >
+          <Box 
+            position="absolute" 
+            top="0" 
+            left="0" 
+            right="0" 
+            height="4px" 
+            bgGradient="linear(to-r, brand.primary, brand.accent)" 
+          />
+          
+          <Heading 
+            as="h1" 
+            size="2xl" 
+            mb={4} 
+            color="brand.primary" 
+            textShadow="0 1px 2px rgba(0,0,0,0.1)"
+            textAlign="center"
+          >
+            Professional Local Guides
+          </Heading>
+          <Text 
+            fontSize="lg" 
+            mb={4} 
+            maxW="container.md" 
+            mx="auto" 
+            textAlign="center"
+            color="gray.700"
+          >
+            Connect with experienced guides for authentic Moroccan experiences and unforgettable journeys across the kingdom
+          </Text>
+        </Box>
         
         {/* Filters */}
         <Box
@@ -381,6 +534,22 @@ const GuidesPage = () => {
           borderRadius="lg"
           boxShadow="md"
           mb={8}
+          position="relative"
+          overflow="hidden"
+          borderLeft="3px solid"
+          borderColor="brand.accent"
+          _before={{
+            content: '""',
+            position: 'absolute',
+            top: '0',
+            right: '0',
+            width: '40px',
+            height: '40px',
+            borderRadius: 'full',
+            bg: 'rgba(214, 93, 14, 0.08)',
+            transform: 'translate(50%, -50%)',
+            zIndex: '0'
+          }}
         >
           <Stack
             direction={{ base: 'column', md: 'row' }}
@@ -432,11 +601,15 @@ const GuidesPage = () => {
             </Select>
           </Stack>
           
-          <Flex justify="flex-end">
+          <Flex justify="flex-end" position="relative" zIndex="1">
             <Button
-              colorScheme="gray"
+              colorScheme="brand"
               variant="outline"
               onClick={handleReset}
+              borderColor="brand.accent"
+              color="brand.accent"
+              _hover={{ bg: 'rgba(214, 93, 14, 0.1)' }}
+              boxShadow="sm"
             >
               Reset Filters
             </Button>
@@ -444,55 +617,135 @@ const GuidesPage = () => {
         </Box>
         
         {/* Results */}
-        {filteredGuides.length === 0 ? (
-          <Box textAlign="center" py={10}>
-            <Text fontSize="lg">No guides found matching your criteria.</Text>
-            <Button
-              mt={4}
-              colorScheme="green"
-              onClick={handleReset}
-            >
-              Clear Filters
-            </Button>
-          </Box>
-        ) : (
-          <>
-            <Text mb={4}>
-              Showing {filteredGuides.length} {filteredGuides.length === 1 ? 'guide' : 'guides'}
-            </Text>
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-              {filteredGuides.map((guide) => (
-                <GuideCard key={guide.guide_id} guide={guide} />
-              ))}
-            </SimpleGrid>
-          </>
-        )}
+        <Box 
+          position="relative" 
+          borderRadius="lg"
+          p={6}
+          bg="rgba(255,255,255,0.5)"
+          boxShadow="sm"
+        >
+          {/* Subtle decorative element */}
+          <Box 
+            position="absolute" 
+            bottom="-10px" 
+            right="-10px" 
+            width="120px" 
+            height="120px" 
+            borderRadius="full" 
+            bg="rgba(26, 104, 59, 0.05)" 
+            zIndex="0"
+          />
+          
+          {filteredGuides.length === 0 ? (
+            <Box textAlign="center" py={10} position="relative" zIndex="1">
+              <Text fontSize="lg" color="gray.600">No guides found matching your criteria.</Text>
+              <Button
+                mt={4}
+                colorScheme="brand"
+                onClick={handleReset}
+                bg="brand.primary"
+                _hover={{ bg: 'brand.dark' }}
+                boxShadow="md"
+              >
+                Clear Filters
+              </Button>
+            </Box>
+          ) : (
+            <Box position="relative" zIndex="1">
+              <Text mb={6} fontWeight="medium" color="brand.primary" borderBottom="1px solid" borderColor="gray.200" pb={2}>
+                Showing {filteredGuides.length} {filteredGuides.length === 1 ? 'guide' : 'guides'}
+              </Text>
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+                {filteredGuides.map((guide) => (
+                  <GuideCard key={guide.guide_id} guide={guide} />
+                ))}
+              </SimpleGrid>
+            </Box>
+          )}
+        </Box>
         
         {/* Become a Guide CTA */}
         <Box
           mt={16}
           p={8}
-          borderRadius="lg"
-          bg="brand.primary"
-          color="white"
+          borderRadius="xl"
+          position="relative"
+          overflow="hidden"
+          boxShadow="lg"
           textAlign="center"
         >
-          <Heading as="h3" size="lg" mb={4}>
-            Are You a Local Guide?
-          </Heading>
-          <Text fontSize="lg" mb={6}>
-            Join our platform to connect with tourists from around the world and share your knowledge of Morocco.
-          </Text>
-          <Button
-            as={RouterLink}
-            to="/register?role=guide"
-            size="lg"
-            colorScheme="white"
-            variant="outline"
-            _hover={{ bg: 'rgba(255,255,255,0.2)' }}
-          >
-            Become a Guide
-          </Button>
+          {/* Background with gradient */}
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bgGradient="linear(to-br, brand.primary, brand.dark)"
+            opacity="0.95"
+            zIndex="0"
+          />
+          
+          {/* Decorative patterns */}
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            backgroundImage="url('https://www.transparenttextures.com/patterns/moroccan-tile.png')"
+            opacity="0.15"
+            zIndex="1"
+          />
+          
+          {/* Corner accent elements */}
+          <Box
+            position="absolute"
+            top="-20px"
+            right="-20px"
+            width="90px"
+            height="90px"
+            borderRadius="full"
+            bg="brand.accent"
+            opacity="0.2"
+            zIndex="1"
+          />
+          <Box
+            position="absolute"
+            bottom="-30px"
+            left="-30px"
+            width="120px"
+            height="120px"
+            borderRadius="full"
+            bg="brand.accent"
+            opacity="0.2"
+            zIndex="1"
+          />
+          
+          {/* Content */}
+          <Box position="relative" zIndex="2" color="white">
+            <Heading as="h3" size="lg" mb={4} textShadow="0 2px 4px rgba(0,0,0,0.3)">
+              Are You a Local Guide?
+            </Heading>
+            <Text fontSize="lg" mb={6} maxW="container.md" mx="auto">
+              Join our platform to connect with tourists from around the world and share your knowledge of Morocco.
+              Become part of our community and showcase the authentic beauty of your homeland.
+            </Text>
+            <Button
+              as={RouterLink}
+              to="/register?role=guide"
+              size="lg"
+              colorScheme="white"
+              variant="outline"
+              _hover={{ bg: 'rgba(255,255,255,0.2)' }}
+              boxShadow="0 4px 8px rgba(0,0,0,0.2)"
+              borderWidth="2px"
+              py={6}
+              px={8}
+            >
+              Become a Guide
+            </Button>
+          </Box>
         </Box>
       </Container>
     </Box>
