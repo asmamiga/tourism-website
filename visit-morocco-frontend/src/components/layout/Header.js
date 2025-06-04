@@ -223,22 +223,29 @@ const DesktopNav = ({ scrolled, isHomePage }) => {
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <Stack direction={'row'} spacing={4}>
+    <Stack direction={'row'} spacing={4} align="center">
       {NAV_ITEMS.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
             <PopoverTrigger>
               <Link
-                as={RouterLink}
-                p={2}
-                to={navItem.href ?? '#'}
+                as={navItem.isExternal ? 'a' : RouterLink}
+                p={navItem.isHighlighted ? '8px 16px' : 2}
+                href={navItem.isExternal ? navItem.href : undefined}
+                to={!navItem.isExternal ? (navItem.href || '#') : undefined}
+                target={navItem.isExternal ? '_blank' : undefined}
+                rel={navItem.isExternal ? 'noopener noreferrer' : undefined}
                 fontSize={'sm'}
                 fontWeight={500}
-                color={linkColor}
+                bg={navItem.isHighlighted ? 'brand.500' : 'transparent'}
+                color={navItem.isHighlighted ? 'white' : linkColor}
+                borderRadius="md"
                 _hover={{
                   textDecoration: 'none',
-                  color: linkHoverColor,
+                  bg: navItem.isHighlighted ? 'brand.600' : 'transparent',
+                  color: navItem.isHighlighted ? 'white' : linkHoverColor,
                 }}
+                transition="all 0.2s"
               >
                 {navItem.label}
                 {navItem.children && (
@@ -247,6 +254,8 @@ const DesktopNav = ({ scrolled, isHomePage }) => {
                     transition={'all .25s ease-in-out'}
                     w={4}
                     h={4}
+                    ml={1}
+                    color={navItem.isHighlighted ? 'white' : 'inherit'}
                   />
                 )}
               </Link>
@@ -332,30 +341,47 @@ const MobileNav = () => {
       display={{ md: 'none' }}
     >
       {NAV_ITEMS.map((navItem) => (
-        <MobileNavItem key={navItem.label} {...navItem} />
+        <MobileNavItem 
+          key={navItem.label} 
+          label={navItem.label}
+          href={navItem.href}
+          children={navItem.children}
+          isHighlighted={navItem.isHighlighted}
+          isExternal={navItem.isExternal}
+        />
       ))}
     </Stack>
   );
 };
 
-const MobileNavItem = ({ label, children, href }) => {
+const MobileNavItem = ({ label, children, href, isHighlighted = false, isExternal = false }) => {
   const { isOpen, onToggle } = useDisclosure();
+  const textColor = useColorModeValue('gray.600', 'gray.200');
 
   return (
     <Stack spacing={4} onClick={children && onToggle}>
       <Flex
-        py={2}
-        as={RouterLink}
-        to={href ?? '#'}
+        as={isExternal ? 'a' : RouterLink}
+        to={!isExternal ? (href || '#') : undefined}
+        href={isExternal ? href : undefined}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
         justify={'space-between'}
         align={'center'}
+        bg={isHighlighted ? 'brand.500' : 'transparent'}
+        color={isHighlighted ? 'white' : 'inherit'}
+        px={4}
+        py={3}
+        borderRadius="md"
         _hover={{
           textDecoration: 'none',
+          bg: isHighlighted ? 'brand.600' : 'gray.100',
         }}
+        transition="all 0.2s"
       >
         <Text
           fontWeight={600}
-          color={useColorModeValue('gray.600', 'gray.200')}
+          color={isHighlighted ? 'white' : textColor}
         >
           {label}
         </Text>
@@ -439,6 +465,14 @@ const NAV_ITEMS = [
         href: '/community-forum',
       },
     ],
+  },
+  {
+    label: 'Flights',
+    href: 'http://localhost:3001', // Points to the completely separate flight booking website
+    isHighlighted: true,
+    isExternal: true,
+    target: '_blank',
+    rel: 'noopener noreferrer'
   },
 ];
 

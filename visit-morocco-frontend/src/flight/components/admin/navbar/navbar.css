@@ -1,0 +1,128 @@
+/* Variables & Theme Setup */
+:root {
+  --transition-speed: 0.3s;
+  --border-radius: 6px;
+  --spacing-unit: 0.5rem;
+}
+
+.navbar {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color var(--transition-speed);
+}
+
+.navbar-dark {
+  --navbar-bg: #1a1a1a;
+  --text-color: #ffffff;
+  --hover-color: #4dabf7;
+  --border-color: #404040;
+}
+
+.navbar-light {
+  --navbar-bg: #ffffff;
+  --text-color: #333333;
+  --hover-color: #007bff;
+  --border-color: #dee2e6;
+}
+
+/* Base Navbar Styles */
+.navbar {
+  padding: 1rem 2rem;
+  background-color: var(--navbar-bg);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.7rem;
+  color: var(--text-color) !important;
+  transition: color var(--transition-speed);
+  
+  img {
+    height: 36px;
+    margin-right: 12px;
+  }
+}
+
+.navbar-brand:hover {
+  color: var(--hover-color) !important;
+}
+
+/* Navigation Links */
+.navbar-nav {
+  gap: 1.5rem;
+  
+  .nav-link {
+    color: var(--text-color) !important;
+    padding: 0.6rem 1rem;
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed);
+    
+    svg {
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+  }
+
+  .nav-link:hover,
+  .nav-link:focus {
+    color: var(--hover-color) !important;
+    background-color: rgba(var(--text-color-rgb), 0.1);
+  }
+}
+
+/* Special Elements */
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--text-color) !important;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: transform var(--transition-speed);
+  
+  &:hover {
+    transform: rotate(180deg);
+  }
+}
+
+.navbar-toggler {
+  border-color: var(--border-color);
+  
+  &-icon {
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(var(--text-color-rgb), 0.75)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .navbar-collapse {
+    background-color: var(--navbar-bg);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .navbar-nav {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+    gap: 1rem;
+  }
+}
+
+/* Accessibility Improvements */
+.nav-link:focus-visible {
+  outline: 2px solid var(--hover-color);
+  outline-offset: 2px;
+}
+
+/* Dark Mode Specific */
+.navbar-dark {
+  --text-color-rgb: 255, 255, 255;
+}
+
+/* Light Mode Specific */
+.navbar-light {
+  --text-color-rgb: 51, 51, 51;
+}

@@ -1,0 +1,122 @@
+.admin-container {
+  min-height: 100vh;
+  background-color: var(--admin-bg-primary);
+  color: var(--admin-text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.admin-content-wrapper {
+  display: flex;
+  min-height: calc(100vh - 56px); /* Subtract navbar height */
+}
+
+/* Add a fixed width for the sidebar space */
+.sidebar-container {
+  width: 240px; /* Adjust this to match your sidebar width */
+  flex-shrink: 0;
+}
+
+.admin-main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: var(--admin-bg-primary);
+  transition: background-color 0.3s;
+  overflow-y: auto;
+  margin-left: auto; 
+}
+
+/* Dark mode overrides for bootstrap components */
+.dark-mode .table {
+  color: var(--admin-text-primary);
+  border-color: var(--admin-border);
+}
+
+.dark-mode .table thead th {
+  background-color: var(--admin-table-header);
+  border-bottom-color: var(--admin-border);
+  color: var(--admin-text-primary);
+}
+
+.dark-mode .table td {
+  border-color: var(--admin-border);
+}
+
+.dark-mode .form-control {
+  background-color: var(--admin-input-bg);
+  border-color: var(--admin-input-border);
+  color: var(--admin-text-primary);
+}
+
+.dark-mode .form-control:focus {
+  background-color: var(--admin-input-bg);
+  border-color: var(--accent-color);
+  color: var(--admin-text-primary);
+}
+
+.dark-mode .card {
+  background-color: var(--admin-card-bg);
+  border-color: var(--admin-border);
+}
+
+.dark-mode .modal-content {
+  background-color: var(--admin-card-bg);
+  border-color: var(--admin-border);
+}
+
+.dark-mode .modal-header {
+  border-bottom-color: var(--admin-border);
+}
+
+.dark-mode .modal-footer {
+  border-top-color: var(--admin-border);
+}
+
+.dark-mode .list-group-item {
+  background-color: var(--admin-card-bg);
+  border-color: var(--admin-border);
+  color: var(--admin-text-primary);
+}
+
+.dark-mode .dropdown-menu {
+  background-color: var(--admin-card-bg);
+  border-color: var(--admin-border);
+}
+
+.dark-mode .dropdown-item {
+  color: var(--admin-text-primary);
+}
+
+.dark-mode .dropdown-item:hover {
+  background-color: var(--admin-hover-bg);
+}
+
+/* Scrollbar styling for dark mode */
+.dark-mode ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+  background: var(--admin-bg-secondary);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: var(--admin-border);
+  border-radius: 4px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-text-secondary);
+}
+
+/* Fix for the fixed sidebar */
+@media (max-width: 768px) {
+  .admin-main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  
+  .sidebar {
+    display: none; /* Hide sidebar on mobile or add a mobile menu toggle */
+  }
+}

@@ -1,0 +1,341 @@
+/* Color variables */
+:root {
+    --primary: #2563eb;
+    --primary-light: rgba(37, 99, 235, 0.1);
+    --secondary: #0891b2;
+    --secondary-light: rgba(8, 145, 178, 0.1);
+    --success: #059669;
+    --success-light: rgba(5, 150, 105, 0.1);
+    --warning: #d97706;
+    --warning-light: rgba(217, 119, 6, 0.1);
+    --danger: #dc2626;
+    --danger-light: rgba(220, 38, 38, 0.1);
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+  }
+  
+  /* Main container styles */
+  .flight-details-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+  }
+  
+  .flight-details-container {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 48rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  /* Enhanced scrollbar styling */
+  .flight-details-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .flight-details-container::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 6px;
+  }
+  
+  .flight-details-container::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 6px;
+    transition: background-color 0.2s;
+  }
+  
+  .flight-details-container::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+  }
+  
+  /* Header section */
+  .flight-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  
+  .flight-details-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -0.025em;
+  }
+  
+  .flight-details-close-button {
+    padding: 0.5rem;
+    border-radius: 9999px; /* Fully rounded corners */
+    color: var(--gray-500); /* Default color */
+    background-color: transparent; /* Transparent background */
+    border: none; /* Remove default border */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out; /* Smooth transition for hover effects */
+  }
+  
+  .flight-details-close-button:hover {
+    background-color: var(--gray-100); /* Light gray background on hover */
+    color: var(--gray-900); /* Darker color on hover */
+    transform: scale(1.1); /* Slightly enlarge on hover */
+  }
+  
+  .flight-details-close-button:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 2px var(--primary-light); /* Add a subtle focus ring */
+  }
+  
+  /* Section styling */
+  .flight-details-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* Info rows */
+  .info-row {
+    display: flex;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .info-row:hover {
+    background-color: var(--gray-50);
+  }
+  
+  .info-label {
+    font-weight: 600;
+    color: var(--gray-600);
+    width: 160px;
+    flex-shrink: 0;
+  }
+  
+  .info-value {
+    color: var(--gray-800);
+    flex-grow: 1;
+  }
+  
+  /* Cards */
+  .segment-card, .class-card {
+    background-color: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .segment-card:hover, .class-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+  }
+  
+  .segment-header, .class-type {
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-light);
+  }
+  
+  /* Facilities list */
+  .facilities-list {
+    list-style: none;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+  
+  .facilities-list li {
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  
+  .facilities-list li::before {
+    content: "•";
+    color: var(--primary);
+    position: absolute;
+    left: 0;
+  }
+  
+  /* Status indicators */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .status-badge.confirmed {
+    background-color: var(--success-light);
+    color: var(--success);
+  }
+  
+  .status-badge.pending {
+    background-color: var(--warning-light);
+    color: var(--warning);
+  }
+  
+  /* Loading and error states */
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: var(--primary);
+  }
+  
+  .error-message {
+    color: var(--danger);
+    text-align: center;
+    padding: 1.25rem;
+    background-color: var(--danger-light);
+    border-radius: 0.75rem;
+    margin: 1.5rem 0;
+    font-weight: 500;
+  }
+  
+  /* Enhanced animations */
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  .flight-details-container {
+    animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Responsive design improvements */
+  @media (max-width: 640px) {
+    .flight-details-container {
+      padding: 1.5rem;
+      margin: 0.75rem;
+      border-radius: 0.75rem;
+    }
+  
+    .info-row {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .info-label {
+      width: 100%;
+    }
+  
+    .section-title {
+      font-size: 1.125rem;
+    }
+  
+    .flight-details-title {
+      font-size: 1.25rem;
+    }
+  }
+
+  .dark-mode .flight-details-container {
+    background-color: #2d2d2d;
+    color: #e5e7eb !important;
+  }
+  .dark-mode .flight-details-header h2{
+    color: #e5e7eb !important;
+  }
+  .dark-mode .flight-details-close-button {
+    color: #e5e7eb !important;
+  }
+  .dark-mode .flight-details-close-button:hover {
+    color: #e5e7eb !important;
+    background-color: #e5e7eb4d !important;
+    border-radius: 6px !important;
+  }
+
+  .dark-mode .info-row:hover {
+    color: #e5e7eb !important;
+    background-color: #e5e7eb4d !important;
+    border-radius: 6px !important;
+  }
+  .dark-mode .section-title {
+    color: #e5e7eb !important;
+  }
+  .dark-mode .info-label {
+    color: #e5e7eb !important;
+  }
+  .dark-mode .info-value {
+    color: #e5e7eb !important;
+  }
+  .dark-mode .segment-card, .dark-mode .class-card {
+    background-color: #2d2d2d;
+    color: #e5e7eb !important;
+  }
+  .dark-mode .segment-card:hover, .dark-mode .class-card:hover {
+    background-color: #2d2d2d !important;
+    color: #e5e7eb !important;
+  }
+
+  .dark-mode .segment-header, .dark-mode .class-type {
+    color: #e5e7eb !important;
+    background-color: #2d2d2d !important;
+  }
+  .dark-mode .segment-header:hover, .dark-mode .class-type:hover {
+    color: #e5e7eb !important;
+    background: #2d2d2d !important;
+  }
+
+  .dark-mode .facilities-list li {
+    color: #e5e7eb !important;
+  }
+  
+  .dark-mode .status-badge {
+    color: #e5e7eb !important;
+  }
+  .dark-mode .error-message {
+    color: #e5e7eb !important;
+  }
+  .dark-mode .light-details-overlay {
+    color: #e5e7eb !important;
+    background-color: #2d2d2d !important;
+  }

@@ -1,0 +1,111 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #333333;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --accent-color: #007bff;
+  --accent-hover: #0056b3;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --navbar-bg: #ffffff;
+  --shadow: rgba(0, 0, 0, 0.1);
+  
+  /* List component specific variables */
+  --table-header-bg: #f8f9fa;
+  --table-hover-bg: #f5f5f5;
+  --table-border: #dee2e6;
+  --placeholder-color: #6c757d;
+  --disabled-bg: #e9ecef;
+  --disabled-text: #6c757d;
+  --error-text: #dc3545;
+}
+
+.dark-mode {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --border-color: #404040;
+  --accent-color: #4dabf7;
+  --accent-hover: #339af0;
+  --card-bg: #2d2d2d;
+  --input-bg: #333333;
+  --input-border: #404040;
+  --navbar-bg: #2d2d2d;
+  --shadow: rgba(0, 0, 0, 0.3);
+
+  /* List component specific dark mode variables */
+  --dark-bg: #1a1a1a;
+  --dark-secondary-bg: #2d2d2d;
+  --dark-text: #e5e7eb;
+  --dark-border: #404040;
+  --dark-header-bg: #262626;
+  --dark-hover-bg: #363636;
+  --dark-primary: #4dabf7;
+  --dark-primary-rgb: 77, 171, 247;
+  --dark-placeholder: #6c757d;
+  --dark-disabled-bg: #262626;
+  --dark-disabled-text: #666666;
+  --dark-error-text: #ff5a47;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.theme-toggle:hover {
+  opacity: 0.8;
+}
+
+/* Apply theme to common elements */
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+input, select, textarea {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+
+button {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+button:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Navigation */
+nav {
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Links */
+a {
+  color: var(--accent-color);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}

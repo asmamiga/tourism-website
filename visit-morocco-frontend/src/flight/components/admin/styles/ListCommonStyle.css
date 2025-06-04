@@ -1,0 +1,287 @@
+/* Main container */
+.component-list-container {
+    padding: 1.5rem;
+    background-color: #f9fafb; /* Light gray background */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the content horizontally */
+    min-height: 100vh; /* Take full height of the viewport */
+    width: 100%; /* Ensure the container takes full width */
+    transition: background-color 0.3s;
+}
+
+/* Dark mode overrides */
+.dark-mode .component-list-container {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+/* Header section */
+.component-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 1200px; /* Adjust this value as needed */
+}
+
+.component-list-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937; /* Dark gray text */
+}
+
+.dark-mode .component-list-header h1 {
+    color: var(--dark-text);
+}
+
+/* Header actions (Add component and Delete Selected buttons) */
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.add-component-button,
+.delete-selected-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.125rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.add-component-button {
+    background-color: rgba(0, 182, 155, 0.4); /* Blue background */
+    color: #00B69B;
+}
+
+.add-component-button:hover {
+    background-color: rgb(0, 182, 155);
+    color: white; /* Darker blue on hover */
+}
+
+.delete-selected-button {
+    background-color: rgba(239, 56, 38, 0.3); /* Red background */
+    color: #EF3826;
+}
+
+.delete-selected-button:hover {
+    background-color: #dc2626; /* Darker red on hover */
+    color: white;
+}
+
+.component-table-container {
+    width: 100%;
+    margin: 0 1rem;
+    overflow-x: auto;
+    background-color: white;
+    border-radius: 0.5rem; /* Rounded corners */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 1rem;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.dark-mode .component-table-container {
+    background-color: var(--dark-secondary-bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Table styling */
+.component-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+}
+
+.component-table th,
+.component-table td {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    color: #374151; /* Dark gray text */
+    border-bottom: 1px solid #e5e7eb; /* Light border between rows */
+}
+
+.dark-mode .component-table th,
+.dark-mode .component-table td {
+    color: var(--dark-text);
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.component-table th {
+    font-weight: 600;
+    background-color: #f9fafb; /* Light gray header background */
+    color: #6b7280; /* Gray text for headers */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dark-mode .component-table th {
+    background-color: var(--dark-header-bg);
+    color: var(--dark-text);
+}
+
+.component-table tbody tr:hover {
+    background-color: #f3f4f6; /* Light gray background on hover */
+}
+
+.dark-mode .component-table tbody tr:hover {
+    background-color: var(--dark-hover-bg);
+}
+
+.component-table th:first-child,
+.component-table td:first-child {
+    width: 40px; /* Fixed width for checkbox column */
+    text-align: center;
+}
+
+.component-table input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.component-table th:last-child,
+.component-table td:last-child {
+    width: 1%;
+    white-space: nowrap;
+    padding-right: 1rem;
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.action-buttons .edit-button,
+.action-buttons .delete-button,
+.action-buttons .details-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 4px !important;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.action-buttons .edit-button {
+    background-color: rgba(90, 140, 255, 0.3); /* Blue background */
+    color: #5A8CFF;
+    font: 15px sans-serif;
+}
+
+.action-buttons .edit-button span {
+    margin-left: 0.4rem;
+}
+
+.action-buttons .edit-button:hover {
+    background-color: rgba(90, 140, 255, 0.5); /* Darker blue on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+.action-buttons .delete-button {
+    background-color: rgba(239, 56, 38, 0.3); /* Red background */
+    color: #EF3826;
+    font: 15px sans-serif;
+}
+
+.action-buttons .delete-button span {
+    margin-left: 0.4rem;
+}
+
+.action-buttons .delete-button:hover {
+    background-color: rgba(239, 56, 38, 0.5); /* Darker red on hover */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+.action-buttons .details-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background-color: rgba(253, 154, 86, 0.3);
+    color: #FD9A56;
+    border-radius: 0;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.action-buttons .details-button:hover {
+    background-color: rgba(253, 154, 86, 0.5);
+    transform: scale(1.05);
+}
+
+/* Dark mode for buttons */
+.dark-mode .action-buttons .edit-button {
+    background-color: rgba(90, 140, 255, 0.2);
+    color: #7aa3ff;
+}
+
+.dark-mode .action-buttons .delete-button {
+    background-color: rgba(239, 56, 38, 0.2);
+    color: #ff5a47;
+}
+
+.dark-mode .action-buttons .details-button {
+    background-color: rgba(253, 154, 86, 0.2);
+    color: #ffb380;
+}
+
+/* Loading and error messages */
+.loading-message,
+.error-message {
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280; /* Gray text */
+}
+
+.dark-mode .loading-message {
+    color: var(--dark-text);
+}
+
+.error-message {
+    color: #EF3826; /* Red text for errors */
+}
+
+.dark-mode .error-message {
+    color: var(--dark-error-text);
+}
+
+.content-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+/* Add blur effect when details are shown */
+.blur-background {
+    filter: blur(4px);
+    pointer-events: none;
+    user-select: none;
+    transition: filter 0.3s ease;
+}
+
+.table-container {
+    position: relative;
+    width: 100%;
+    transition: filter 0.3s ease;
+} 
+

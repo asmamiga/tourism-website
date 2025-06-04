@@ -1,0 +1,129 @@
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.75rem 0;
+  font-size: 0.875rem;
+}
+
+.pagination-info {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-arrow:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.pagination-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-number:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.pagination-number.active {
+  background-color: #00b69b;
+  border-color: #00b69b;
+  color: white;
+}
+
+.pagination-ellipsis {
+  width: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.pagination-per-page {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+}
+
+.items-per-page-select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  color: #374151;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.dark-mode .pagination-info,
+.dark-mode .pagination-ellipsis,
+.dark-mode .pagination-per-page {
+  color: #a1a1aa;
+}
+
+.dark-mode .pagination-arrow,
+.dark-mode .pagination-number {
+  background-color: var(--dark-secondary-bg);
+  border-color: var(--dark-border);
+  color: #a1a1aa;
+}
+
+.dark-mode .pagination-arrow:hover:not(:disabled),
+.dark-mode .pagination-number:hover {
+  background-color: var(--dark-hover-bg);
+  color: var(--dark-text);
+}
+
+.dark-mode .pagination-number.active {
+  background-color: #00b69b;
+  border-color: #00b69b;
+  color: white;
+}
+
+.dark-mode .items-per-page-select {
+  background-color: var(--dark-secondary-bg);
+  border-color: var(--dark-border);
+  color: var(--dark-text);
+}

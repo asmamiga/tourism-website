@@ -1,0 +1,16 @@
+.generate-button {
+    color: hwb(285 34% 1%);
+    background-color: rgba(212, 86, 253, 0.3);
+    border: 1px solid #D456FD;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    font-size: 20px;
+    margin: 15px;
+  }
+  
+  .generate-button:hover {
+    background-color: rgba(212, 86, 253, 0.4);
+    color: #D456FD;   
+  }
