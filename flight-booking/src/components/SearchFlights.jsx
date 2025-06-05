@@ -144,19 +144,18 @@ const SearchFlights = ({ searchParams, onClose, airports }) => {
         }
         
         // Handle storage links properly
+        // Make sure we don't have double slashes
         const baseUrl = 'http://127.0.0.1:8000';
         
-        // Remove any leading slashes from the URL to prevent double slashes
-        url = url.replace(/^\/+/, '');
-        
-        // Ensure the URL has the correct storage path
-        if (!url.startsWith('storage/')) {
+        // Ensure the URL has the correct storage prefix
+        if (!url.startsWith('storage/') && !url.startsWith('/storage/')) {
             // Add storage/ prefix if missing
             url = 'storage/' + url;
         }
         
-        // Construct the full URL
-        return `${baseUrl}/${url}`;
+        // Normalize the URL to avoid any issues with double slashes
+        url = url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+        return url;
     };
 
     const calculateDuration = (departure, arrival) => {

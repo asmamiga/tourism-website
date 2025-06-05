@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\{
     AdminController,
+    AdminAuthController,
     AirlineController,
     AirportController,
     FacilityController,
@@ -45,6 +46,7 @@ Route::prefix('cloud-tickets')->group(function () {
 
     // Auth routes
     Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/admin/login', [AdminController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // API Resources

@@ -22,13 +22,31 @@ class DatabaseSeeder extends Seeder
 
         // Run seeders in correct order
         $this->call([
+            // Core system seeders
             AdminUserSeeder::class,
             AdminSeeder::class,
+            
+            // Flight related seeders
             AirlineSeeder::class,
             AirportSeeder::class,
             FacilitySeeder::class,
-            PromoCodeSeeder::class,
             FlightSeeder::class,
+            PromoCodeSeeder::class,
+            
+            // Tourism module seeders
+            RegionSeeder::class,
+            CitySeeder::class,
+            BusinessCategorySeeder::class,
+            AppUserSeeder::class,
+            BusinessOwnerSeeder::class,
+            GuideSeeder::class,
+            BusinessSeeder::class,
+            BusinessPhotoSeeder::class,
+            GuideServiceSeeder::class,
+            GuideServicePhotoSeeder::class,
+            GuideAvailabilitySeeder::class,
+            BusinessBookingSeeder::class,
+            GuideBookingSeeder::class,
         ]);
     }
 }

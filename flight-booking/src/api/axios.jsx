@@ -1,9 +1,10 @@
 import axios from "axios";
 
 const axiosApi = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/cloud-tickets", // Updated to include /cloud-tickets prefix
+    baseURL: "http://127.0.0.1:8000/api/cloud-tickets", // Base URL for all requests
     headers: {
         "Content-Type": "application/json",
+        "Accept": "application/json",
     },
 });
 

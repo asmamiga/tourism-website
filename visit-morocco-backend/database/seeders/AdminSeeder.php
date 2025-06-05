@@ -14,12 +14,12 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'Super Admin',
                 'email' => 'admin@flightapp.com',
-                'password' => Hash::make('admin123'),
+                'password' => Hash::make('Admin@1234'),
             ],
             [
                 'name' => 'Flight Manager',
                 'email' => 'manager@flightapp.com',
-                'password' => Hash::make('manager123'),
+                'password' => Hash::make('Manager@1234'),
             ]
         ];
 

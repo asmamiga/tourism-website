@@ -468,12 +468,12 @@ const NAV_ITEMS = [
   },
   {
     label: 'Flights',
-    href: 'http://localhost:3001', // Points to the completely separate flight booking website
+    href: 'http://localhost:3001',
     isHighlighted: true,
     isExternal: true,
     target: '_blank',
     rel: 'noopener noreferrer'
-  },
+  }
 ];
 
 // For responsive design

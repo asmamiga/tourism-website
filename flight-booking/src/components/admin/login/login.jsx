@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import axiosApi from '../../../api/axios';
 import { Plane } from 'lucide-react';
 import './login.css'; // Renamed CSS file
@@ -29,17 +30,38 @@ const Login = ({ onLogin }) => {
       setError('Please enter both email and password');
       return;
     }
+    
+    console.log('Attempting login with:', credentials);
+    
     try {
-      const data = await axiosApi.post('/auth/login', credentials);
+      console.log('Sending request to:', '/auth/admin/login');
+      
+      // Use a separate axios instance without the interceptor for this request
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/cloud-tickets/auth/admin/login', 
+        credentials,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          withCredentials: true
+        }
+      );
      
-      if (data && data.token) {
-        localStorage.setItem('token', data.token);
-        // Clear lastAdminPath to ensure we go to dashboard
-        localStorage.removeItem('lastAdminPath'); 
-        onLogin();
+      console.log('Login response:', response);
+      const { token, admin, message } = response.data || {};
+      
+      if (token) {
+        console.log('Login successful, token received');
+        localStorage.setItem('token', token);
+        localStorage.setItem('admin', JSON.stringify(admin || {}));
+        localStorage.removeItem('lastAdminPath');
+        if (onLogin) onLogin();
         navigate('/admin/dashboard');
       } else {
-        setError('Invalid credentials');
+        console.log('Login failed - no token in response');
+        setError(message || 'Invalid credentials');
       }
     } catch (err) {
       console.error('Login error details:', err);
