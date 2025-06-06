@@ -89,7 +89,8 @@ class Business extends Model
      */
     public function photos(): HasMany
     {
-        return $this->hasMany(BusinessPhoto::class, 'business_id', 'business_id');
+        return $this->hasMany(BusinessPhoto::class, 'business_id', 'business_id')
+            ->where('is_primary', true);
     }
 
     /**

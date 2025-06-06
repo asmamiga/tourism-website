@@ -16,10 +16,12 @@ class GuideServiceResource extends Resource
 {
     protected static ?string $model = GuideService::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-map';
-    
-    protected static ?string $navigationGroup = 'Tourism';
-    
+    protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
+    protected static ?string $navigationGroup = null;
+    protected static ?string $navigationLabel = 'Guide Services';
+    protected static ?int $navigationSort = null;
+    protected static bool $shouldRegisterNavigation = false;
+
     // Disable timestamps for this model since the database doesn't have created_at/updated_at columns
     public $timestamps = false;
     

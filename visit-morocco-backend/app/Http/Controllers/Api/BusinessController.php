@@ -341,8 +341,8 @@ class BusinessController extends Controller
                         ->update(['is_featured' => false]);
                     
                     // Then set the requested photo as featured
-                    BusinessPhoto::where('id', $request->featured_photo_id)
-                        ->where('business_id', $business->id)
+                    BusinessPhoto::where('photo_id', $request->featured_photo_id)
+                        ->where('business_id', $business->business_id)
                         ->update(['is_featured' => true]);
                 }
                 

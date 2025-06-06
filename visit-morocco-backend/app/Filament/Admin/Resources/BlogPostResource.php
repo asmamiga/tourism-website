@@ -17,8 +17,8 @@ class BlogPostResource extends Resource
     protected static ?string $model = BlogPost::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    
     protected static ?string $navigationGroup = 'Content';
+    protected static ?int $navigationSort = 2;
     
     // Always redirect to the list after creation or update
     protected static bool $shouldRedirectToListAfterCreate = true;
@@ -71,13 +71,7 @@ class BlogPostResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('author.email')
-                    ->formatStateUsing(function ($state, $record) {
-                        $author = $record->author;
-                        if ($author) {
-                            return $author->first_name . ' ' . $author->last_name;
-                        }
-                        return $state;
-                    })
+                    ->label('Author')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -85,49 +79,46 @@ class BlogPostResource extends Resource
                         'published' => 'success',
                         'draft' => 'warning',
                         'archived' => 'danger',
-                    }),
+                        default => 'gray',
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('publish_date')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('view_count')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\ImageColumn::make('featured_image'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                        'archived' => 'Archived',
-                    ]),
-                Tables\Filters\SelectFilter::make('author')
-                    ->relationship('author', 'email'),
+                //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes());
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
-
+    
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListBlogPosts::route('/'),
-            'create' => Pages\CreateBlogPost::route('/create'),
-            'edit' => Pages\EditBlogPost::route('/{record}/edit'),
+            'view' => Pages\ViewBlogPost::route('/{record}'),
         ];
     }
 }

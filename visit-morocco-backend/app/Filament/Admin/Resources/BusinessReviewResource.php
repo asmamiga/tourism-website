@@ -17,12 +17,10 @@ class BusinessReviewResource extends Resource
     protected static ?string $model = BusinessReview::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-star';
-    
-    protected static ?string $navigationGroup = 'Reviews';
-    
+    protected static ?string $navigationGroup = null;
     protected static ?string $navigationLabel = 'Business Reviews';
-    
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = null;
+    protected static bool $shouldRegisterNavigation = false;
     
     // Disable timestamps for this model since the database doesn't have created_at/updated_at columns in the standard format
     public $timestamps = false;

@@ -55,6 +55,44 @@ class AppUser extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['profile_picture_url', 'full_name'];
+
+    /**
+     * Get the URL for the user's profile picture.
+     *
+     * @return string
+     */
+    public function getProfilePictureUrlAttribute()
+    {
+        if (empty($this->profile_picture)) {
+            // Return a default avatar based on the user's name
+            $name = urlencode(trim($this->first_name . ' ' . $this->last_name));
+            return 'https://ui-avatars.com/api/?name=' . $name . '&color=7F9CF5&background=EBF4FF';
+        }
+
+        // Check if it's already a full URL
+        if (str_starts_with($this->profile_picture, 'http')) {
+            return $this->profile_picture;
+        }
+
+        // Remove any leading slashes to prevent double slashes in the URL
+        $path = ltrim($this->profile_picture, '/');
+        
+        // Check if the file exists in storage
+        if (Storage::disk('public')->exists($path)) {
+            return asset('storage/' . $path);
+        }
+
+        // If the file doesn't exist, return the default avatar
+        $name = urlencode(trim($this->first_name . ' ' . $this->last_name));
+        return 'https://ui-avatars.com/api/?name=' . $name . '&color=7F9CF5&background=EBF4FF';
+    }
+    
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>

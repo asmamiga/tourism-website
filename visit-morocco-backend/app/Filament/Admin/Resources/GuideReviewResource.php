@@ -16,13 +16,11 @@ class GuideReviewResource extends Resource
 {
     protected static ?string $model = GuideReview::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-star';
-    
-    protected static ?string $navigationGroup = 'Reviews';
-    
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static ?string $navigationGroup = null;
     protected static ?string $navigationLabel = 'Guide Reviews';
-    
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = null;
+    protected static bool $shouldRegisterNavigation = false;
     
     // Disable timestamps for this model since the database doesn't have created_at/updated_at columns in the standard format
     public $timestamps = false;
