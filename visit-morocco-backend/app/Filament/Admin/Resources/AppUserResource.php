@@ -58,53 +58,52 @@ class AppUserResource extends Resource
                             
                         Forms\Components\TextInput::make('phone')
                             ->tel()
-                            ->maxLength(20),
+                            ->telRegex('/^[0-9]{10,15}$/')
+                            ->maxLength(20)
+                            ->helperText('Enter phone number without + or country code (e.g., 1234567890)'),
                             
-                        // Simple image display with hidden profile_picture field
-                        Forms\Components\Group::make([
-                            // Hidden field to store the actual profile_picture value
-                            Forms\Components\Hidden::make('profile_picture'),
-                            
-                            // Display current image without FileUpload component
-                            Forms\Components\Section::make('Profile Picture')
-                                ->schema([
-                                    Forms\Components\Placeholder::make('current_image')
-                                        ->content(function ($record) {
-                                            if (!$record || empty($record->profile_picture)) {
-                                                return 'No profile picture';
-                                            }
-                                            
-                                            $url = asset('storage/' . $record->profile_picture);
-                                            return new \Illuminate\Support\HtmlString(
-                                                '<img src="' . $url . '" style="max-width: 200px; max-height: 200px; border-radius: 50%;" />'
-                                            );
-                                        }),
-                                        
-                                    // Separate file upload that updates the hidden field
-                                    Forms\Components\FileUpload::make('new_profile_image')
-                                        ->label('Upload New Image')
-                                        ->image()
-                                        ->disk('public')
-                                        ->directory('profile-pictures')
-                                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
-                                        ->maxSize(2048)
-                                        ->live()
-                                        ->afterStateUpdated(function ($state, callable $set) {
-                                            // Pass the correct format to profile_picture
-                                            if (!empty($state) && is_array($state)) {
-                                                // Use the full path for the profile_picture field
-                                                $set('profile_picture', 'profile-pictures/' . $state[0]);
-                                            }
-                                        })
-                                ])
-                        ])
+                        // Profile picture section
+                        Forms\Components\Section::make('Profile Picture')
+                            ->schema([
+                                // Show current image in view/edit mode
+                                Forms\Components\Placeholder::make('current_image')
+                                    ->visible(fn ($record) => $record !== null) // Only show in edit/view
+                                    ->content(function ($record) {
+                                        return new \Illuminate\Support\HtmlString(
+                                            '<div style="margin-bottom: 1rem;">' .
+                                            '<p style="margin-bottom: 0.5rem; font-weight: 500;">Current Profile Picture:</p>' .
+                                            '<img src="' . $record->profile_picture_url . '" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #e2e8f0;" />' .
+                                            '</div>'
+                                        );
+                                    }),
+                                
+                                // File upload for new/changing profile picture
+                                Forms\Components\FileUpload::make('profile_picture')
+                                    ->label(fn ($record) => $record ? 'Change Profile Picture' : 'Upload Profile Picture')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('profile-pictures')
+                                    ->visibility('public')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif'])
+                                    ->maxSize(2048)
+                                    ->required(fn (string $context): bool => $context === 'create')
+                                    ->imagePreviewHeight(150)
+                                    ->panelLayout('compact')
+                                    ->openable()
+                                    ->downloadable()
+                                    ->previewable(false)
+                                    ->getUploadedFileNameForStorageUsing(
+                                        fn (TemporaryUploadedFile $file): string => 
+                                            'user-' . uniqid() . '.' . $file->getClientOriginalExtension()
+                                    )
+                            ])
+                            ->columnSpan(1)
                     ])->columns(2),
                     
                 Forms\Components\Section::make('Account Details')
                     ->schema([
                         Forms\Components\Select::make('role')
                             ->options([
-                                'admin' => 'Admin',
                                 'business_owner' => 'Business Owner',
                                 'guide' => 'Guide',
                                 'tourist' => 'Tourist',
@@ -136,23 +135,29 @@ class AppUserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('profile_picture')
+                Tables\Columns\ImageColumn::make('profile_picture_url')
+                    ->label('Avatar')
                     ->circular()
-                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->first_name . ' ' . $record->last_name))
-                    ->label('Avatar'),
+                    ->size(40)
+                    ->grow(false)
+                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->first_name . ' ' . $record->last_name) . '&color=7F9CF5&background=EBF4FF')
+                    ->extraImgAttributes(['class' => 'border border-gray-200']),
                     
                 Tables\Columns\TextColumn::make('first_name')
+                    ->label('First Name')
                     ->searchable()
                     ->sortable(),
                     
                 Tables\Columns\TextColumn::make('last_name')
+                    ->label('Last Name')
                     ->searchable()
                     ->sortable(),
                     
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable()
-                    ->copyable(),
+                    ->copyable()
+                    ->toggleable(),
                     
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable()
@@ -160,10 +165,10 @@ class AppUserResource extends Resource
                     
                 Tables\Columns\BadgeColumn::make('role')
                     ->colors([
-                        'success' => 'admin',
-                        'warning' => 'guide',
-                        'primary' => 'business_owner',
-                        'secondary' => 'tourist',
+                        'danger' => 'admin',
+                        'rose' => 'guide',
+                        'info' => 'business_owner',
+                        'rose' => 'tourist',
                     ])
                     ->searchable()
                     ->sortable(),
@@ -186,7 +191,6 @@ class AppUserResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
                     ->options([
-                        'admin' => 'Admin',
                         'business_owner' => 'Business Owner',
                         'guide' => 'Guide',
                         'tourist' => 'Tourist',

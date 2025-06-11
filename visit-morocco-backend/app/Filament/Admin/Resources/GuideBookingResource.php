@@ -17,11 +17,8 @@ class GuideBookingResource extends Resource
     protected static ?string $model = GuideBooking::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-map';
-    
     protected static ?string $navigationGroup = 'Bookings';
-    
     protected static ?string $navigationLabel = 'Guide Bookings';
-    
     protected static ?int $navigationSort = 2;
     
     // Disable timestamps for this model since the database doesn't have created_at/updated_at columns in the standard format
@@ -36,13 +33,15 @@ class GuideBookingResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('service_id')
+                    ->label('Service')
                     ->relationship('service', 'title')
                     ->searchable()
                     ->preload()
                     ->required(),
+                    
                 Forms\Components\Select::make('guide_id')
+                    ->label('Guide')
                     ->relationship('guide', 'guide_id', function ($query) {
-                        // Join with app_users to display the guide's name
                         return $query->join('app_users', 'guides.user_id', '=', 'app_users.user_id')
                             ->select('guides.guide_id', 'app_users.first_name', 'app_users.last_name')
                             ->selectRaw("CONCAT(app_users.first_name, ' ', app_users.last_name) as full_name");
@@ -51,7 +50,9 @@ class GuideBookingResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
+                    
                 Forms\Components\Select::make('user_id')
+                    ->label('Customer')
                     ->relationship('user', 'email', function ($query) {
                         return $query->select('user_id', 'email', 'first_name', 'last_name')
                             ->selectRaw("CONCAT(first_name, ' ', last_name) as full_name");
@@ -60,17 +61,30 @@ class GuideBookingResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
+                    
                 Forms\Components\DatePicker::make('booking_date')
-                    ->required(),
+                    ->label('Booking Date')
+                    ->required()
+                    ->native(false)
+                    ->displayFormat('Y-m-d'),
+                    
                 Forms\Components\TimePicker::make('start_time')
-                    ->seconds(false),
+                    ->label('Start Time')
+                    ->seconds(false)
+                    ->required(),
+                    
                 Forms\Components\TextInput::make('num_people')
+                    ->label('Number of People')
                     ->numeric()
-                    ->suffix('people')
-                    ->nullable(),
+                    ->minValue(1)
+                    ->required()
+                    ->suffix('people'),
+                    
                 Forms\Components\Textarea::make('special_requests')
+                    ->label('Special Requests')
                     ->maxLength(65535)
                     ->columnSpanFull(),
+                    
                 Forms\Components\Select::make('status')
                     ->options([
                         'pending' => 'Pending',
@@ -79,7 +93,9 @@ class GuideBookingResource extends Resource
                         'cancelled' => 'Cancelled',
                     ])
                     ->default('pending')
-                    ->required(),
+                    ->required()
+                    ->columnSpan(1),
+                    
                 Forms\Components\Select::make('payment_status')
                     ->options([
                         'unpaid' => 'Unpaid',
@@ -87,11 +103,15 @@ class GuideBookingResource extends Resource
                         'paid' => 'Paid',
                     ])
                     ->default('unpaid')
-                    ->required(),
+                    ->required()
+                    ->columnSpan(1),
+                    
                 Forms\Components\TextInput::make('total_amount')
+                    ->label('Total Amount')
                     ->numeric()
                     ->prefix('$')
-                    ->nullable(),
+                    ->required()
+                    ->columnSpan(1),
             ]);
     }
 

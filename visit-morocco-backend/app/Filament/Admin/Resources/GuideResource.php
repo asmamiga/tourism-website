@@ -24,38 +24,36 @@ class GuideResource extends Resource
     protected static bool $shouldRedirectToListAfterSave = true;
     protected static ?string $model = Guide::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationGroup = 'Guides';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user name')
-                    ->options(function () {
-                        // Get all app users with the guide role
-                        $guideUsers = AppUser::where('role', 'guide')->get();
-                        
-                        $options = [];
-                        foreach ($guideUsers as $user) {
-                            // Check if there's already a guide record for this user
-                            $guide = Guide::where('user_id', $user->user_id)->first();
-                            
-                            if (!$guide) {
-                                // Create a guide record for this user
-                                $guide = new Guide();
-                                $guide->user_id = $user->user_id;
-                                $guide->is_available = true;
-                                $guide->is_approved = true;
-                                $guide->save();
-                            }
-                            
-                            // Now we have a guide record, so use it
-                            $options[$user->user_id] = "{$user->first_name} {$user->last_name} ({$user->email})";
-                        }
-                        
-                        return $options;
-                    })
-                    ->searchable()
+                Forms\Components\Select::make('user_id')
+                    ->label('Guide User')
+                    ->relationship('user', 'email')
+                    ->getOptionLabelFromRecordUsing(fn (AppUser $user) => "{$user->first_name} {$user->last_name} ({$user->email})")
+                    ->searchable(['first_name', 'last_name', 'email'])
+                    ->required()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('first_name')
+                            ->required()
+                            ->maxLength(100),
+                        Forms\Components\TextInput::make('last_name')
+                            ->required()
+                            ->maxLength(100),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Hidden::make('role')
+                            ->default('guide'),
+                        Forms\Components\Hidden::make('is_verified')
+                            ->default(true),
+                    ])
                     ->required(),
                 Forms\Components\Textarea::make('bio')
                     ->columnSpanFull(),

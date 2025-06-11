@@ -22,6 +22,9 @@ class BlogCommentResource extends Resource
     
     protected static ?string $navigationLabel = 'Blog Comments';
     
+    // Hide from navigation
+    protected static bool $shouldRegisterNavigation = false;
+    
     // Disable timestamps for this model since the database doesn't have created_at/updated_at columns in the standard format
     public $timestamps = false;
     

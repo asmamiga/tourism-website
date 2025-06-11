@@ -50,12 +50,14 @@ class CitySeeder extends Seeder
                 ['name' => 'Marrakesh', 'latitude' => 31.6295, 'longitude' => -7.9811],
                 ['name' => 'Safi', 'latitude' => 32.2833, 'longitude' => -9.2333],
                 ['name' => 'Essaouira', 'latitude' => 31.5131, 'longitude' => -9.7685],
+                ['name' => 'Agadir', 'latitude' => 30.4278, 'longitude' => -9.5981],
             ],
             // Drâa-Tafilalet
             'Drâa-Tafilalet' => [
                 ['name' => 'Errachidia', 'latitude' => 31.9311, 'longitude' => -4.4267],
                 ['name' => 'Ouarzazate', 'latitude' => 30.9202, 'longitude' => -6.9107],
                 ['name' => 'Zagora', 'latitude' => 30.3167, 'longitude' => -5.8333],
+                ['name' => 'Merzouga', 'latitude' => 31.0833, 'longitude' => -4.0167],
             ],
         ];
 

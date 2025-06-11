@@ -100,8 +100,8 @@ class Guide extends Model
     /**
      * Calculate the average rating for the guide.
      */
-    public function getAverageRatingAttribute()
+    public function getAverageRatingAttribute(): float
     {
-        return $this->reviews()->avg('rating') ?? 0;
+        return $this->reviews()->avg('rating') ?: 0;
     }
 }
