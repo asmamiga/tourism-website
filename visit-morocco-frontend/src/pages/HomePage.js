@@ -845,7 +845,7 @@ const HomePage = () => {
             <Destination
               name="Fes"
               image="/images/cities/fes-main.jpg"
-              description="Discover the ancient medina, traditional crafts, and rich history of Fes."
+              description="Explore the ancient medina of Fes, where vibrant souks, traditional crafts, and centuries of rich cultural heritage come together in a maze of historic alleys and stunning architecture."
               link="/attractions?city=fes"
               index={1}
             />

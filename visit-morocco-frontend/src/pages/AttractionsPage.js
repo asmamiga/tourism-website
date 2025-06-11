@@ -13,6 +13,7 @@ import {
   Badge,
   Image,
   Stack,
+  VStack,
   Icon,
   useColorModeValue,
   Spinner,
@@ -410,151 +411,192 @@ const AttractionsPage = () => {
   }
 
   return (
-    <Box py={10} position="relative" overflow="hidden">
-      {/* Decorative Elements */}
+    <Box position="relative" bg="gray.900" color="white" overflow="hidden" pb={{ base: 20, md: 32 }} pt={{ base: 32, md: 44 }}>
+      {/* Background Image */}
       <Box
         position="absolute"
-        top="5%"
-        left="-10%"
-        width="300px"
-        height="300px"
-        borderRadius="full"
-        bg="rgba(236, 201, 75, 0.15)"
-        zIndex="0"
-      />
-      <Box
-        position="absolute"
-        bottom="10%"
-        right="-5%"
-        width="250px"
-        height="250px"
-        borderRadius="full"
-        bg="rgba(214, 93, 14, 0.1)"
-        zIndex="0"
-      />
-      <Box
-        position="absolute"
-        top="30%"
-        right="10%"
-        width="150px"
-        height="150px"
-        borderRadius="full"
-        bg="rgba(26, 54, 93, 0.08)"
-        zIndex="0"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bgImage="url('/images/morocco-attractions-hero.jpg')"
+        bgSize="cover"
+        bgPosition="center"
+        bgAttachment="fixed"
+        zIndex={1}
+        opacity={0.8}
       />
       
-      <Container maxW="container.xl" position="relative" zIndex="1">
-        <Box 
-          mb={10}
-          py={8}
-          px={6}
-          borderRadius="xl"
-          bgGradient="linear(to-r, rgba(255,255,255,0.8), rgba(255,255,255,0.9), rgba(255,255,255,0.8))"
-          boxShadow="sm"
-          position="relative"
-          overflow="hidden"
+      {/* Gradient Overlay */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bgGradient="linear(to-b, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%)"
+        zIndex={2}
+      />
+      
+      <Container maxW="container.xl" position="relative" zIndex={3}>
+        <VStack
+          spacing={6}
+          align={{ base: 'center', md: 'flex-start' }}
+          textAlign={{ base: 'center', md: 'left' }}
+          maxW="3xl"
         >
-          <Box 
-            position="absolute" 
-            top="0" 
-            left="0" 
-            right="0" 
-            height="4px" 
-            bgGradient="linear(to-r, brand.primary, brand.accent)" 
-          />
-          
-          <Heading as="h1" size="2xl" mb={4} color="brand.primary" textShadow="0 1px 2px rgba(0,0,0,0.1)">
-            Discover Morocco's Attractions
-          </Heading>
-          <Text fontSize="lg" mb={4} maxW="container.md" mx="auto" textAlign="center">
-            Explore the most breathtaking and culturally significant places across Morocco, from ancient medinas to stunning natural landscapes.
-          </Text>
-        </Box>
-        
-        {/* Filters */}
-        <Box
-          bg={bgColor}
-          p={6}
-          borderRadius="lg"
-          boxShadow="md"
-          mb={8}
-        >
-          <Stack
-            direction={{ base: 'column', md: 'row' }}
-            spacing={4}
-            mb={4}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <InputGroup>
-              <InputLeftElement pointerEvents="none">
-                <Icon as={FaSearch} color="gray.300" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search attractions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </InputGroup>
-            
-            <Select
-              placeholder="All Regions"
-              value={selectedRegion}
-              onChange={(e) => {
-                setSelectedRegion(e.target.value);
-                setSelectedCity(''); // Reset city when region changes
-              }}
+            <Badge
+              px={4}
+              py={2}
+              borderRadius="full"
+              bg="rgba(255,255,255,0.15)"
+              color="white"
+              fontWeight="600"
+              fontSize="sm"
+              letterSpacing="wide"
+              textTransform="uppercase"
+              backdropFilter="blur(8px)"
             >
-              {regions.map((region) => (
-                <option key={region.region_id} value={region.region_id}>
-                  {region.name}
-                </option>
-              ))}
-            </Select>
-            
-            <Select
-              placeholder="All Cities"
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              isDisabled={!selectedRegion}
+              Discover Morocco
+            </Badge>
+          </MotionBox>
+          
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Heading
+              as="h1"
+              size="3xl"
+              fontWeight="800"
+              lineHeight="1.1"
+              letterSpacing="tight"
+              maxW="2xl"
+              bgGradient="linear(to-r, white, blue.100)"
+              bgClip="text"
             >
-              {cities
-                .filter(city => !selectedRegion || (city.region_id === parseInt(selectedRegion)))
-                .map((city) => (
-                  <option key={city.city_id} value={city.city_id}>
-                    {city.name}
+              Discover Morocco's Attractions
+            </Heading>
+          </MotionBox>
+          
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            maxW="2xl"
+          >
+            <Text
+              fontSize="xl"
+              color="gray.300"
+              lineHeight="taller"
+              fontWeight="400"
+            >
+              Explore the most breathtaking and culturally significant places across Morocco, from ancient medinas to stunning natural landscapes.
+            </Text>
+          </MotionBox>
+        </VStack>
+      </Container>
+      
+      <Container maxW="container.xl" position="relative" zIndex={3} mt={-8}>
+        {/* Search and Filters */}
+        <Box
+          bg="rgba(255, 255, 255, 0.1)"
+          backdropFilter="blur(10px)"
+          p={6}
+          borderRadius="xl"
+          boxShadow="lg"
+        >
+          {/* Filters */}
+          <Box
+            bg={bgColor}
+            p={6}
+            borderRadius="lg"
+            boxShadow="md"
+            mb={8}
+          >
+            <Stack
+              direction={{ base: 'column', md: 'row' }}
+              spacing={4}
+              mb={4}
+            >
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <Icon as={FaSearch} color="gray.300" />
+                </InputLeftElement>
+                <Input
+                  placeholder="Search attractions..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </InputGroup>
+              
+              <Select
+                placeholder="All Regions"
+                value={selectedRegion}
+                onChange={(e) => {
+                  setSelectedRegion(e.target.value);
+                  setSelectedCity(''); // Reset city when region changes
+                }}
+              >
+                {regions.map((region) => (
+                  <option key={region.region_id} value={region.region_id}>
+                    {region.name}
                   </option>
                 ))}
-            </Select>
+              </Select>
+              
+              <Select
+                placeholder="All Cities"
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                isDisabled={!selectedRegion}
+              >
+                {cities
+                  .filter(city => !selectedRegion || (city.region_id === parseInt(selectedRegion)))
+                  .map((city) => (
+                    <option key={city.city_id} value={city.city_id}>
+                      {city.name}
+                    </option>
+                  ))}
+              </Select>
+              
+              <Select
+                placeholder="All Categories"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </Select>
+              
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="name">Sort by Name</option>
+                <option value="featured">Sort by Featured</option>
+              </Select>
+            </Stack>
             
-            <Select
-              placeholder="All Categories"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </Select>
-            
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="name">Sort by Name</option>
-              <option value="featured">Sort by Featured</option>
-            </Select>
-          </Stack>
-          
-          <Flex justify="flex-end">
-            <Button
-              colorScheme="gray"
-              variant="outline"
-              onClick={handleReset}
-            >
-              Reset Filters
-            </Button>
-          </Flex>
+            <Flex justify="flex-end">
+              <Button
+                colorScheme="gray"
+                variant="outline"
+                onClick={handleReset}
+              >
+                Reset Filters
+              </Button>
+            </Flex>
+          </Box>
         </Box>
         
         {/* Results */}
