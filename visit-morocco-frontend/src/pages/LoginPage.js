@@ -15,6 +15,7 @@ import {
   Flex
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -22,15 +23,16 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      // Here you would implement your actual login API call
-      // For now, we'll simulate a successful login
-      setTimeout(() => {
+      const success = await login(email, password);
+      
+      if (success) {
         toast({
           title: 'Login successful',
           status: 'success',
@@ -38,7 +40,7 @@ const LoginPage = () => {
           isClosable: true,
         });
         navigate('/');
-      }, 1000);
+      }
     } catch (error) {
       toast({
         title: 'Login failed',

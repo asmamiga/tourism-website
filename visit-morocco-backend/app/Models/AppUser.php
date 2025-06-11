@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
-class AppUser extends Model
+class AppUser extends Authenticatable
 {
     use HasFactory;
     
@@ -40,7 +41,9 @@ class AppUser extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'name',
         'email',
+        'password',
         'password_hash',
         'first_name',
         'last_name',
@@ -61,7 +64,34 @@ class AppUser extends Model
      */
     protected $hidden = [
         'password_hash',
+        'password',
+        'remember_token',
+        'verification_code',
+        'reset_token',
     ];
+
+    /**
+     * Automatically hash the password when setting it.
+     *
+     * @param string $value
+     * @return void
+     */
+    public function setPasswordAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['password_hash'] = Hash::make($value);
+        }
+    }
+
+    /**
+     * Get the password for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
 
     /**
      * The attributes that should be cast.
@@ -80,7 +110,14 @@ class AppUser extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
+    
+    /**
+     * The storage format of the model's date columns.
+     *
+     * @var string
+     */
+    protected $dateFormat = 'Y-m-d H:i:s';
     
     /**
      * Get the user's full name.

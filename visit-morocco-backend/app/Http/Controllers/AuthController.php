@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -10,45 +10,53 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $fields = $request->validate([
-            'name'=> 'required|max:255',
-            'email' => 'required|email|unique:admins',
-            'password' => 'required|confirmed',
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|string|same:password',
+            'role' => 'required|string|in:admin,user',
         ]);
 
-        // Hash password before creating admin
-        $fields['password'] = Hash::make($fields['password']);
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'email_verified_at' => now(),
+            'role' => $request->role, // Set role to 'user' by default
+        ]);
 
-        $admin = Admin::create($fields);
-
-        $token = $admin->createToken($request->name);
-        return [
-            'admin' => $admin,
-            'token' => $token->plainTextToken
-        ];
+        $token = $user->createToken('auth_token')->plainTextToken;
+        
+        return response()->json([
+            'user' => $user,
+            'token' => $token
+        ], 201);
     }
 
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:admins',
-            'password' => 'required'
+            'email' => 'required|string|email',
+            'password' => 'required|string',
         ]);
 
-        $admin = Admin::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        // Fixed password check logic
-        if (!$admin || !Hash::check($request->password, $admin->password)) {
-            return [
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
                 'message' => 'Invalid credentials'
-            ];
+            ], 401);
         }
 
-        $token = $admin->createToken($request->email);
-        return [
-            'admin' => $admin,
-            'token' => $token->plainTextToken
-        ];
+        $token = $user->createToken('auth_token')->plainTextToken;
+        
+        return response()->json([
+            'user' => $user,
+            'token' => $token
+        ], 200);
     }
 
     public function logout(Request $request)

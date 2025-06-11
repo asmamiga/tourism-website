@@ -21,7 +21,7 @@ import {
   InputGroup,
   InputLeftElement,
 } from '@chakra-ui/react';
-import { FaSearch, FaStar, FaMapMarkerAlt, FaPhone, FaGlobe } from 'react-icons/fa';
+import { FaSearch, FaStar, FaMapMarkerAlt, FaPhone, FaGlobe, FaTimes, FaFilter } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { businessService, cityService } from '../services/api';
 
@@ -62,45 +62,79 @@ const getRandomMoroccoImage = () => {
 const MotionBox = motion(Box);
 
 const BusinessCard = ({ business }) => {
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.600', 'gray.300');
+  const headingColor = useColorModeValue('gray.800', 'white');
+  const accentColor = useColorModeValue('brand.primary', 'brand.accent');
+
   return (
     <MotionBox
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.4, type: 'spring', stiffness: 300 }}
       borderWidth="1px"
-      borderRadius="xl"
+      borderRadius="2xl"
       overflow="hidden"
-      bg="white"
-      boxShadow="0 10px 30px rgba(0,0,0,0.1)"
+      bg={cardBg}
+      boxShadow="xl"
       _hover={{ 
-        transform: 'translateY(-10px)', 
-        boxShadow: '0 15px 35px rgba(0,0,0,0.15)',
-        borderColor: 'brand.primary'
+        boxShadow: '2xl',
+        borderColor: accentColor,
+        '.business-image': {
+          transform: 'scale(1.05)'
+        }
       }}
-      transitionProperty="all"
-      transitionDuration="0.3s"
-      transitionTimingFunction="ease"
+      position="relative"
+      h="100%"
+      display="flex"
+      flexDirection="column"
     >
-      <Box h="200px" overflow="hidden">
+      <Box 
+        h="200px" 
+        overflow="hidden"
+        position="relative"
+      >
+        <Box
+          as={motion.div}
+          className="business-image"
+          h="100%"
+          w="100%"
+          bgImage={`url(https://images.unsplash.com/photo-${business.photos[0]?.url || getBusinessImageByCategory(business.category_id)})`}
+          bgSize="cover"
+          bgPosition="center"
+          transition="transform 0.5s ease"
+        />
         {business.is_featured && (
-          <Box
+          <Badge
             position="absolute"
-            top="10px"
-            right="10px"
-            zIndex="1"
-            bg="brand.accent"
+            top={3}
+            right={3}
+            zIndex={2}
+            bgGradient="linear(to-r, brand.accent, brand.primary)"
             color="white"
             fontWeight="bold"
-            px={2}
+            px={3}
             py={1}
-            borderRadius="md"
+            borderRadius="full"
             fontSize="xs"
-            boxShadow="0 2px 10px rgba(0,0,0,0.2)"
-            transform="rotate(5deg)"
+            boxShadow="lg"
+            display="flex"
+            alignItems="center"
+            gap={1}
           >
+            <Box as="span" fontSize="xs" transform="rotate(-5deg)">★</Box>
             Featured
-          </Box>
+          </Badge>
         )}
+        <Box
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          height="60px"
+          bgGradient="linear(to-t, rgba(0,0,0,0.8) 0%, transparent 100%)"
+        />
         <Image
           src={business.photos && business.photos.length > 0 
             ? `https://images.unsplash.com/photo-${getBusinessImageByCategory(business.category_id)}` 
@@ -201,6 +235,20 @@ const BusinessCard = ({ business }) => {
 const BusinessDirectoryPage = () => {
   // Define color mode values at the top level of the component
   const bgColor = useColorModeValue('white', 'gray.700');
+  // Color mode values
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const inputBg = useColorModeValue('white', 'gray.700');
+  const headingColor = useColorModeValue('gray.800', 'white');
+  const textColor = useColorModeValue('gray.600', 'gray.300');
+  const bgGradient = useColorModeValue(
+    'linear(to-r, brand.primary, brand.secondary)',
+    'linear(to-r, brand.primary, brand.secondary)'
+  );
+  const filterPanelBg = useColorModeValue('gray.50', 'gray.700');
+  const emptyStateBg = useColorModeValue('gray.50', 'gray.800');
+  const emptyStateIconBg = useColorModeValue('white', 'gray.700');
+
+  // State for businesses and UI
   const [businesses, setBusinesses] = useState([]);
   const [filteredBusinesses, setFilteredBusinesses] = useState([]);
   const [cities, setCities] = useState([]);
@@ -209,10 +257,31 @@ const BusinessDirectoryPage = () => {
   const [error, setError] = useState(null);
   
   // Filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [sortBy, setSortBy] = useState('name');
+  const [filters, setFilters] = useState({
+    search: '',
+    city: '',
+    category: '',
+    sort: 'name',
+  });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  // Handle filter changes
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      city: '',
+      category: '',
+      sort: 'name',
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -400,28 +469,28 @@ const BusinessDirectoryPage = () => {
     let results = [...businesses]; // Create a copy to avoid mutation
     
     // Apply search term filter
-    if (searchTerm && searchTerm.trim() !== '') {
+    if (filters.search && filters.search.trim() !== '') {
       results = results.filter(business => 
         (business && business.name && typeof business.name === 'string' && 
-          business.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          business.name.toLowerCase().includes(filters.search.toLowerCase())) ||
         (business && business.description && typeof business.description === 'string' && 
-          business.description.toLowerCase().includes(searchTerm.toLowerCase()))
+          business.description.toLowerCase().includes(filters.search.toLowerCase()))
       );
     }
     
     // Apply city filter
-    if (selectedCity && selectedCity.trim() !== '') {
+    if (filters.city && filters.city.trim() !== '') {
       results = results.filter(business => 
         business && business.city_id !== undefined && 
-        business.city_id === parseInt(selectedCity)
+        business.city_id === parseInt(filters.city)
       );
     }
     
     // Apply category filter
-    if (selectedCategory && selectedCategory.trim() !== '') {
+    if (filters.category && filters.category.trim() !== '') {
       results = results.filter(business => 
         business && business.category_id !== undefined && 
-        business.category_id === parseInt(selectedCategory)
+        business.category_id === parseInt(filters.category)
       );
     }
     
@@ -430,7 +499,7 @@ const BusinessDirectoryPage = () => {
       results.sort((a, b) => {
         if (!a || !b) return 0;
         
-        switch (sortBy) {
+        switch (filters.sort) {
           case 'name':
             return (a.name && typeof a.name === 'string') && (b.name && typeof b.name === 'string') ? 
               a.name.localeCompare(b.name) : 0;
@@ -445,14 +514,15 @@ const BusinessDirectoryPage = () => {
     }
     
     setFilteredBusinesses(results);
-  }, [businesses, searchTerm, selectedCity, selectedCategory, sortBy]);
+  }, [businesses, filters]);
 
   const handleReset = () => {
-    setSearchTerm('');
-    setSelectedCity('');
-    setSelectedCategory('');
-    setSortBy('name');
-    setFilteredBusinesses(businesses);
+    setFilters({
+      search: '',
+      city: '',
+      category: '',
+      sort: 'name',
+    });
   };
 
   if (loading) {
@@ -553,8 +623,8 @@ const BusinessDirectoryPage = () => {
                   border="none"
                   _focus={{ boxShadow: 'none' }}
                   borderRadius="full"
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  value={searchTerm}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  value={filters.search}
                 />
               </InputGroup>
               <Button
@@ -571,183 +641,288 @@ const BusinessDirectoryPage = () => {
                 Search
               </Button>
             </Box>
+
+            <Flex direction={{ base: 'column', md: 'row' }} gap={4} align="center">
+              <Button
+                leftIcon={<Icon as={isFilterOpen ? FaTimes : FaFilter} />}
+                variant="outline"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                borderRadius="full"
+                borderColor={borderColor}
+                _hover={{ bg: 'gray.50', borderColor: 'gray.300' }}
+                _active={{ bg: 'gray.100' }}
+              >
+                {isFilterOpen ? 'Hide Filters' : 'Filters'}
+              </Button>
+
+              <Select
+                value={filters.sort}
+                onChange={(e) => handleFilterChange('sort', e.target.value)}
+                maxW={{ base: '100%', md: '200px' }}
+                bg={inputBg}
+                borderRadius="full"
+                borderColor={borderColor}
+                _hover={{ borderColor: 'gray.300' }}
+                _focus={{
+                  borderColor: 'brand.primary',
+                  boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
+                }}
+                fontSize="sm"
+              >
+                <option value="name_asc">Sort: A to Z</option>
+                <option value="name_desc">Sort: Z to A</option>
+                <option value="rating_desc">Top Rated</option>
+                <option value="reviews_desc">Most Reviewed</option>
+              </Select>
+            </Flex>
+
+            <motion.div
+              initial={false}
+              animate={{ 
+                height: isFilterOpen ? 'auto' : 0,
+                opacity: isFilterOpen ? 1 : 0,
+                marginTop: isFilterOpen ? '1.5rem' : 0,
+                overflow: 'hidden'
+              }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <Box 
+                p={6} 
+                bg={filterPanelBg} 
+                borderRadius="xl"
+                border="1px solid"
+                borderColor={borderColor}
+              >
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                  <Box>
+                    <Text fontWeight="medium" mb={2} color={headingColor}>
+                      Category
+                    </Text>
+                    <Select
+                      placeholder="All Categories"
+                      value={filters.category}
+                      onChange={(e) => handleFilterChange('category', e.target.value)}
+                      bg={inputBg}
+                      borderColor={borderColor}
+                      _hover={{ borderColor: 'gray.300' }}
+                      _focus={{
+                        borderColor: 'brand.primary',
+                        boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
+                      }}
+                    >
+                      {categories.map((category) => (
+                        <option key={category.category_id} value={category.category_id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
+                  <Box>
+                    <Text fontWeight="medium" mb={2} color={headingColor}>
+                      City
+                    </Text>
+                    <Select
+                      placeholder="All Cities"
+                      value={filters.city}
+                      onChange={(e) => handleFilterChange('city', e.target.value)}
+                      bg={inputBg}
+                      borderColor={borderColor}
+                      _hover={{ borderColor: 'gray.300' }}
+                      _focus={{
+                        borderColor: 'brand.primary',
+                        boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
+                      }}
+                    >
+                      {cities.map((city) => (
+                        <option key={city.city_id} value={city.city_id}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
+                </SimpleGrid>
+              </Box>
+            </motion.div>
           </Box>
         </Container>
       </Box>
 
-      {/* Main Content */}
-      <Container maxW="container.xl" pt={20} pb={16}>
-
-        {/* Filters */}
-        <Box
-          bg={bgColor}
-          p={6}
-          borderRadius="lg"
-          boxShadow="md"
+      {/* Business List */}
+      <Container maxW="container.xl" py={16}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Box mb={10} mt={8}>
-            <Flex direction={{ base: 'column', md: 'row' }} gap={4} wrap="wrap" justify="space-between" align="center">
-              <Box>
-                <Heading as="h2" size="lg" color="brand.dark" mb={2} fontWeight="700">
-                  Find Your Perfect Experience
-                </Heading>
-                <Text color="gray.600">Filter and sort to discover businesses that match your interests</Text>
-              </Box>
-
-              <Flex gap={3} flexWrap="wrap" justify={{ base: 'flex-start', md: 'flex-end' }}>
-                <Select
-                  placeholder="Filter by city"
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  w={{ base: '100%', sm: '150px' }}
-                  bg="white"
-                  borderRadius="full"
-                  boxShadow="sm"
-                  borderColor="gray.200"
-                  _hover={{ borderColor: 'brand.primary' }}
-                  size="md"
-                  icon={<Icon as={FaMapMarkerAlt} color="gray.400" />}
-                >
-                  {cities.map(city => (
-                    <option key={city.city_id} value={city.city_id}>
-                      {city.name}
-                    </option>
-                  ))}
-                </Select>
-
-                <Select
-                  placeholder="Category"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  w={{ base: '100%', sm: '150px' }}
-                  bg="white"
-                  borderRadius="full"
-                  boxShadow="sm"
-                  borderColor="gray.200"
-                  _hover={{ borderColor: 'brand.primary' }}
-                  size="md"
-                >
-                  {categories.map(category => (
-                    <option key={category.category_id} value={category.category_id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </Select>
-
-                <Select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  w={{ base: '100%', sm: '150px' }}
-                  bg="white"
-                  borderRadius="full"
-                  boxShadow="sm"
-                  borderColor="gray.200"
-                  _hover={{ borderColor: 'brand.primary' }}
-                  size="md"
-                >
-                  <option value="name">Sort by name</option>
-                  <option value="rating">Sort by rating</option>
-                  <option value="featured">Featured first</option>
-                </Select>
-              </Flex>
-            </Flex>
-          </Box>
-          <Flex justify="flex-end">
-            <Button
-              colorScheme="gray"
-              variant="outline"
-              onClick={handleReset}
-            >
-              Reset Filters
-            </Button>
+          <Flex justify="space-between" align="center" mb={8}>
+            <Box>
+              <Heading as="h2" size="xl" color={headingColor} mb={2}>
+                {filteredBusinesses.length} {filteredBusinesses.length === 1 ? 'Business' : 'Businesses'} Found
+              </Heading>
+              <Text color={textColor}>
+                {filters.search || filters.category || filters.city 
+                  ? 'Results match your search criteria' 
+                  : 'Showing all businesses'}
+              </Text>
+            </Box>
+            
+            {(filters.search || filters.category || filters.city) && (
+              <Button
+                variant="ghost"
+                colorScheme="red"
+                size="sm"
+                rightIcon={<Icon as={FaTimes} />}
+                onClick={() => {
+                  setFilters({
+                    search: '',
+                    category: '',
+                    city: '',
+                    sort: 'name_asc',
+                  });
+                }}
+              >
+                Clear All
+              </Button>
+            )}
           </Flex>
-        </Box>
 
-        {/* Results */}
-        {filteredBusinesses.length === 0 ? (
-          <Box textAlign="center" py={10}>
-            <Text fontSize="lg">No businesses found matching your criteria.</Text>
-            <Button
-              mt={4}
-              colorScheme="green"
-              onClick={handleReset}
+          {loading ? (
+            <Flex justify="center" py={20}>
+              <Spinner size="xl" color="brand.primary" thickness="4px" emptyColor="gray.200" />
+            </Flex>
+          ) : error ? (
+            <Alert status="error" borderRadius="xl" variant="left-accent">
+              <AlertIcon />
+              <Box>
+                <AlertTitle>Error Loading Businesses</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Box>
+            </Alert>
+          ) : filteredBusinesses.length === 0 ? (
+            <Box 
+              textAlign="center" 
+              py={20} 
+              bg={emptyStateBg} 
+              borderRadius="2xl"
+              border="1px dashed"
+              borderColor={borderColor}
             >
-              Clear Filters
-            </Button>
-          </Box>
-        ) : (
-          <>
-            <Text mb={5} color="gray.600">
-              Showing {filteredBusinesses.length} business{filteredBusinesses.length !== 1 ? 'es' : ''}
-            </Text>
+              <Box 
+                display="inline-block" 
+                p={4} 
+                mb={4} 
+                bg={emptyStateIconBg} 
+                borderRadius="full"
+                boxShadow="md"
+              >
+                <Icon as={FaSearch} fontSize="2xl" color="gray.400" />
+              </Box>
+              <Heading as="h2" size="lg" mb={4} color={headingColor}>
+                No businesses found
+              </Heading>
+              <Text color={textColor} maxW="md" mx="auto" mb={6}>
+                We couldn't find any businesses matching your search. Try adjusting your filters or search term.
+              </Text>
+              <Button
+                colorScheme="brand"
+                size="lg"
+                px={8}
+                borderRadius="full"
+                onClick={() => {
+                  setFilters({
+                    search: '',
+                    category: '',
+                    city: '',
+                    sort: 'name_asc',
+                  });
+                }}
+              >
+                Clear All Filters
+              </Button>
+            </Box>
+          ) : (
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-              {filteredBusinesses.map(business => (
-                <BusinessCard key={business.business_id} business={business} />
+              {filteredBusinesses.map((business, index) => (
+                <motion.div
+                  key={business.business_id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                >
+                  <BusinessCard business={business} />
+                </motion.div>
               ))}
             </SimpleGrid>
-          </>
-        )}
+          )}
+        </motion.div>
       </Container>
 
       {/* Call to Action */}
-      <Box
-        bg="linear-gradient(to right, #38A169, #276749)"
-        py={16}
-        color="white"
-        position="relative"
-        overflow="hidden"
-      >
-        {/* Decorative elements */}
-        <Box 
-          position="absolute" 
-          left="10%" 
-          top="-50px" 
-          w="200px" 
-          h="200px" 
-          borderRadius="full" 
-          bg="rgba(255,255,255,0.05)" 
-        />
-        <Box 
-          position="absolute" 
-          right="5%" 
-          bottom="-50px" 
-          w="200px" 
-          h="200px" 
-          borderRadius="full" 
-          bg="rgba(255,255,255,0.1)" 
-        />
+      <Box bgGradient={bgGradient} color="white" py={20} mt={16} position="relative" overflow="hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          {/* Decorative elements */}
+          <Box 
+            position="absolute" 
+            left="10%" 
+            top="-50px" 
+            w="200px" 
+            h="200px" 
+            borderRadius="full" 
+            bg="rgba(255,255,255,0.05)" 
+          />
+          <Box 
+            position="absolute" 
+            right="5%" 
+            bottom="-50px" 
+            w="200px" 
+            h="200px" 
+            borderRadius="full" 
+            bg="rgba(255,255,255,0.1)" 
+          />
 
-        <Container maxW="container.xl" textAlign="center" position="relative" zIndex="1">
-          <Heading as="h2" size="xl" mb={4} fontWeight="bold">
-            Own a Business in Morocco?
-          </Heading>
-          <Text fontSize="lg" mb={8} maxW="700px" mx="auto" lineHeight="1.7">
-            Join our platform to showcase your business to thousands of travelers 
-            looking for authentic Moroccan experiences.
-          </Text>
-          <Button 
-            as={RouterLink} 
-            to="/business-signup" 
-            size="lg" 
-            bg="white" 
-            color="brand.primary" 
-            _hover={{ 
-              transform: 'translateY(-5px)', 
-              boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-              bg: 'gray.50'
-            }}
-            px={8}
-            py={7}
-            borderRadius="full"
-            fontWeight="bold"
-            transition="all 0.3s ease"
-          >
-            List Your Business
-          </Button>
-        </Container>
+          <Container maxW="container.lg" textAlign="center" position="relative" zIndex="1">
+            <Heading as="h2" size="2xl" mb={6} fontWeight="extrabold">
+              Own a Business in Morocco?
+            </Heading>
+            <Text fontSize="xl" mb={8} maxW="2xl" mx="auto" lineHeight="1.7" opacity={0.9}>
+              Join our platform to showcase your business to thousands of travelers 
+              looking for authentic Moroccan experiences.
+            </Text>
+            <Button 
+              as={RouterLink} 
+              to="/business-signup" 
+              colorScheme="white"
+              variant="outline"
+              size="lg"
+              px={8}
+              py={6}
+              borderRadius="full"
+              fontWeight="bold"
+              borderWidth={2}
+              _hover={{
+                bg: 'whiteAlpha.200',
+                transform: 'translateY(-2px)',
+              }}
+              _active={{
+                transform: 'translateY(0)',
+              }}
+              transition="all 0.2s"
+            >
+              List Your Business
+            </Button>
+          </Container>
+        </motion.div>
       </Box>
     </Box>
   );
 };
+
+// Destructure Alert components at the top level
+const { AlertTitle, AlertDescription } = Alert;
 
 export default BusinessDirectoryPage;

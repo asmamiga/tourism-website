@@ -16,8 +16,12 @@ import TravelStoriesPage from './pages/TravelStoriesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import RegionsPage from './pages/RegionsPage';
+import ExperiencesPage from './pages/ExperiencesPage';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+
+
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +81,8 @@ function App() {
             <Route path="/stories" element={<TravelStoriesPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/regions" element={<RegionsPage />} />
+            <Route path="/experiences" element={<ExperiencesPage />} />
             <Route
               path="/profile"
               element={
@@ -85,9 +91,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* 404 Route */}
-            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Box>
         <Footer />

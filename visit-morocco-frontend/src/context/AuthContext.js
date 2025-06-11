@@ -63,10 +63,12 @@ export const AuthProvider = ({ children }) => {
         
         return true;
       }
+      return false;
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Failed to login. Please try again.');
-      return false;
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to login. Please try again.';
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,16 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post('http://localhost:8000/api/register', userData);
+      console.log('Sending registration request with data:', JSON.stringify(userData, null, 2));
+      
+      const response = await axios.post('http://localhost:8000/api/register', userData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      console.log('Registration response:', response.data);
       
       if (response.data && response.data.token) {
         // Save token to localStorage
@@ -91,10 +102,30 @@ export const AuthProvider = ({ children }) => {
         
         return true;
       }
+      
+      console.error('No token in response:', response.data);
+      return false;
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.response?.data?.message || 'Failed to register. Please try again.');
-      return false;
+      console.log('Full error response:', err.response?.data);
+      
+      let errorMessage = 'Failed to register. Please try again.';
+      
+      // Handle validation errors
+      if (err.response?.data?.errors) {
+        console.log('Validation errors:', err.response.data.errors);
+        const errors = err.response.data.errors;
+        errorMessage = Object.entries(errors)
+          .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+          .join('\n');
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }

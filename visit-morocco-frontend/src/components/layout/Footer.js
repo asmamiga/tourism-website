@@ -1,395 +1,260 @@
-import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import {
-  Box,
-  Container,
-  Stack,
-  SimpleGrid,
-  Text,
-  Link,
-  useColorModeValue,
-  Flex,
-  Input,
-  Button,
-  Heading,
-  Icon,
-} from '@chakra-ui/react';
-import { FaTwitter, FaFacebook, FaInstagram, FaLinkedin, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+"use client"
+import { Link as RouterLink } from "react-router-dom"
+import { Box, Container, Stack, SimpleGrid, Text, Link, Flex, Input, Button, Icon } from "@chakra-ui/react"
+import { FaTwitter, FaFacebook, FaInstagram, FaLinkedin, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa"
+import { motion } from "framer-motion"
+
+const MotionBox = motion(Box)
 
 export default function Footer() {
   return (
-    <Box
-      bg="brand.dark"
-      color="white"
-      position="relative"
-      overflow="hidden"
-      pt={10}
-    >
+    <Box position="relative" overflow="hidden">
+      {/* Animated background */}
+      <Box
+        position="absolute"
+        inset="0"
+        bg="linear-gradient(135deg, #1a1a1a 0%, #2d1810 50%, #1a1a1a 100%)"
+        zIndex={0}
+      />
+
+      {/* Floating particles */}
+      <Box position="absolute" inset="0" zIndex={1} pointerEvents="none">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <motion.div
+            key={i}
+            style={{
+              position: "absolute",
+              width: "3px",
+              height: "3px",
+              borderRadius: "50%",
+              background: "linear-gradient(45deg, #D2691E, #FFD700)",
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.2, 0.8, 0.2],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 6 + Math.random() * 4,
+              repeat: Number.POSITIVE_INFINITY,
+              delay: Math.random() * 3,
+            }}
+          />
+        ))}
+      </Box>
+
       {/* Decorative background elements */}
       <Box
         position="absolute"
-        top="-50px"
+        top="-100px"
         right="10%"
-        w="200px"
-        h="200px"
+        w="300px"
+        h="300px"
         borderRadius="full"
-        bg="rgba(255,255,255,0.03)"
+        bg="radial-gradient(circle, rgba(210, 105, 30, 0.1) 0%, transparent 70%)"
+        zIndex={1}
       />
       <Box
         position="absolute"
         bottom="20%"
         left="5%"
-        w="150px"
-        h="150px"
+        w="200px"
+        h="200px"
         borderRadius="full"
-        bg="rgba(255,255,255,0.03)"
+        bg="radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%)"
+        zIndex={1}
       />
-      <Container as={Stack} maxW={'container.xl'} py={10}>
-        <SimpleGrid
-          templateColumns={{ sm: '1fr 1fr', md: '2fr 1fr 1fr 2fr' }}
-          spacing={8}
-        >
-          <Stack spacing={6}>
-            <Flex align="center" mb={2}>
-              <Box
-                w="40px"
-                h="40px"
-                bg="brand.primary"
-                borderRadius="full"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                color="white"
-                fontWeight="bold"
-                fontSize="xl"
-                mr={3}
-              >
-                M
-              </Box>
-              <Heading 
-                as="h3" 
-                size="lg" 
-                bgGradient="linear(to-r, brand.primary, brand.secondary)" 
-                bgClip="text"
-                fontWeight="800"
-              >
+
+      <Container as={Stack} maxW="container.xl" py={10} position="relative" zIndex={2}>
+        <SimpleGrid templateColumns={{ sm: "1fr 1fr", md: "2fr 1fr 1fr 2fr" }} spacing={8}>
+          {/* Brand Section */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <Stack spacing={6}>
+              <Text fontSize="lg" fontWeight="bold" color="white">
                 Visit Morocco
-              </Heading>
-            </Flex>
-            <Text fontSize={'md'} color="gray.300" lineHeight="1.7" mb={4}>
-              Discover authentic Moroccan experiences with our comprehensive tourism platform.
-              Connect with local businesses, professional guides, and plan your perfect Moroccan adventure.
-            </Text>
-            <Stack direction={'row'} spacing={6}>
-              <Link href={'#'} isExternal>
-                <Box 
-                  bg="rgba(255,255,255,0.1)" 
-                  p={2} 
-                  borderRadius="full" 
-                  transition="all 0.3s ease"
-                  _hover={{ 
-                    bg: 'brand.primary', 
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
-                  }}
-                >
-                  <Icon as={FaTwitter} w={5} h={5} color="white" />
-                </Box>
-              </Link>
-              <Link href={'#'} isExternal>
-                <Box 
-                  bg="rgba(255,255,255,0.1)" 
-                  p={2} 
-                  borderRadius="full" 
-                  transition="all 0.3s ease"
-                  _hover={{ 
-                    bg: 'brand.primary', 
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
-                  }}
-                >
-                  <Icon as={FaFacebook} w={5} h={5} color="white" />
-                </Box>
-              </Link>
-              <Link href={'#'} isExternal>
-                <Box 
-                  bg="rgba(255,255,255,0.1)" 
-                  p={2} 
-                  borderRadius="full" 
-                  transition="all 0.3s ease"
-                  _hover={{ 
-                    bg: 'brand.primary', 
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
-                  }}
-                >
-                  <Icon as={FaInstagram} w={5} h={5} color="white" />
-                </Box>
-              </Link>
-              <Link href={'#'} isExternal>
-                <Box 
-                  bg="rgba(255,255,255,0.1)" 
-                  p={2} 
-                  borderRadius="full" 
-                  transition="all 0.3s ease"
-                  _hover={{ 
-                    bg: 'brand.primary', 
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 5px 15px rgba(0,0,0,0.3)'
-                  }}
-                >
-                  <Icon as={FaLinkedin} w={5} h={5} color="white" />
-                </Box>
-              </Link>
+              </Text>
+              <Text fontSize="sm" color="gray.400">
+                Discover authentic Moroccan experiences with our comprehensive tourism platform. Connect with local
+                businesses, professional guides, and plan your perfect Moroccan adventure.
+              </Text>
+              <Stack direction="row" spacing={6}>
+                <Link href="#" isExternal>
+                  <Icon as={FaTwitter} w={5} h={5} color="gray.400" _hover={{ color: "brand.primary" }} />
+                </Link>
+                <Link href="#" isExternal>
+                  <Icon as={FaFacebook} w={5} h={5} color="gray.400" _hover={{ color: "brand.primary" }} />
+                </Link>
+                <Link href="#" isExternal>
+                  <Icon as={FaInstagram} w={5} h={5} color="gray.400" _hover={{ color: "brand.primary" }} />
+                </Link>
+                <Link href="#" isExternal>
+                  <Icon as={FaLinkedin} w={5} h={5} color="gray.400" _hover={{ color: "brand.primary" }} />
+                </Link>
+              </Stack>
             </Stack>
-          </Stack>
-          <Stack align={'flex-start'}>
-            <Heading as="h4" size="md" color="brand.accent" mb={4} fontWeight="600">
-              Quick Links
-            </Heading>
-            <Stack spacing={3}>
-              <Link 
-                as={RouterLink} 
-                to={'/'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+          </MotionBox>
+
+          {/* Quick Links */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true }}
+          >
+            <Stack align="flex-start">
+              <Text fontWeight="500" fontSize="lg" mb={2} color="white">
+                Quick Links
+              </Text>
+              <Link as={RouterLink} to="/" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Home
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/businesses'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/businesses" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Businesses
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/guides'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/guides" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Local Guides
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/attractions'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/attractions" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Attractions
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/itinerary-planner'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/itinerary-planner" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Plan Your Trip
               </Link>
             </Stack>
-          </Stack>
-          <Stack align={'flex-start'}>
-            <Heading as="h4" size="md" color="brand.accent" mb={4} fontWeight="600">
-              Support
-            </Heading>
-            <Stack spacing={3}>
-              <Link 
-                as={RouterLink} 
-                to={'/about'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+          </MotionBox>
+
+          {/* Support */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <Stack align="flex-start">
+              <Text fontWeight="500" fontSize="lg" mb={2} color="white">
+                Support
+              </Text>
+              <Link as={RouterLink} to="/about" color="gray.400" _hover={{ color: "brand.primary" }}>
                 About Us
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/contact'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/contact" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Contact
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/faq'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/faq" color="gray.400" _hover={{ color: "brand.primary" }}>
                 FAQ
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/privacy-policy'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/privacy-policy" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Privacy Policy
               </Link>
-              <Link 
-                as={RouterLink} 
-                to={'/terms'}
-                _hover={{ color: 'brand.primary', transform: 'translateX(5px)' }}
-                transition="all 0.3s ease"
-                display="flex"
-                alignItems="center"
-              >
-                <Box w="5px" h="5px" borderRadius="full" bg="brand.primary" mr={2} />
+              <Link as={RouterLink} to="/terms" color="gray.400" _hover={{ color: "brand.primary" }}>
                 Terms of Service
               </Link>
             </Stack>
-          </Stack>
-          <Stack align={'flex-start'}>
-            <Heading as="h4" size="md" color="brand.accent" mb={4} fontWeight="600">
-              Stay Updated
-            </Heading>
-            <Text color="gray.300" mb={4} lineHeight="1.7">
-              Subscribe to our newsletter for travel tips and exclusive offers on Moroccan experiences.
-            </Text>
-            <Stack direction={'row'} width="100%">
-              <Input
-                placeholder={'Your email address'}
-                bg="rgba(255,255,255,0.1)"
-                color="white"
-                border={0}
-                borderRadius="md"
-                _placeholder={{ color: 'gray.300' }}
-                _focus={{
-                  bg: 'rgba(255,255,255,0.2)',
-                  boxShadow: '0 0 0 1px brand.primary',
-                }}
-                py={6}
-              />
-              <Button
-                bg={'brand.primary'}
-                color={'white'}
-                _hover={{
-                  bg: 'brand.accent',
-                  transform: 'translateY(-2px)',
-                  boxShadow: 'md'
-                }}
-                px={6}
-                transition="all 0.3s ease"
-              >
-                Subscribe
-              </Button>
+          </MotionBox>
+
+          {/* Newsletter & Contact */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            <Stack align="flex-start">
+              <Text fontWeight="500" fontSize="lg" mb={2} color="white">
+                Stay Updated
+              </Text>
+              <Text fontSize="sm" color="gray.400" mb={4}>
+                Subscribe to our newsletter for travel tips and exclusive offers.
+              </Text>
+              <Stack direction="row" width="100%">
+                <Input
+                  placeholder="Your email address"
+                  bg="gray.800"
+                  color="white"
+                  border="1px solid"
+                  borderColor="gray.600"
+                  _placeholder={{ color: "gray.400" }}
+                  _focus={{
+                    bg: "gray.700",
+                    borderColor: "brand.primary",
+                  }}
+                />
+                <Button
+                  bg="brand.primary"
+                  color="white"
+                  _hover={{
+                    bg: "brand.secondary",
+                  }}
+                >
+                  Subscribe
+                </Button>
+              </Stack>
+              <Stack spacing={3} mt={6}>
+                <Flex align="center">
+                  <Icon as={FaEnvelope} color="brand.primary" mr={2} />
+                  <Text fontSize="sm" color="gray.400">
+                    info@visitmorocco.com
+                  </Text>
+                </Flex>
+                <Flex align="center">
+                  <Icon as={FaPhone} color="brand.primary" mr={2} />
+                  <Text fontSize="sm" color="gray.400">
+                    +212 5XX-XXXXXX
+                  </Text>
+                </Flex>
+                <Flex align="center">
+                  <Icon as={FaMapMarkerAlt} color="brand.primary" mr={2} />
+                  <Text fontSize="sm" color="gray.400">
+                    Rabat, Morocco
+                  </Text>
+                </Flex>
+              </Stack>
             </Stack>
-            <Stack spacing={4} mt={6}>
-              <Flex align="center">
-                <Box
-                  p={2}
-                  bg="rgba(255,255,255,0.1)"
-                  borderRadius="md"
-                  mr={3}
-                >
-                  <Icon as={FaEnvelope} color="brand.primary" />
-                </Box>
-                <Text color="gray.300">info@visitmorocco.com</Text>
-              </Flex>
-              <Flex align="center">
-                <Box
-                  p={2}
-                  bg="rgba(255,255,255,0.1)"
-                  borderRadius="md"
-                  mr={3}
-                >
-                  <Icon as={FaPhone} color="brand.primary" />
-                </Box>
-                <Text color="gray.300">+212 5XX-XXXXXX</Text>
-              </Flex>
-              <Flex align="center">
-                <Box
-                  p={2}
-                  bg="rgba(255,255,255,0.1)"
-                  borderRadius="md"
-                  mr={3}
-                >
-                  <Icon as={FaMapMarkerAlt} color="brand.primary" />
-                </Box>
-                <Text color="gray.300">Rabat, Morocco</Text>
-              </Flex>
-            </Stack>
-          </Stack>
+          </MotionBox>
         </SimpleGrid>
       </Container>
-      <Box
-        borderTopWidth={1}
-        borderStyle={'solid'}
-        borderColor="rgba(255,255,255,0.1)"
-        mt={8}
-      >
+
+      <Box borderTopWidth={1} borderStyle="solid" borderColor="gray.700">
         <Container
           as={Stack}
-          maxW={'container.xl'}
+          maxW="container.xl"
           py={4}
-          direction={{ base: 'column', md: 'row' }}
+          direction={{ base: "column", md: "row" }}
           spacing={4}
-          justify={{ base: 'center', md: 'space-between' }}
-          align={{ base: 'center', md: 'center' }}
+          justify={{ base: "center", md: "space-between" }}
+          align={{ base: "center", md: "center" }}
+          position="relative"
+          zIndex={2}
         >
-          <Text opacity={0.8} fontSize="sm">© {new Date().getFullYear()} Visit Morocco. All rights reserved</Text>
-          <Stack direction={'row'} spacing={6}>
-            <Link 
-              as={RouterLink} 
-              to={'/privacy-policy'}
+          <Text fontSize="sm" color="gray.400">
+            © {new Date().getFullYear()} Visit Morocco. All rights reserved
+          </Text>
+          <Stack direction="row" spacing={6}>
+            <Link
+              as={RouterLink}
+              to="/privacy-policy"
               fontSize="sm"
-              opacity={0.8}
-              _hover={{ color: 'brand.primary', opacity: 1 }}
-              transition="all 0.3s ease"
+              color="gray.400"
+              _hover={{ color: "brand.primary" }}
             >
               Privacy
             </Link>
-            <Link 
-              as={RouterLink} 
-              to={'/terms'}
-              fontSize="sm"
-              opacity={0.8}
-              _hover={{ color: 'brand.primary', opacity: 1 }}
-              transition="all 0.3s ease"
-            >
+            <Link as={RouterLink} to="/terms" fontSize="sm" color="gray.400" _hover={{ color: "brand.primary" }}>
               Terms
             </Link>
-            <Link 
-              as={RouterLink} 
-              to={'/cookies'}
-              fontSize="sm"
-              opacity={0.8}
-              _hover={{ color: 'brand.primary', opacity: 1 }}
-              transition="all 0.3s ease"
-            >
+            <Link as={RouterLink} to="/cookies" fontSize="sm" color="gray.400" _hover={{ color: "brand.primary" }}>
               Cookies
             </Link>
           </Stack>
         </Container>
       </Box>
     </Box>
-  );
+  )
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\AppUser as User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -37,16 +37,17 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create([
-            'email' => $request->email,
-            'password_hash' => Hash::make($request->password),
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'is_verified' => false,
-            'verification_code' => Str::random(60),
-        ]);
+        // Create the user with the correct model
+        $user = new User();
+        $user->email = $request->email;
+        $user->password = $request->password; // Will be hashed by the model
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->phone = $request->phone;
+        $user->role = $request->role;
+        $user->is_verified = false;
+        $user->verification_code = Str::random(60);
+        $user->save();
 
         // Handle additional profile creation based on role
         if ($request->role === 'business_owner' && $request->has('business_name')) {
