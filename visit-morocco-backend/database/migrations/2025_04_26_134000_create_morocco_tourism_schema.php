@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('profile_picture')->nullable(); 
             $table->enum('role', ['admin', 'business_owner', 'guide', 'tourist']);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('last_login')->nullable();
             $table->boolean('is_verified')->default(false);
             $table->string('verification_code', 100)->nullable();

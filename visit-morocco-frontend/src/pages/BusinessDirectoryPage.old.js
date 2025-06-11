@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -6,93 +7,23 @@ import {
   Text,
   SimpleGrid,
   Flex,
+  Input,
+  Select,
+  Button,
+  Badge,
+  Image,
+  Stack,
+  Icon,
   useColorModeValue,
   Spinner,
   Alert,
   AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  useToast,
-  Button,
-  Icon,
-  VStack,
-  HStack,
-  Badge,
-  useBreakpointValue,
-  Input,
   InputGroup,
   InputLeftElement,
-  Select,
-  Image,
-  Link,
-  Divider,
-  Tag,
-  TagLabel,
-  TagLeftIcon,
-  Wrap,
-  WrapItem,
 } from '@chakra-ui/react';
-import { 
-  FaSearch, 
-  FaStar, 
-  FaMapMarkerAlt, 
-  FaFilter, 
-  FaTimes, 
-  FaGlobe, 
-  FaPhone, 
-  FaRegClock,
-  FaRegStar,
-  FaStarHalfAlt
-} from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
-
-// Mock data for development
-const MOCK_BUSINESSES = [
-  {
-    business_id: 1,
-    name: 'Riad El Fenn',
-    description: 'Luxury riad in the heart of Marrakech medina offering traditional accommodations with modern amenities.',
-    category_id: 1,
-    category: { category_id: 1, name: 'Accommodations', color: 'blue' },
-    city_id: 1,
-    city: { city_id: 1, name: 'Marrakech' },
-    address: 'Derb Moullay Abdullah Ben Hussain, Marrakech 40000',
-    phone: '+212 524 44 12 10',
-    email: 'info@riadelfenn.com',
-    website: 'https://www.riadelfenn.com',
-    avg_rating: 4.8,
-    reviews_count: 426,
-    price_range: '$$$$',
-    is_featured: true,
-    photos: [],
-    hours: {
-      monday: { open: '09:00', close: '22:00' },
-      tuesday: { open: '09:00', close: '22:00' },
-      wednesday: { open: '09:00', close: '22:00' },
-      thursday: { open: '09:00', close: '22:00' },
-      friday: { open: '09:00', close: '23:00' },
-      saturday: { open: '10:00', close: '23:00' },
-      sunday: { open: '10:00', close: '22:00' },
-    },
-  },
-  // ... (other mock businesses)
-];
-
-const MOCK_CITIES = [
-  { city_id: 1, name: 'Marrakech', region_id: 1 },
-  { city_id: 2, name: 'Fes', region_id: 2 },
-  { city_id: 3, name: 'Casablanca', region_id: 3 },
-  { city_id: 4, name: 'Chefchaouen', region_id: 4 },
-  { city_id: 5, name: 'Essaouira', region_id: 5 },
-];
-
-// Animation variants for page transitions
-const pageVariants = {
-  initial: { opacity: 0, y: 20 },
-  enter: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  exit: { opacity: 0, y: -20, transition: { duration: 0.2 } },
-};
+import { FaSearch, FaStar, FaMapMarkerAlt, FaPhone, FaGlobe, FaTimes, FaFilter } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { businessService, cityService } from '../services/api';
 
 // Helper function to get a business image based on category
 const getBusinessImageByCategory = (categoryId) => {
@@ -302,28 +233,28 @@ const BusinessCard = ({ business }) => {
 };
 
 const BusinessDirectoryPage = () => {
+  // Define color mode values at the top level of the component
+  const bgColor = useColorModeValue('white', 'gray.700');
   // Color mode values
-  const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const inputBg = useColorModeValue('white', 'gray.700');
   const headingColor = useColorModeValue('gray.800', 'white');
   const textColor = useColorModeValue('gray.600', 'gray.300');
   const bgGradient = useColorModeValue(
     'linear(to-r, brand.primary, brand.secondary)',
     'linear(to-r, brand.primary, brand.secondary)'
   );
+  const filterPanelBg = useColorModeValue('gray.50', 'gray.700');
   const emptyStateBg = useColorModeValue('gray.50', 'gray.800');
   const emptyStateIconBg = useColorModeValue('white', 'gray.700');
-  const inputBg = useColorModeValue('white', 'gray.700');
-  const filterPanelBg = useColorModeValue('white', 'gray.700');
-  const toast = useToast();
-  const isMobile = useBreakpointValue({ base: true, md: false });
 
   // State for businesses and UI
   const [businesses, setBusinesses] = useState([]);
+  const [filteredBusinesses, setFilteredBusinesses] = useState([]);
   const [cities, setCities] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -332,117 +263,246 @@ const BusinessDirectoryPage = () => {
     category: '',
     sort: 'name',
   });
-
-  // Fetch data on component mount
-  useEffect(() => {
-    let isMounted = true;
-    
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // In a real implementation, use the API service:
-        // const [businessesRes, citiesRes] = await Promise.all([
-        //   businessService.getAll(),
-        //   cityService.getAll()
-        // ]);
-        
-        // For now, use mock data with a delay to simulate network
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        if (!isMounted) return;
-        
-        setBusinesses(MOCK_BUSINESSES);
-        setCities(MOCK_CITIES);
-        
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        if (!isMounted) return;
-        
-        setError('Failed to load data. Please try again later.');
-        toast({
-          title: 'Error',
-          description: 'Failed to load businesses. Using demo data instead.',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        
-        // Fallback to mock data
-        setBusinesses(MOCK_BUSINESSES);
-        setCities(MOCK_CITIES);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-    
-    fetchData();
-    
-    // Cleanup function
-    return () => {
-      isMounted = false;
-    };
-  }, [toast]);
-
-  // Extract unique categories from businesses
-  const uniqueCategories = useMemo(() => {
-    const categoryMap = new Map();
-    businesses.forEach(business => {
-      if (business?.category?.category_id) {
-        categoryMap.set(business.category.category_id, business.category);
-      }
-    });
-    return Array.from(categoryMap.values());
-  }, [businesses]);
-
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
   // Handle filter changes
-  const handleFilterChange = useCallback((key, value) => {
+  const handleFilterChange = (key, value) => {
     setFilters(prev => ({
       ...prev,
       [key]: value
     }));
-  }, []);
+  };
   
   // Clear all filters
-  const clearFilters = useCallback(() => {
+  const clearFilters = () => {
     setFilters({
       search: '',
       city: '',
       category: '',
       sort: 'name',
     });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Use mock data for development
+        // In a real implementation, you would use:
+        // const businessesResponse = await businessService.getAll();
+        // setBusinesses(businessesResponse.data);
+        
+        // For now, we'll use mock data with a timeout to simulate network delay
+        setTimeout(() => {
+          const mockBusinesses = [
+            {
+              business_id: 1,
+              name: 'Riad El Fenn',
+              description: 'Luxury riad in the heart of Marrakech medina offering traditional accommodations with modern amenities.',
+              category_id: 1,
+              category: { category_id: 1, name: 'Accommodations', icon: 'FaBed' },
+              city_id: 1,
+              city: { city_id: 1, name: 'Marrakech' },
+              address: 'Derb Moullay Abdullah Ben Hussain, Marrakech 40000',
+              latitude: 31.6295,
+              longitude: -7.9811,
+              phone: '+212 524 44 12 10',
+              email: 'info@riadelfenn.com',
+              website: 'https://www.riadelfenn.com',
+              avg_rating: 4.8,
+              reviews_count: 426,
+              price_range: '$$$$',
+              is_featured: true,
+              photos: []
+            },
+            {
+              business_id: 2,
+              name: 'La Mamounia Spa',
+              description: 'Award-winning spa offering traditional Moroccan hammam and beauty treatments in a luxurious setting.',
+              category_id: 2,
+              category: { category_id: 2, name: 'Wellness & Spa', icon: 'FaSpa' },
+              city_id: 1,
+              city: { city_id: 1, name: 'Marrakech' },
+              address: 'Avenue Bab Jdid, Marrakech 40040',
+              latitude: 31.6226,
+              longitude: -7.9950,
+              phone: '+212 524 38 86 00',
+              email: 'spa@mamounia.com',
+              website: 'https://www.mamounia.com/en/wellness-spa',
+              avg_rating: 4.9,
+              reviews_count: 312,
+              price_range: '$$$$',
+              is_featured: true,
+              photos: []
+            },
+            {
+              business_id: 3,
+              name: 'Café Clock',
+              description: 'Cultural café serving Moroccan fusion cuisine alongside storytelling events and cooking classes.',
+              category_id: 3,
+              category: { category_id: 3, name: 'Food & Dining', icon: 'FaUtensils' },
+              city_id: 2,
+              city: { city_id: 2, name: 'Fes' },
+              address: '7 Derb el Magana, Talaa Kbira, Fes 30000',
+              latitude: 34.0642,
+              longitude: -4.9766,
+              phone: '+212 535 63 78 55',
+              email: 'fes@cafeclock.com',
+              website: 'https://www.cafeclock.com',
+              avg_rating: 4.6,
+              reviews_count: 289,
+              price_range: '$$',
+              is_featured: false,
+              photos: []
+            },
+            {
+              business_id: 4,
+              name: 'Atlas Trek Shop',
+              description: 'Outdoor equipment store specializing in trekking and hiking gear for Atlas Mountain adventures.',
+              category_id: 4,
+              category: { category_id: 4, name: 'Shopping', icon: 'FaShoppingBag' },
+              city_id: 3,
+              city: { city_id: 3, name: 'Imlil' },
+              address: 'Main Street, Imlil 42152',
+              latitude: 31.1363,
+              longitude: -7.9197,
+              phone: '+212 666 55 44 33',
+              email: 'info@atlastrekshop.com',
+              website: 'https://www.atlastrekshop.com',
+              avg_rating: 4.7,
+              reviews_count: 124,
+              price_range: '$$',
+              is_featured: false,
+              photos: []
+            },
+            {
+              business_id: 5,
+              name: 'Sahara Desert Tours',
+              description: 'Tour operator offering guided camel treks and camping experiences in the Sahara Desert.',
+              category_id: 5,
+              category: { category_id: 5, name: 'Tours & Activities', icon: 'FaRoute' },
+              city_id: 4,
+              city: { city_id: 4, name: 'Merzouga' },
+              address: 'Hassi Labied, Merzouga 52202',
+              latitude: 31.0842,
+              longitude: -4.0135,
+              phone: '+212 678 99 00 11',
+              email: 'bookings@saharadesert.com',
+              website: 'https://www.saharadesert-tours.com',
+              avg_rating: 4.8,
+              reviews_count: 356,
+              price_range: '$$$',
+              is_featured: true,
+              photos: []
+            },
+            {
+              business_id: 6,
+              name: 'Taros Café',
+              description: 'Rooftop café-restaurant with sea views serving Moroccan and international cuisine.',
+              category_id: 3,
+              category: { category_id: 3, name: 'Food & Dining', icon: 'FaUtensils' },
+              city_id: 5,
+              city: { city_id: 5, name: 'Essaouira' },
+              address: 'Place Moulay Hassan, Essaouira 44000',
+              latitude: 31.5126,
+              longitude: -9.7700,
+              phone: '+212 524 47 64 07',
+              email: 'info@taroscafe.com',
+              website: 'https://www.taroscafe.com',
+              avg_rating: 4.5,
+              reviews_count: 218,
+              price_range: '$$',
+              is_featured: false,
+              photos: []
+            }
+          ];
+          
+          setBusinesses(mockBusinesses);
+          setFilteredBusinesses(mockBusinesses);
+          
+          // Extract unique categories from businesses with defensive programming
+          const categoriesMap = {};
+          if (Array.isArray(mockBusinesses)) {
+            mockBusinesses.forEach(business => {
+              if (business && business.category && business.category.category_id) {
+                categoriesMap[business.category.category_id] = business.category;
+              }
+            });
+          }
+          setCategories(Object.values(categoriesMap));
+          
+          // Mock cities data
+          const mockCities = [
+            { city_id: 1, name: 'Marrakech', region_id: 1 },
+            { city_id: 2, name: 'Fes', region_id: 2 },
+            { city_id: 3, name: 'Imlil', region_id: 1 },
+            { city_id: 4, name: 'Merzouga', region_id: 3 },
+            { city_id: 5, name: 'Essaouira', region_id: 1 },
+            { city_id: 6, name: 'Chefchaouen', region_id: 4 },
+            { city_id: 7, name: 'Casablanca', region_id: 5 },
+            { city_id: 8, name: 'Tangier', region_id: 6 }
+          ];
+          setCities(mockCities);
+          
+          setLoading(false);
+        }, 1000);
+        
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load businesses. Please try again later.');
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
-  // Filter and sort businesses based on filters
-  const filteredBusinesses = useMemo(() => {
-    if (!Array.isArray(businesses)) return [];
+  useEffect(() => {
+    // Apply filters whenever filter criteria change
+    // Make sure businesses is an array with defensive check
+    if (!Array.isArray(businesses)) {
+      console.error('Businesses is not an array:', businesses);
+      return; // Exit early if businesses is not an array
+    }
     
-    return businesses
-      .filter(business => {
-        if (!business) return false;
-        
-        // Filter by search term
-        const matchesSearch = !filters.search || 
-          (business.name && business.name.toLowerCase().includes(filters.search.toLowerCase())) ||
-          (business.description && business.description.toLowerCase().includes(filters.search.toLowerCase()));
-        
-        // Filter by city
-        const matchesCity = !filters.city || business.city_id === parseInt(filters.city);
-        
-        // Filter by category
-        const matchesCategory = !filters.category || 
-          (business.category && business.category.category_id === parseInt(filters.category));
-        
-        return matchesSearch && matchesCity && matchesCategory;
-      })
-      .sort((a, b) => {
+    let results = [...businesses]; // Create a copy to avoid mutation
+    
+    // Apply search term filter
+    if (filters.search && filters.search.trim() !== '') {
+      results = results.filter(business => 
+        (business && business.name && typeof business.name === 'string' && 
+          business.name.toLowerCase().includes(filters.search.toLowerCase())) ||
+        (business && business.description && typeof business.description === 'string' && 
+          business.description.toLowerCase().includes(filters.search.toLowerCase()))
+      );
+    }
+    
+    // Apply city filter
+    if (filters.city && filters.city.trim() !== '') {
+      results = results.filter(business => 
+        business && business.city_id !== undefined && 
+        business.city_id === parseInt(filters.city)
+      );
+    }
+    
+    // Apply category filter
+    if (filters.category && filters.category.trim() !== '') {
+      results = results.filter(business => 
+        business && business.category_id !== undefined && 
+        business.category_id === parseInt(filters.category)
+      );
+    }
+    
+    // Apply sorting - ensure results is still an array
+    if (Array.isArray(results) && results.length > 0) {
+      results.sort((a, b) => {
         if (!a || !b) return 0;
         
         switch (filters.sort) {
           case 'name':
-            return (a.name && b.name) ? a.name.localeCompare(b.name) : 0;
+            return (a.name && typeof a.name === 'string') && (b.name && typeof b.name === 'string') ? 
+              a.name.localeCompare(b.name) : 0;
           case 'rating':
             return (b.avg_rating || 0) - (a.avg_rating || 0);
           case 'featured':
@@ -451,262 +511,170 @@ const BusinessDirectoryPage = () => {
             return 0;
         }
       });
+    }
+    
+    setFilteredBusinesses(results);
   }, [businesses, filters]);
 
-  // Loading state
+  const handleReset = () => {
+    setFilters({
+      search: '',
+      city: '',
+      category: '',
+      sort: 'name',
+    });
+  };
+
   if (loading) {
     return (
-      <Flex 
-        as={motion.div}
-        initial="initial"
-        animate="enter"
-        exit="exit"
-        variants={pageVariants}
-        justify="center" 
-        align="center" 
-        minH="60vh"
-        p={4}
-      >
-        <VStack spacing={6}>
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="brand.primary"
-            size="xl"
-          />
-          <Text color={textColor}>Loading businesses...</Text>
-        </VStack>
+      <Flex justify="center" align="center" minH="60vh">
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="brand.primary"
+          size="xl"
+        />
       </Flex>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <Container 
-        as={motion.div}
-        initial="initial"
-        animate="enter"
-        exit="exit"
-        variants={pageVariants}
-        maxW="container.xl" 
-        py={10}
-      >
-        <Alert status="error" borderRadius="lg">
+      <Container maxW="container.xl" py={10}>
+        <Alert status="error">
           <AlertIcon />
-          <Box>
-            <AlertTitle>Error loading businesses</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Box>
+          {error}
         </Alert>
       </Container>
     );
   }
 
-  // Main render
   return (
-    <Box minH="calc(100vh - 80px)" bg={bgColor}>
+    <Box minH="calc(100vh - 80px)">
       {/* Hero Section */}
       <Box
-        as={motion.section}
-        position="relative"
-        bg="gray.900"
+        bg="brand.dark"
         color="white"
+        py={12}
+        position="relative"
         overflow="hidden"
-        pb={{ base: 20, md: 32 }}
-        pt={{ base: 32, md: 44 }}
       >
-        {/* Background image with overlay */}
+        {/* Decorative Elements */}
         <Box
           position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bgImage="url('/images/morocco-hero.jpg')"
-          bgSize="cover"
-          bgPosition="center"
-          bgAttachment="fixed"
-          zIndex={1}
-          opacity={0.8}
+          right="5%"
+          top="10%"
+          w="200px"
+          h="200px"
+          borderRadius="full"
+          bg="rgba(255,255,255,0.03)"
         />
         <Box
           position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bgGradient="linear(to-b, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.8) 100%)"
-          zIndex={2}
+          left="10%"
+          bottom="10%"
+          w="150px"
+          h="150px"
+          borderRadius="full"
+          bg="rgba(255,255,255,0.05)"
         />
 
-        <Container maxW="container.xl" position="relative" zIndex={3}>
-          <VStack
-            spacing={6}
-            align={{ base: 'center', md: 'flex-start' }}
-            textAlign={{ base: 'center', md: 'left' }}
-            maxW="3xl"
-          >
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+        <Container maxW="container.xl">
+          <Box maxW="container.md">
+            <Heading
+              as="h1"
+              size="2xl"
+              mb={4}
+              fontWeight="800"
+              bgGradient="linear(to-r, white, brand.accent)"
+              bgClip="text"
             >
-              <Badge
-                px={4}
-                py={2}
-                borderRadius="full"
-                bg="rgba(255,255,255,0.15)"
-                color="white"
-                fontWeight="600"
-                fontSize="sm"
-                letterSpacing="wide"
-                textTransform="uppercase"
-                backdropFilter="blur(8px)"
-              >
-                Business Directory
-              </Badge>
-            </MotionBox>
+              Explore Moroccan Businesses
+            </Heading>
+            <Text
+              fontSize="xl"
+              mb={6}
+              lineHeight="1.8"
+              color="gray.300"
+              maxW="container.sm"
+            >
+              Discover and connect with the best authentic businesses across Morocco, from restaurants to artisan shops and wellness experiences.
+            </Text>
 
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+            {/* Search Bar */}
+            <Box
+              bg="white"
+              p={1.5}
+              borderRadius="full"
+              display="flex"
+              boxShadow="0 10px 30px rgba(0,0,0,0.15)"
+              mb="-80px"
+              position="relative"
+              zIndex="1"
+              maxW="800px"
             >
-              <Heading
-                as="h1"
-                size="3xl"
-                fontWeight="800"
-                lineHeight="1.1"
-                letterSpacing="tight"
-                maxW="2xl"
-                bgGradient="linear(to-r, white, blue.100)"
-                bgClip="text"
-              >
-                Discover the Best of Morocco
-              </Heading>
-            </MotionBox>
-
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              maxW="2xl"
-            >
-              <Text
-                fontSize="xl"
-                color="gray.300"
-                lineHeight="taller"
-                fontWeight="400"
-              >
-                Explore our curated selection of the finest businesses and services across Morocco's most vibrant destinations
-              </Text>
-            </MotionBox>
-
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              pt={4}
-              w="100%"
-            >
-              <Flex 
-                direction={{ base: 'column', md: 'row' }} 
-                gap={4} 
-                align="center"
-                justify="space-between"
-                w="100%"
-                maxW="container.lg"
-                mx="auto"
-              >
-                {/* Search Bar */}
-                <Box
-                  bg="white"
-                  p={1.5}
+              <InputGroup size="lg" flex={1}>
+                <InputLeftElement pointerEvents="none">
+                  <Icon as={FaSearch} color="gray.400" />
+                </InputLeftElement>
+                <Input
+                  placeholder="Search businesses..."
+                  border="none"
+                  _focus={{ boxShadow: 'none' }}
                   borderRadius="full"
-                  display="flex"
-                  flex="1"
-                  boxShadow="0 10px 30px rgba(0,0,0,0.15)"
-                  position="relative"
-                  zIndex="1"
-                  maxW={{ base: '100%', md: '600px' }}
-                  mr={{ base: 0, md: 4 }}
-                >
-                  <InputGroup size="lg" flex={1}>
-                    <InputLeftElement pointerEvents="none">
-                      <Icon as={FaSearch} color="gray.400" />
-                    </InputLeftElement>
-                    <Input
-                      placeholder="Search businesses..."
-                      border="none"
-                      _focus={{ boxShadow: 'none' }}
-                      borderRadius="full"
-                      onChange={(e) => handleFilterChange('search', e.target.value)}
-                      value={filters.search}
-                    />
-                  </InputGroup>
-                  <Button
-                    colorScheme="green"
-                    size="lg"
-                    px={8}
-                    borderRadius="full"
-                    bg="brand.primary"
-                    _hover={{ bg: 'brand.secondary' }}
-                    onClick={() => {
-                      // Already handled by the useEffect
-                    }}
-                  >
-                    Search
-                  </Button>
-                </Box>
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  value={filters.search}
+                />
+              </InputGroup>
+              <Button
+                colorScheme="green"
+                size="lg"
+                px={8}
+                borderRadius="full"
+                bg="brand.primary"
+                _hover={{ bg: 'brand.secondary' }}
+                onClick={() => {
+                  // Already handled by the useEffect
+                }}
+              >
+                Search
+              </Button>
+            </Box>
 
-                {/* Filter Buttons */}
-                <Flex 
-                  direction={{ base: 'column', sm: 'row' }} 
-                  gap={4} 
-                  align="center"
-                  w={{ base: '100%', md: 'auto' }}
-                  mt={{ base: 4, md: 0 }}
-                >
-                  <Button
-                    leftIcon={<Icon as={isFilterOpen ? FaTimes : FaFilter} />}
-                    variant="outline"
-                    onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    borderRadius="full"
-                    borderColor={borderColor}
-                    _hover={{ bg: 'gray.50', borderColor: 'gray.300' }}
-                    _active={{ bg: 'gray.100' }}
-                    size="lg"
-                    w={{ base: '100%', sm: 'auto' }}
-                  >
-                    {isFilterOpen ? 'Hide Filters' : 'Filters'}
-                  </Button>
+            <Flex direction={{ base: 'column', md: 'row' }} gap={4} align="center">
+              <Button
+                leftIcon={<Icon as={isFilterOpen ? FaTimes : FaFilter} />}
+                variant="outline"
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                borderRadius="full"
+                borderColor={borderColor}
+                _hover={{ bg: 'gray.50', borderColor: 'gray.300' }}
+                _active={{ bg: 'gray.100' }}
+              >
+                {isFilterOpen ? 'Hide Filters' : 'Filters'}
+              </Button>
 
-                  <Select
-                    value={filters.sort}
-                    onChange={(e) => handleFilterChange('sort', e.target.value)}
-                    maxW={{ base: '100%', sm: '200px' }}
-                    bg={inputBg}
-                    borderRadius="full"
-                    borderColor={borderColor}
-                    _hover={{ borderColor: 'gray.300' }}
-                    _focus={{
-                      borderColor: 'brand.primary',
-                      boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
-                    }}
-                    fontSize="md"
-                    size="lg"
-                    w={{ base: '100%', sm: 'auto' }}
-                  >
-                    <option value="name_asc">Sort: A to Z</option>
-                    <option value="name_desc">Sort: Z to A</option>
-                    <option value="rating_desc">Top Rated</option>
-                    <option value="reviews_desc">Most Reviewed</option>
-                  </Select>
-                </Flex>
-              </Flex>
-            </MotionBox>
+              <Select
+                value={filters.sort}
+                onChange={(e) => handleFilterChange('sort', e.target.value)}
+                maxW={{ base: '100%', md: '200px' }}
+                bg={inputBg}
+                borderRadius="full"
+                borderColor={borderColor}
+                _hover={{ borderColor: 'gray.300' }}
+                _focus={{
+                  borderColor: 'brand.primary',
+                  boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
+                }}
+                fontSize="sm"
+              >
+                <option value="name_asc">Sort: A to Z</option>
+                <option value="name_desc">Sort: Z to A</option>
+                <option value="rating_desc">Top Rated</option>
+                <option value="reviews_desc">Most Reviewed</option>
+              </Select>
+            </Flex>
 
             <motion.div
               initial={false}
@@ -742,7 +710,7 @@ const BusinessDirectoryPage = () => {
                         boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
                       }}
                     >
-                      {uniqueCategories.map((category) => (
+                      {categories.map((category) => (
                         <option key={category.category_id} value={category.category_id}>
                           {category.name}
                         </option>
@@ -775,7 +743,7 @@ const BusinessDirectoryPage = () => {
                 </SimpleGrid>
               </Box>
             </motion.div>
-          </VStack>
+          </Box>
         </Container>
       </Box>
 
@@ -953,5 +921,8 @@ const BusinessDirectoryPage = () => {
     </Box>
   );
 };
+
+// Destructure Alert components at the top level
+const { AlertTitle, AlertDescription } = Alert;
 
 export default BusinessDirectoryPage;
