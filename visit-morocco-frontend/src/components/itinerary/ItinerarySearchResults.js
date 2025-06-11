@@ -27,7 +27,8 @@ const ItinerarySearchResults = ({ results, addItemToDay, days }) => {
   
   // Get badge color based on item type
   const getBadgeColor = (type) => {
-    switch (type) {
+    if (!type) return 'gray';
+    switch (String(type).toLowerCase()) {
       case 'attraction':
         return 'blue';
       case 'business':
@@ -87,10 +88,12 @@ const ItinerarySearchResults = ({ results, addItemToDay, days }) => {
               <Flex justify="space-between" align="flex-start">
                 <Box>
                   <Flex align="center" mb={1}>
-                    <Text fontWeight="bold" mr={2}>{item.name}</Text>
-                    <Badge colorScheme={getBadgeColor(item.type)}>
-                      {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
-                    </Badge>
+                    <Text fontWeight="bold" mr={2}>{item.name || 'Unnamed Item'}</Text>
+                    {item?.type && (
+                      <Badge colorScheme={getBadgeColor(item.type)} ml={1}>
+                        {String(item.type).charAt(0).toUpperCase() + String(item.type).slice(1)}
+                      </Badge>
+                    )}
                   </Flex>
                   <Text fontSize="sm" color="gray.600" mb={1}>{item.location}</Text>
                   <Text fontSize="sm" noOfLines={2}>{item.description}</Text>

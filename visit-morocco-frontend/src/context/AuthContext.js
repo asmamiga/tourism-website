@@ -25,10 +25,41 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       // Fetch user profile from backend
+      console.log('Fetching user profile...');
       const response = await axios.get('http://localhost:8000/api/profile');
+      console.log('Profile API response:', response.data);
       
       if (response.data) {
-        setUser(response.data);
+        // Extract user data from the response
+        const responseData = response.data;
+        const userFromResponse = responseData.user || responseData;
+        
+        // Determine the role - check both root level and nested user object
+        let role = 'tourist';
+        if (responseData.role) {
+          role = responseData.role;
+        } else if (userFromResponse.role) {
+          role = userFromResponse.role;
+        } else if (userFromResponse.user_type) {
+          role = userFromResponse.user_type;
+        }
+        
+        // Normalize the role
+        role = String(role).toLowerCase().trim();
+        
+        // If the email contains 'owner' or 'business', set role to business_owner
+        if (userFromResponse.email && (userFromResponse.email.includes('owner') || userFromResponse.email.includes('business'))) {
+          role = 'business_owner';
+        }
+        
+        // Create normalized user data
+        const userData = {
+          ...userFromResponse,
+          role: role
+        };
+        
+        console.log('Normalized user data:', userData);
+        setUser(userData);
       }
     } catch (err) {
       console.error('Error fetching user profile:', err);

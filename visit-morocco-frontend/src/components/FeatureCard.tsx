@@ -9,6 +9,7 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import { IconType } from 'react-icons';
+import { LucideIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
@@ -16,7 +17,7 @@ const MotionBox = motion(Box);
 interface FeatureCardProps {
   title: string;
   description: string;
-  icon: IconType;
+  icon: IconType | LucideIcon;
   colorScheme?: string;
   delay?: number;
 }
@@ -59,7 +60,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             borderRadius="lg"
             color={iconColor}
           >
-            <Icon as={icon} boxSize={6} />
+            {React.isValidElement(icon) ? (
+              icon
+            ) : (
+              <Icon as={icon} w={8} h={8} color={iconColor} />
+            )}
           </Box>
           <Heading size="md" fontWeight="semibold">
             {title}

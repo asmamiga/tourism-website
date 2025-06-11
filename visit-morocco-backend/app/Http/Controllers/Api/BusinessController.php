@@ -25,9 +25,19 @@ class BusinessController extends Controller
             $query = Business::query();
             
             // With relationships
-            $query->with(['city.region', 'businessCategory', 'photos' => function($query) {
-                $query->where('is_featured', true)->first();
+            $query->with(['city.region', 'category', 'photos' => function($query) {
+                $query->where('is_primary', true)->first();
             }]);
+            
+            // If no search parameters, return all businesses
+            if (!$request->hasAny(['city_id', 'region_id', 'category_id', 'name', 'features', 'min_price', 'max_price', 'min_rating'])) {
+                $businesses = $query->orderBy('name', 'asc')->get();
+                
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $businesses
+                ]);
+            }
             
             // Filter by city if provided
             if ($request->has('city_id')) {

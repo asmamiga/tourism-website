@@ -34,6 +34,14 @@ use App\Http\Controllers\{
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Public attraction routes
+Route::get('/attractions', 'App\Http\Controllers\Api\AttractionController@index');
+Route::get('/attractions/{id}', 'App\Http\Controllers\Api\AttractionController@show');
+Route::get('/cities', 'App\Http\Controllers\Api\CityController@index');
+Route::get('/cities/{id}', 'App\Http\Controllers\Api\CityController@show');
+Route::get('/regions', 'App\Http\Controllers\Api\RegionController@index');
+Route::get('/regions/{id}', 'App\Http\Controllers\Api\RegionController@show');
+
 // Flight booking public routes
 Route::prefix('cloud-tickets')->group(function () {
     // CORS OPTIONS preflight route
@@ -100,6 +108,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
+    
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
     
     // User routes
     Route::get('/users', [UserController::class, 'index']);

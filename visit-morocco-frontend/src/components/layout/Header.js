@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Link as RouterLink, useLocation } from "react-router-dom"
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom"
 import {
   Box,
   Flex,
@@ -322,6 +322,7 @@ export default function Header() {
   const { isOpen, onToggle } = useDisclosure()
   const { user, logout } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -362,11 +363,12 @@ export default function Header() {
         >
           {/* Logo */}
           <Flex
-            as={RouterLink}
-            to="/"
+            as="div"
             align="center"
             flexShrink={0}
             mr={10}
+            onClick={() => navigate(user ? '/dashboard' : '/')}
+            cursor="pointer"
           >
             <Text
               fontSize="xl"

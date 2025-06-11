@@ -67,14 +67,58 @@ export const businessService = {
 
 // Guide services
 export const guideService = {
-  getAll: (params) => api.get('/guides', { params }),
+  /**
+   * Get all guides with optional filtering and pagination
+   * @param {Object} params - Query parameters
+   * @param {string} params.letter - First letter of guide's name to filter by
+   * @param {string} params.search - Search term for guide name or bio
+   * @param {string} params.city_id - Filter by city ID
+   * @param {string} params.language_id - Filter by language ID
+   * @param {number} params.min_rating - Minimum rating to filter by
+   * @param {string} params.order_by - Field to order by (default: first_name)
+   * @param {string} params.order_dir - Order direction (asc/desc, default: asc)
+   * @param {number} params.per_page - Number of items per page
+   * @param {number} params.page - Page number
+   * @returns {Promise} Axios response
+   */
+  getAll: (params = {}) => {
+    // Handle first letter filter
+    if (params.letter) {
+      return api.get('/guides', {
+        params: {
+          ...params,
+          filter: {
+            name: params.letter
+          },
+          order_by: 'first_name',
+          order_dir: 'asc'
+        }
+      });
+    }
+    return api.get('/guides', { params });
+  },
+  
   getById: (id) => api.get(`/guides/${id}`),
+  
+  // Guide services management
   createService: (data) => api.post('/guide-services', data),
   updateService: (id, data) => api.put(`/guide-services/${id}`, data),
   deleteService: (id) => api.delete(`/guide-services/${id}`),
+  
+  // Availability management
   addAvailability: (data) => api.post('/guide-availability', data),
   updateAvailability: (id, data) => api.put(`/guide-availability/${id}`, data),
   deleteAvailability: (id) => api.delete(`/guide-availability/${id}`),
+  
+  // Get available time slots for a guide
+  getAvailableSlots: (guideId, date) => 
+    api.get(`/guides/${guideId}/availability`, { params: { date } }),
+  
+  // Get guide reviews
+  getReviews: (guideId) => api.get(`/guides/${guideId}/reviews`),
+  
+  // Get guide services
+  getServices: (guideId) => api.get(`/guides/${guideId}/services`)
 };
 
 // Attraction services

@@ -6,9 +6,11 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import BusinessDirectoryPage from './pages/BusinessDirectoryPage';
 import BusinessDetailPage from './pages/BusinessDetailPage';
+import CreateBusinessPage from './pages/Business/CreateBusinessPage';
 import GuidesPage from './pages/GuidesPage';
 import GuideDetailPage from './pages/GuideDetailPage';
 import AttractionsPage from './pages/AttractionsPage';
+import AllAttractionsPage from './pages/AllAttractionsPage';
 import AttractionDetailPage from './pages/AttractionDetailPage';
 import ItineraryPlannerPage from './pages/ItineraryPlannerPage';
 import CommunityForumPage from './pages/CommunityForumPage';
@@ -16,6 +18,10 @@ import TravelStoriesPage from './pages/TravelStoriesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import Dashboard from './pages/Dashboard';
+import BusinessDashboard from './pages/Dashboard/BusinessDashboard';
+import GuideDashboard from './pages/Dashboard/GuideDashboard';
+import TouristDashboard from './pages/Dashboard/TouristDashboard';
 import RegionsPage from './pages/RegionsPage';
 import ExperiencesPage from './pages/ExperiencesPage';
 import { AuthProvider } from './context/AuthContext';
@@ -66,17 +72,23 @@ function App() {
     <AuthProvider>
       <Box minH="100vh" display="flex" flexDirection="column">
         <Header />
-        <Box as="main" flex="1">
+        <Box as="main" flex="1" pt="80px">
           <Routes>
             {/* Main App Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/businesses" element={<BusinessDirectoryPage />} />
+            <Route path="/businesses/new" element={
+              <ProtectedRoute allowedRoles={['business_owner']}>
+                <CreateBusinessPage />
+              </ProtectedRoute>
+            } />
             <Route path="/businesses/:id" element={<BusinessDetailPage />} />
             <Route path="/guides" element={<GuidesPage />} />
             <Route path="/guides/:id" element={<GuideDetailPage />} />
-            <Route path="/attractions" element={<AttractionsPage />} />
+            <Route path="/attractions" element={<AllAttractionsPage />} />
+            <Route path="/attractions/explore" element={<AttractionsPage />} />
             <Route path="/attractions/:id" element={<AttractionDetailPage />} />
-            <Route path="/itinerary" element={<ItineraryPlannerPage />} />
+            <Route path="/itinerary-planner" element={<ItineraryPlannerPage />} />
             <Route path="/community" element={<CommunityForumPage />} />
             <Route path="/stories" element={<TravelStoriesPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -88,6 +100,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/business"
+              element={
+                <ProtectedRoute allowedRoles={['business_owner']}>
+                  <BusinessDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/guide"
+              element={
+                <ProtectedRoute allowedRoles={['guide']}>
+                  <GuideDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/tourist"
+              element={
+                <ProtectedRoute allowedRoles={['tourist']}>
+                  <TouristDashboard />
                 </ProtectedRoute>
               }
             />

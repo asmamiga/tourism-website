@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\App;
 
 class Guide extends Model
 {
@@ -42,21 +44,21 @@ class Guide extends Model
      * @var array
      */
     protected $casts = [
-        'languages' => 'json',
-        'specialties' => 'json',
+        'languages' => 'array',
+        'specialties' => 'array',
         'daily_rate' => 'decimal:2',
         'is_available' => 'boolean',
         'is_approved' => 'boolean',
         'experience_years' => 'integer',
     ];
-
+    
     /**
-     * Indicates if the model should be timestamped.
+     * The accessors to append to the model's array form.
      *
-     * @var bool
+     * @var array
      */
-    public $timestamps = false;
-
+    protected $appends = ['full_name'];
+    
     /**
      * Get the user that owns the guide profile.
      */
@@ -64,7 +66,36 @@ class Guide extends Model
     {
         return $this->belongsTo(AppUser::class, 'user_id', 'user_id');
     }
+    
+    /**
+     * Get the guide's full name.
+     *
+     * @return string
+     */
+    public function getFullNameAttribute()
+    {
+        return $this->user ? trim($this->user->first_name . ' ' . $this->user->last_name) : '';
+    }
+    
+    /**
+     * Get the guide's image URL.
+     *
+     * @return string|null
+     */
+    public function getImageUrlAttribute()
+    {
+        return $this->user && $this->user->profile_photo_path 
+            ? asset('storage/' . $this->user->profile_photo_path)
+            : null;
+    }
 
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+    
     /**
      * Get the services offered by the guide.
      */
@@ -95,6 +126,21 @@ class Guide extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(GuideReview::class, 'guide_id', 'guide_id');
+    }
+    
+    /**
+     * Get the cities where the guide offers services.
+     */
+    public function cities(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            City::class,
+            'guide_services', // Pivot table
+            'guide_id',       // Foreign key on the guide_services table
+            'city_id',        // Foreign key on the guide_services table
+            'guide_id',       // Local key on guides table
+            'city_id'         // Related key on cities table
+        )->distinct()->withTimestamps();
     }
 
     /**

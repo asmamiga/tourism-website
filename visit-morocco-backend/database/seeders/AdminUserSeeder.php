@@ -13,14 +13,16 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Main Admin',
-            'email' => 'admin@morocco-tourism.com',
-            'password' => Hash::make('Admin@123'),
-            'email_verified_at' => now(),
-        ]);
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@morocco-tourism.com'],
+            [
+                'name' => 'Main Admin',
+                'password' => Hash::make('Admin@123'),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        $this->command->info('Admin user created successfully.');
+        $this->command->info('Admin user created/updated successfully.');
         $this->command->info('Email: admin@morocco-tourism.com');
         $this->command->info('Password: Admin@123');
     }

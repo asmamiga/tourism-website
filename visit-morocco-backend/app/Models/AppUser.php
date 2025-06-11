@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Models\BusinessOwner;
+use App\Models\Guide;
 
 class AppUser extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory;
     
     /**
      * The event map for the model.
@@ -195,6 +198,22 @@ class AppUser extends Authenticatable
     public function isTourist()
     {
         return $this->role === 'tourist';
+    }
+
+    /**
+     * Get the business owner profile associated with the user.
+     */
+    public function businessOwner()
+    {
+        return $this->hasOne(BusinessOwner::class, 'user_id', 'user_id');
+    }
+
+    /**
+     * Get the guide profile associated with the user.
+     */
+    public function guide()
+    {
+        return $this->hasOne(Guide::class, 'user_id', 'user_id');
     }
 
     /**

@@ -1,49 +1,166 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import React, { useState, useEffect, useAuth  } from 'react';
+import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Box,
   Container,
   Heading,
   Text,
   Image,
-  SimpleGrid,
-  Flex,
+  Stack,
+  HStack,
+  VStack,
+  Divider,
   Badge,
   Button,
   Icon,
+  useColorModeValue,
+  Alert,
+  AlertIcon,
+  Spinner,
   Tabs,
   TabList,
   TabPanels,
   Tab,
   TabPanel,
-  Divider,
-  Stack,
-  useColorModeValue,
-  Spinner,
-  Alert,
-  AlertIcon,
+  SimpleGrid,
   Avatar,
-  HStack,
-  Link,
+  Flex,
+  useToast,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Wrap,
+  WrapItem,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
+  Tooltip,
+  IconButton,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Textarea,
+  Select,
+  useBreakpointValue,
+  AspectRatio,
+  Skeleton,
+  SkeletonCircle,
+  SkeletonText,
+  useDisclosure,
+  List,
+  ListItem,
+  ListIcon,
+  UnorderedList,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { FaStar, FaMapMarkerAlt, FaPhone, FaEnvelope, FaGlobe, FaCalendarAlt, FaClock } from 'react-icons/fa';
-import { businessService } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import BookingForm from '../components/business/BookingForm';
+import { 
+  FaStar, 
+  FaMapMarkerAlt, 
+  FaPhone, 
+  FaGlobe, 
+  FaClock, 
+  FaEnvelope, 
+  FaFacebook, 
+  FaTwitter, 
+  FaInstagram, 
+  FaYelp,
+  FaChevronRight,
+  FaChevronLeft,
+  FaExpand,
+  FaShare,
+  FaBookmark,
+  FaRegBookmark,
+  FaDirections,
+  FaPhoneAlt,
+  FaGlobeAmericas,
+  FaRegEnvelope,
+  FaRegClock,
+  FaChevronDown,
+  FaChevronUp,
+  FaRegCalendarCheck,
+  FaRegCalendarTimes,
+  FaRegCalendarAlt,
+  FaRegUser,
+  FaRegStar,
+  FaRegStarHalfAlt,
+  FaRegCheckCircle,
+  FaRegTimesCircle,
+  FaRegQuestionCircle,
+  FaRegSmile,
+  FaRegFrown,
+  FaRegMeh,
+  FaRegSadTear,
+  FaRegGrinStars,
+  FaRegGrinBeam,
+  FaRegGrinSquint,
+  FaRegGrinSquintTears,
+  FaRegGrinHearts,
+  FaRegGrinTongue,
+  FaRegGrinTongueSquint,
+  FaRegGrinTongueWink,
+  FaRegGrinWink,
+  FaRegGrinBeamSweat,
+} from 'react-icons/fa';
+import { businessService, reviewService } from '../services/api';
+import { format, parseISO, isToday, isWeekend, getDay } from 'date-fns';
+import { AuthContext } from '../context/AuthContext';
+
+// Import components
+import BusinessMap from '../components/business/BusinessMap';
 import ReviewList from '../components/business/ReviewList';
 import ReviewForm from '../components/business/ReviewForm';
-import BusinessMap from '../components/business/BusinessMap';
+import BookingForm from '../components/business/BookingForm';
 
 const MotionBox = motion(Box);
 
+// Helper function to get day name from day number (0-6, Sunday-Saturday)
+const getDayName = (dayNumber) => {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  return days[dayNumber];
+};
+
+// Helper function to format business hours
+const formatBusinessHours = (hours) => {
+  if (!hours || !hours.length) return null;
+  
+  // Group hours by day
+  const hoursByDay = {};
+  hours.forEach(hour => {
+    if (!hoursByDay[hour.day_of_week]) {
+      hoursByDay[hour.day_of_week] = [];
+    }
+    hoursByDay[hour.day_of_week].push(hour);
+  });
+  
+  return hoursByDay;
+};
+
 const BusinessDetailPage = () => {
   const { id } = useParams();
-  const { user } = useAuth();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -305,9 +422,9 @@ const BusinessDetailPage = () => {
                       {business.website && (
                         <Flex align="center">
                           <Icon as={FaGlobe} color="brand.primary" mr={3} />
-                          <Link href={business.website} isExternal color="brand.primary">
+                          <ChakraLink href={business.website} isExternal color="brand.primary">
                             {business.website}
-                          </Link>
+                          </ChakraLink>
                         </Flex>
                       )}
                     </Stack>

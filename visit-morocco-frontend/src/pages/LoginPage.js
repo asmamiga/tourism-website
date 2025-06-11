@@ -27,11 +27,12 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+    
     setIsLoading(true);
     
     try {
       const success = await login(email, password);
-      
       if (success) {
         toast({
           title: 'Login successful',
@@ -39,7 +40,8 @@ const LoginPage = () => {
           duration: 3000,
           isClosable: true,
         });
-        navigate('/');
+        // Navigate to dashboard after successful login
+        navigate('/dashboard');
       }
     } catch (error) {
       toast({
