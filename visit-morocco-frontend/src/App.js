@@ -72,7 +72,7 @@ function App() {
     <AuthProvider>
       <Box minH="100vh" display="flex" flexDirection="column">
         <Header />
-        <Box as="main" flex="1" pt="80px">
+        <Box as="main" flex="1">
           <Routes>
             {/* Main App Routes */}
             <Route path="/" element={<HomePage />} />

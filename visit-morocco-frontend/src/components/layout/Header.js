@@ -77,8 +77,9 @@ const NAV_ITEMS = [
 const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
   const { label, children, href } = navItem
   const linkColor = isScrolled || !isHomePage ? "gray.700" : "white"
-  const hoverColor = isScrolled || !isHomePage ? "brand.primary" : "white"
-  const bgColor = isHomePage ? 'rgba(0, 0, 0, 0.7)' : 'white'
+  const hoverColor = isScrolled || !isHomePage ? "brand.500" : "white"
+  const bgHover = isHomePage && !isScrolled ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.05)'
+  const textShadow = isHomePage && !isScrolled ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
 
   if (children) {
     return (
@@ -93,10 +94,17 @@ const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
                 color={linkColor}
                 _hover={{
                   color: hoverColor,
-                  bg: isScrolled || !isHomePage ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)',
+                  bg: isScrolled || !isHomePage ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.2)',
+                  textShadow: textShadow
                 }}
                 _active={{
-                  bg: isScrolled || !isHomePage ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)',
+                  bg: isScrolled || !isHomePage ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.3)',
+                }}
+                _light={{
+                  color: isScrolled || !isHomePage ? 'gray.800' : 'white',
+                  _hover: {
+                    color: isScrolled || !isHomePage ? 'brand.600' : 'white',
+                  }
                 }}
                 fontWeight={500}
                 fontSize="md"
@@ -111,7 +119,7 @@ const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
             <PopoverContent
               border={0}
               boxShadow="xl"
-              bg={bgColor}
+              bg={isHomePage ? 'rgba(0, 0, 0, 0.8)' : 'white'}
               p={2}
               rounded="lg"
               w="auto"
@@ -119,6 +127,7 @@ const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
               zIndex="dropdown"
               backdropFilter="blur(10px)"
               _focus={{ boxShadow: 'xl' }}
+              color={isHomePage ? 'white' : 'gray.800'}
             >
               <Stack spacing={1}>
                 {children.map((child) => (
@@ -338,20 +347,30 @@ export default function Header() {
   const isHomePage = location.pathname === "/"
   const headerBg = isHomePage && !scrolled 
     ? 'transparent' 
-    : 'rgba(255, 255, 255, 0.95)'
+    : 'rgba(255, 255, 255, 0.98)'
   const headerShadow = scrolled ? 'sm' : 'none'
   const logoColor = isHomePage && !scrolled ? 'white' : 'brand.900'
+  const textColor = isHomePage && !scrolled ? 'white' : 'gray.700'
+  const navTextColor = isHomePage && !scrolled ? 'white' : 'gray.700'
 
   return (
     <Box
       as="header"
       position="fixed"
+      top={0}
+      left={0}
+      right={0}
       w="100%"
       zIndex="sticky"
       bg={headerBg}
-      boxShadow={headerShadow}
+      boxShadow={isHomePage && !scrolled ? 'none' : headerShadow}
       transition="all 0.3s ease"
       backdropFilter={isHomePage && !scrolled ? 'none' : 'blur(10px)'}
+      borderBottom={isHomePage && !scrolled ? 'none' : '1px solid rgba(0, 0, 0, 0.05)'}
+      color={navTextColor}
+      _light={{
+        color: isHomePage && !scrolled ? 'white' : 'gray.800',
+      }}
     >
       <Container maxW="container.xl" px={{ base: 4, md: 6 }}>
         <Flex
@@ -360,6 +379,7 @@ export default function Header() {
           justify="space-between"
           h="70px"
           py={2}
+          color={navTextColor}
         >
           {/* Logo */}
           <Flex
@@ -384,12 +404,13 @@ export default function Header() {
           <Flex display={{ base: 'none', md: 'flex' }} flex={1} justify="center">
             <Stack direction="row" spacing={1}>
               {NAV_ITEMS.map((navItem) => (
-                <DesktopNavItem 
-                  key={navItem.label} 
-                  navItem={navItem} 
-                  isScrolled={scrolled}
-                  isHomePage={isHomePage}
-                />
+                <Box key={navItem.label}>
+                  <DesktopNavItem 
+                    navItem={navItem} 
+                    isScrolled={scrolled}
+                    isHomePage={isHomePage}
+                  />
+                </Box>
               ))}
             </Stack>
           </Flex>
@@ -410,7 +431,7 @@ export default function Header() {
                   variant="ghost"
                   color={isHomePage && !scrolled ? 'white' : 'gray.700'}
                   _hover={{
-                    bg: isHomePage && !scrolled ? 'rgba(255, 255, 255, 0.1)' : 'gray.100',
+                    bg: isHomePage && !scrolled ? 'rgba(255, 255, 255, 0.15)' : 'gray.100',
                   }}
                 >
                   Sign In
@@ -436,9 +457,12 @@ export default function Header() {
               <Button
                 onClick={logout}
                 variant="ghost"
-                color={isHomePage && !scrolled ? 'white' : 'gray.700'}
+                color={textColor}
                 _hover={{
-                  bg: isHomePage && !scrolled ? 'rgba(255, 255, 255, 0.1)' : 'gray.100',
+                  bg: isHomePage && !scrolled ? 'rgba(255, 255, 255, 0.15)' : 'gray.100',
+                }}
+                _active={{
+                  bg: isHomePage && !scrolled ? 'rgba(255, 255, 255, 0.2)' : 'gray.200',
                 }}
               >
                 Sign Out
