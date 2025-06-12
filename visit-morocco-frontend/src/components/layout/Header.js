@@ -19,7 +19,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react"
 import { HamburgerIcon, CloseIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../contexts/AuthContext"
 import { motion } from "framer-motion"
 
 // Navigation items

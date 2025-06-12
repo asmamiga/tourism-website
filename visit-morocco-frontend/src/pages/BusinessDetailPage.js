@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useAuth  } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -24,52 +25,7 @@ import {
   Tab,
   TabPanel,
   SimpleGrid,
-  Avatar,
   Flex,
-  useToast,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  Wrap,
-  WrapItem,
-  Tag,
-  TagLabel,
-  TagLeftIcon,
-  Tooltip,
-  IconButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  FormControl,
-  FormLabel,
-  Textarea,
-  Select,
-  useBreakpointValue,
-  AspectRatio,
-  Skeleton,
-  SkeletonCircle,
-  SkeletonText,
-  useDisclosure,
-  List,
-  ListItem,
-  ListIcon,
-  UnorderedList,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
   Link as ChakraLink,
 } from '@chakra-ui/react';
 import { 
@@ -79,46 +35,7 @@ import {
   FaGlobe, 
   FaClock, 
   FaEnvelope, 
-  FaFacebook, 
-  FaTwitter, 
-  FaInstagram, 
-  FaYelp,
-  FaChevronRight,
-  FaChevronLeft,
-  FaExpand,
-  FaShare,
-  FaBookmark,
-  FaRegBookmark,
-  FaDirections,
-  FaPhoneAlt,
-  FaGlobeAmericas,
-  FaRegEnvelope,
-  FaRegClock,
-  FaChevronDown,
-  FaChevronUp,
-  FaRegCalendarCheck,
-  FaRegCalendarTimes,
-  FaRegCalendarAlt,
-  FaRegUser,
-  FaRegStar,
-  FaRegStarHalfAlt,
-  FaRegCheckCircle,
-  FaRegTimesCircle,
-  FaRegQuestionCircle,
-  FaRegSmile,
-  FaRegFrown,
-  FaRegMeh,
-  FaRegSadTear,
-  FaRegGrinStars,
-  FaRegGrinBeam,
-  FaRegGrinSquint,
-  FaRegGrinSquintTears,
-  FaRegGrinHearts,
-  FaRegGrinTongue,
-  FaRegGrinTongueSquint,
-  FaRegGrinTongueWink,
-  FaRegGrinWink,
-  FaRegGrinBeamSweat,
+  
 } from 'react-icons/fa';
 import { businessService, reviewService } from '../services/api';
 import { format, parseISO, isToday, isWeekend, getDay } from 'date-fns';
@@ -163,21 +80,43 @@ const BusinessDetailPage = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchBusiness = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await businessService.getById(id);
-        setBusiness(response.data);
-        setLoading(false);
+        if (isMounted) {
+          setBusiness(response.data);
+        }
       } catch (err) {
         console.error('Error fetching business details:', err);
-        setError('Failed to load business details. Please try again later.');
-        setLoading(false);
+        if (isMounted) {
+          if (err.response?.status === 404) {
+            setError('Business not found. The requested business may have been removed or does not exist.');
+          } else {
+            setError('Failed to load business details. Please check your connection and try again.');
+          }
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchBusiness();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
+
+  const handleRetry = () => {
+    setError(null);
+    // The useEffect will trigger again when error changes
+  };
 
   if (loading) {
     return (
@@ -195,12 +134,28 @@ const BusinessDetailPage = () => {
 
   if (error) {
     return (
-      <Container maxW="container.xl" py={10}>
-        <Alert status="error">
+      <Box textAlign="center" py={10} px={6}>
+        <Alert status="error" mb={4}>
           <AlertIcon />
           {error}
         </Alert>
-      </Container>
+        <Button 
+          colorScheme="blue" 
+          onClick={handleRetry}
+          isLoading={loading}
+          loadingText="Retrying..."
+        >
+          Try Again
+        </Button>
+        <Box mt={4}>
+          <Button as={RouterLink} to="/businesses" variant="outline" mr={2}>
+            Browse All Businesses
+          </Button>
+          <Button as={RouterLink} to="/" variant="outline">
+            Go to Home
+          </Button>
+        </Box>
+      </Box>
     );
   }
 

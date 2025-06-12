@@ -136,166 +136,159 @@ const BusinessCard = ({ business }) => {
   const headingColor = useColorModeValue('gray.800', 'white');
   const accentColor = useColorModeValue('brand.primary', 'brand.accent');
 
+  // Ensure we have valid data
+  const businessData = business || {};
+  const categoryName = businessData.category?.name || 'Uncategorized';
+  const cityName = businessData.city?.name || 'Location not specified';
+  const rating = parseFloat(businessData.avg_rating) || 0;
+  const hasPhotos = businessData.photos && businessData.photos.length > 0;
+  const primaryPhoto = hasPhotos ? businessData.photos[0] : null;
+
+  // Get a fallback image based on category if no photo is available
+  const imageUrl = primaryPhoto?.photo_url 
+    ? `http://localhost:8000/storage/${primaryPhoto.photo_url}`
+    : `https://source.unsplash.com/random/800x600/?${encodeURIComponent(categoryName)},morocco`;
+
   return (
     <MotionBox
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.4, type: 'spring', stiffness: 300 }}
-      borderWidth="1px"
-      borderRadius="2xl"
-      overflow="hidden"
+      as="div"
+      display="block"
       bg={cardBg}
-      boxShadow="xl"
-      _hover={{ 
-        boxShadow: '2xl',
-        borderColor: accentColor,
-        '.business-image': {
-          transform: 'scale(1.05)'
-        }
+      borderWidth="1px"
+      borderColor={useColorModeValue('gray.200', 'gray.700')}
+      borderRadius="xl"
+      overflow="hidden"
+      boxShadow="md"
+      transition="all 0.3s ease"
+      _hover={{
+        transform: 'translateY(-4px)',
+        boxShadow: 'lg',
       }}
-      position="relative"
       h="100%"
-      display="flex"
+      d="flex"
       flexDirection="column"
+      position="relative"
     >
-      <Box 
-        h="200px" 
-        overflow="hidden"
+      <Box
+        as={RouterLink}
+        to={`/businesses/${businessData.business_id}`}
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        zIndex={1}
+        _hover={{
+          textDecoration: 'none'
+        }}
+        aria-label={`View details for ${businessData.name}`}
+      />
+      {/* Business Image */}
+      <Box
+        h="180px"
+        bg="gray.100"
         position="relative"
+        overflow="hidden"
       >
-        <Box
-          as={motion.div}
-          className="business-image"
-          h="100%"
+        <Image
+          src={imageUrl}
+          alt={businessData.name || 'Business image'}
           w="100%"
-          bgImage={`url(https://images.unsplash.com/photo-${business.photos[0]?.url || getBusinessImageByCategory(business.category_id)})`}
-          bgSize="cover"
-          bgPosition="center"
-          transition="transform 0.5s ease"
+          h="100%"
+          objectFit="cover"
+          transition="transform 0.3s ease"
+          _groupHover={{ transform: 'scale(1.05)' }}
+          fallbackSrc="https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image"
         />
-        {business.is_featured && (
+        {businessData.is_featured && (
           <Badge
             position="absolute"
-            top={3}
-            right={3}
-            zIndex={2}
-            bgGradient="linear(to-r, brand.accent, brand.primary)"
+            top="3"
+            right="3"
+            bg="brand.primary"
             color="white"
-            fontWeight="bold"
-            px={3}
-            py={1}
             borderRadius="full"
+            px={2}
+            py={1}
             fontSize="xs"
-            boxShadow="lg"
-            display="flex"
-            alignItems="center"
-            gap={1}
+            fontWeight="bold"
+            textTransform="uppercase"
+            boxShadow="md"
           >
-            <Box as="span" fontSize="xs" transform="rotate(-5deg)">★</Box>
             Featured
           </Badge>
         )}
-        <Box
-          position="absolute"
-          bottom={0}
-          left={0}
-          right={0}
-          height="60px"
-          bgGradient="linear(to-t, rgba(0,0,0,0.8) 0%, transparent 100%)"
-        />
-        <Image
-          src={business.photos && business.photos.length > 0 
-            ? `https://images.unsplash.com/photo-${getBusinessImageByCategory(business.category_id)}` 
-            : `https://images.unsplash.com/photo-${getRandomMoroccoImage()}`}
-          alt={business.name}
-          objectFit="cover"
-          w="100%"
-          h="100%"
-          transition="transform 0.5s ease"
-          _hover={{ transform: 'scale(1.1)' }}
-          fallbackSrc="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-        />
       </Box>
-      <Box p={6}>
-        <Heading 
-          as="h3" 
-          size="md" 
-          noOfLines={1} 
-          mb={3} 
-          color="brand.dark"
-          fontWeight="600"
-        >
-          {business.name}
-        </Heading>
-        
-        <Flex align="center" mb={3}>
-          <Box 
-            bg="rgba(56, 161, 105, 0.1)" 
-            p={1.5} 
-            borderRadius="md" 
-            mr={2}
+
+      {/* Business Info */}
+      <Box p={5} flexGrow={1} display="flex" flexDirection="column">
+        <Flex justify="space-between" align="flex-start" mb={2}>
+          <Heading
+            as="h3"
+            size="md"
+            color={headingColor}
+            noOfLines={2}
+            fontWeight="700"
+            lineHeight="tall"
           >
-            <Icon as={FaMapMarkerAlt} color="brand.primary" fontSize="sm" />
-          </Box>
-          <Text fontSize="sm" color="gray.600" fontWeight="medium">
-            {business.city?.name || 'Location not specified'}
-          </Text>
+            {businessData.name || 'Unnamed Business'}
+          </Heading>
         </Flex>
         
-        <Flex align="center" mb={3} bg="rgba(236, 201, 75, 0.1)" p={2} borderRadius="md" width="fit-content">
+        <Flex align="center" mb={3}>
           <Box display="flex" alignItems="center">
-            {[...Array(5)].map((_, i) => (
+            {[0, 1, 2, 3, 4].map((i) => (
               <Icon
                 key={i}
-                as={FaStar}
-                color={i < Math.floor(business.avg_rating || 0) ? 'brand.accent' : 'gray.300'}
+                as={i < Math.floor(rating) ? FaStar : FaRegStar}
+                color={i < rating ? 'yellow.400' : 'gray.300'}
                 mr={0.5}
                 fontSize="sm"
               />
             ))}
-            <Text fontSize="sm" ml={1} fontWeight="600" color="gray.700">
-              {business.avg_rating ? business.avg_rating.toFixed(1) : 'No ratings'}
+            <Text fontSize="sm" ml={1} color="gray.500">
+              {rating > 0 ? rating.toFixed(1) : 'No ratings'}
             </Text>
           </Box>
         </Flex>
         
-        <Text noOfLines={2} mb={5} color="gray.600" fontSize="sm" lineHeight="1.6">
-          {business.description || 'No description available'}
+        <Text noOfLines={2} color={textColor} fontSize="sm" lineHeight="tall" mb={4}>
+          {businessData.description || 'No description available'}
         </Text>
         
-        <Flex justify="space-between" align="center">
-          <Badge 
-            bg="brand.lightGreen" 
-            color="brand.darkGreen" 
-            py={1.5} 
-            px={3} 
-            borderRadius="full"
-            fontWeight="500"
-          >
-            {business.category?.name || 'Uncategorized'}
-          </Badge>
-          <Button
-            as={RouterLink}
-            to={`/businesses/${business.business_id}`}
-            size="sm"
-            bg="transparent"
-            color="brand.primary"
-            fontWeight="600"
-            _hover={{ 
-              bg: 'brand.primary', 
-              color: 'white',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-            }}
-            borderWidth="2px"
-            borderColor="brand.primary"
-            borderRadius="full"
-            transition="all 0.3s ease"
-          >
-            View Details
-          </Button>
+        <Flex align="center" mt="auto" pt={2} borderTopWidth="1px" borderTopColor="gray.100">
+          <Icon as={FaMapMarkerAlt} color="brand.primary" mr={2} />
+          <Text fontSize="sm" color="gray.600" noOfLines={1}>
+            {cityName}
+          </Text>
         </Flex>
+        
+        <Button
+          as="div"
+          mt={4}
+          size="sm"
+          bg="transparent"
+          color="brand.primary"
+          borderWidth="2px"
+          borderColor="brand.primary"
+          borderRadius="full"
+          _hover={{
+            bg: 'brand.primary',
+            color: 'white',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          }}
+          transition="all 0.3s ease"
+          position="relative"
+          zIndex={2}
+          onClick={(e) => {
+            e.stopPropagation();
+            // Programmatic navigation
+            window.location.href = `/businesses/${businessData.business_id}`;
+          }}
+        >
+          View Details
+        </Button>
       </Box>
     </MotionBox>
   );
@@ -324,6 +317,7 @@ const BusinessDirectoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [useMockData, setUseMockData] = useState(false);
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -333,6 +327,13 @@ const BusinessDirectoryPage = () => {
     sort: 'name',
   });
 
+  // Import the API services
+  const { businessService, cityService } = require('../services/api');
+  
+  // Ensure cities is always an array
+  const safeCities = Array.isArray(cities) ? cities : [];
+  const safeBusinesses = Array.isArray(businesses) ? businesses : [];
+
   // Fetch data on component mount
   useEffect(() => {
     let isMounted = true;
@@ -341,36 +342,61 @@ const BusinessDirectoryPage = () => {
       try {
         setLoading(true);
         
-        // In a real implementation, use the API service:
-        // const [businessesRes, citiesRes] = await Promise.all([
-        //   businessService.getAll(),
-        //   cityService.getAll()
-        // ]);
-        
-        // For now, use mock data with a delay to simulate network
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        if (!isMounted) return;
-        
-        setBusinesses(MOCK_BUSINESSES);
-        setCities(MOCK_CITIES);
+        // Try to fetch from API first
+        try {
+          const [businessesRes, citiesRes] = await Promise.all([
+            businessService.getAll(),
+            cityService.getAll()
+          ]);
+          
+          if (!isMounted) return;
+          
+          // Extract data from responses - handle the API response structure
+          const businessesData = businessesRes?.data?.data || [];
+          const citiesData = [];
+          
+          // Extract unique cities from businesses
+          const cityMap = new Map();
+          businessesData.forEach(business => {
+            if (business.city && business.city.city_id) {
+              cityMap.set(business.city.city_id, business.city);
+            }
+          });
+          
+          const extractedCities = Array.from(cityMap.values());
+          
+          if (Array.isArray(businessesData)) {
+            setBusinesses(businessesData);
+            setCities(extractedCities);
+            setUseMockData(false);
+          } else {
+            throw new Error('Invalid businesses data format from API');
+          }
+        } catch (apiError) {
+          console.warn('API Error, using mock data:', apiError);
+          throw apiError; // This will be caught by the outer catch
+        }
         
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('Error in data fetching:', err);
         if (!isMounted) return;
         
-        setError('Failed to load data. Please try again later.');
+        const errorMessage = err.response?.data?.message || 'Please check your connection and try again.';
+        setError('Failed to load data. ' + errorMessage);
+        
         toast({
-          title: 'Error',
-          description: 'Failed to load businesses. Using demo data instead.',
-          status: 'error',
-          duration: 5000,
+          title: 'API Error',
+          description: 'Using demo data. ' + errorMessage,
+          status: 'warning',
+          duration: 10000,
           isClosable: true,
         });
         
-        // Fallback to mock data
+        // Fallback to mock data if API fails
+        console.warn('Using mock data as fallback');
         setBusinesses(MOCK_BUSINESSES);
         setCities(MOCK_CITIES);
+        setUseMockData(true);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -417,41 +443,29 @@ const BusinessDirectoryPage = () => {
 
   // Filter and sort businesses based on filters
   const filteredBusinesses = useMemo(() => {
-    if (!Array.isArray(businesses)) return [];
-    
-    return businesses
-      .filter(business => {
-        if (!business) return false;
-        
-        // Filter by search term
-        const matchesSearch = !filters.search || 
-          (business.name && business.name.toLowerCase().includes(filters.search.toLowerCase())) ||
-          (business.description && business.description.toLowerCase().includes(filters.search.toLowerCase()));
-        
-        // Filter by city
-        const matchesCity = !filters.city || business.city_id === parseInt(filters.city);
-        
-        // Filter by category
-        const matchesCategory = !filters.category || 
-          (business.category && business.category.category_id === parseInt(filters.category));
-        
-        return matchesSearch && matchesCity && matchesCategory;
-      })
-      .sort((a, b) => {
-        if (!a || !b) return 0;
-        
-        switch (filters.sort) {
-          case 'name':
-            return (a.name && b.name) ? a.name.localeCompare(b.name) : 0;
-          case 'rating':
-            return (b.avg_rating || 0) - (a.avg_rating || 0);
-          case 'featured':
-            return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
-          default:
-            return 0;
-        }
-      });
-  }, [businesses, filters]);
+    return safeBusinesses.filter((business) => {
+      const matchesSearch = !filters.search || 
+        (business.name && business.name.toLowerCase().includes(filters.search.toLowerCase())) ||
+        (business.description && business.description.toLowerCase().includes(filters.search.toLowerCase()));
+      
+      const matchesCity = !filters.city || 
+        (business.city && (business.city.city_id === parseInt(filters.city) || business.city.city_id?.toString() === filters.city));
+      
+      const matchesCategory = !filters.category || 
+        (business.category && (business.category.category_id === parseInt(filters.category) || business.category.category_id?.toString() === filters.category));
+      
+      return matchesSearch && matchesCity && matchesCategory;
+    }).sort((a, b) => {
+      if (filters.sort === 'name_asc') {
+        return (a.name || '').localeCompare(b.name || '');
+      } else if (filters.sort === 'name_desc') {
+        return (b.name || '').localeCompare(a.name || '');
+      } else if (filters.sort === 'rating') {
+        return (b.avg_rating || 0) - (a.avg_rating || 0);
+      }
+      return 0;
+    });
+  }, [safeBusinesses, filters]);
 
   // Loading state
   if (loading) {
@@ -765,7 +779,7 @@ const BusinessDirectoryPage = () => {
                         boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
                       }}
                     >
-                      {cities.map((city) => (
+                      {safeCities.map((city) => (
                         <option key={city.city_id} value={city.city_id}>
                           {city.name}
                         </option>
@@ -789,7 +803,7 @@ const BusinessDirectoryPage = () => {
           <Flex justify="space-between" align="center" mb={8}>
             <Box>
               <Heading as="h2" size="xl" color={headingColor} mb={2}>
-                {filteredBusinesses.length} {filteredBusinesses.length === 1 ? 'Business' : 'Businesses'} Found
+                {safeBusinesses.length} {safeBusinesses.length === 1 ? 'Business' : 'Businesses'} Found
               </Heading>
               <Text color={textColor}>
                 {filters.search || filters.category || filters.city 
@@ -830,7 +844,7 @@ const BusinessDirectoryPage = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Box>
             </Alert>
-          ) : filteredBusinesses.length === 0 ? (
+          ) : safeBusinesses.length === 0 ? (
             <Box 
               textAlign="center" 
               py={20} 
@@ -874,7 +888,7 @@ const BusinessDirectoryPage = () => {
             </Box>
           ) : (
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-              {filteredBusinesses.map((business, index) => (
+              {safeBusinesses.map((business, index) => (
                 <motion.div
                   key={business.business_id}
                   initial={{ opacity: 0, y: 20 }}

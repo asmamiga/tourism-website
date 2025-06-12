@@ -134,8 +134,17 @@ export const regionService = {
 };
 
 export const cityService = {
-  getAll: (params) => api.get('/cities', { params }),
+  getAll: (params = {}) => {
+    // Ensure we always get the region relationship
+    return api.get('/cities', { 
+      params: { 
+        ...params,
+        with: 'region' 
+      } 
+    });
+  },
   getById: (id) => api.get(`/cities/${id}`),
+  getByRegion: (regionId) => api.get(`/regions/${regionId}/cities`),
 };
 
 // Booking services

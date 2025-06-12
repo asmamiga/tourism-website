@@ -24,7 +24,7 @@ import GuideDashboard from './pages/Dashboard/GuideDashboard';
 import TouristDashboard from './pages/Dashboard/TouristDashboard';
 import RegionsPage from './pages/RegionsPage';
 import ExperiencesPage from './pages/ExperiencesPage';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 
