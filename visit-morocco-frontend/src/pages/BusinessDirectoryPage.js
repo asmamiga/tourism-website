@@ -32,6 +32,8 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link as RouterLink } from 'react-router-dom';
 import { 
   FaSearch, 
   FaStar, 
@@ -44,8 +46,10 @@ import {
   FaRegStar,
   FaStarHalfAlt
 } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
+
+// Alias for filter icon
+const FilterIcon = FaFilter;
+const CloseIcon = FaTimes;
 
 // Mock data for development
 const MOCK_BUSINESSES = [
@@ -141,13 +145,36 @@ const BusinessCard = ({ business }) => {
   const categoryName = businessData.category?.name || 'Uncategorized';
   const cityName = businessData.city?.name || 'Location not specified';
   const rating = parseFloat(businessData.avg_rating) || 0;
-  const hasPhotos = businessData.photos && businessData.photos.length > 0;
-  const primaryPhoto = hasPhotos ? businessData.photos[0] : null;
-
-  // Get a fallback image based on category if no photo is available
-  const imageUrl = primaryPhoto?.photo_url 
-    ? `http://localhost:8000/storage/${primaryPhoto.photo_url}`
-    : `https://source.unsplash.com/random/800x600/?${encodeURIComponent(categoryName)},morocco`;
+  
+  // Find primary photo or fall back to first photo
+  const getPrimaryOrFirstPhoto = (photos) => {
+    if (!photos || photos.length === 0) return null;
+    
+    // First try to find a primary photo
+    const primary = photos.find(photo => photo.is_primary);
+    if (primary) return primary;
+    
+    // If no primary, return the first photo
+    return photos[0];
+  };
+  
+  const selectedPhoto = getPrimaryOrFirstPhoto(businessData.photos);
+  
+  // Get the image URL, with fallback to category-based image
+  const getImageUrl = () => {
+    if (selectedPhoto?.photo_url) {
+      // Check if URL is already absolute
+      if (selectedPhoto.photo_url.startsWith('http')) {
+        return selectedPhoto.photo_url;
+      }
+      // Prepend storage path for relative URLs
+      return `http://localhost:8000/storage/${selectedPhoto.photo_url}`.replace(/([^:]\/)\/+/g, '$1');
+    }
+    // Fallback to category-based image
+    return `https://source.unsplash.com/random/800x600/?${encodeURIComponent(categoryName)},morocco`;
+  };
+  
+  const imageUrl = getImageUrl();
 
   return (
     <MotionBox
@@ -314,6 +341,7 @@ const BusinessDirectoryPage = () => {
   // State for businesses and UI
   const [businesses, setBusinesses] = useState([]);
   const [cities, setCities] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -321,7 +349,6 @@ const BusinessDirectoryPage = () => {
   
   // Filter states
   const [filters, setFilters] = useState({
-    search: '',
     city: '',
     category: '',
     sort: 'name',
@@ -330,9 +357,77 @@ const BusinessDirectoryPage = () => {
   // Import the API services
   const { businessService, cityService } = require('../services/api');
   
-  // Ensure cities is always an array
-  const safeCities = Array.isArray(cities) ? cities : [];
-  const safeBusinesses = Array.isArray(businesses) ? businesses : [];
+  // Ensure data is always an array and handle various data structures
+  const safeCities = Array.isArray(cities) 
+    ? cities 
+    : Array.isArray(cities?.data) 
+      ? cities.data 
+      : [];
+      
+  const safeBusinesses = Array.isArray(businesses) 
+    ? businesses 
+    : [];
+    
+  const safeCategories = Array.isArray(categories) 
+    ? categories 
+    : [];
+    
+  // Debug: Log current state
+  console.log('Current state:', {
+    businesses: businesses?.length || 0,
+    cities: safeCities.length,
+    categories: safeCategories.length,
+    filters
+  });
+  
+  // Check if any filters are active
+  const hasActiveFilters = filters.city || filters.category;
+  
+  // Log cities data for debugging
+  useEffect(() => {
+    console.log('Current cities in state:', {
+      cities: cities,
+      safeCities: safeCities,
+      count: safeCities.length,
+      sample: safeCities.slice(0, 3).map(c => ({
+        id: c.city_id || c.id,
+        name: c.name
+      }))
+    });
+  }, [cities, safeCities]);
+
+  // Filter businesses based on active filters
+  const filteredBusinesses = useMemo(() => {
+    console.log('Filtering businesses with:', { 
+      filters, 
+      businessCount: safeBusinesses.length,
+      cities: safeCities.length,
+      citiesSample: safeCities.slice(0, 3),
+      categories: safeCategories.length 
+    });
+    
+    return safeBusinesses.filter(business => {
+      const matchesCity = !filters.city || 
+        (business.city && business.city.city_id && 
+         business.city.city_id.toString() === filters.city.toString());
+         
+      const matchesCategory = !filters.category || 
+        (business.category && business.category.category_id && 
+         business.category.category_id.toString() === filters.category.toString());
+         
+      console.log('Business:', business.name, { matchesCity, matchesCategory });
+      return matchesCity && matchesCategory;
+    });
+  }, [safeBusinesses, filters.city, filters.category, safeCities, safeCategories]);
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters({
+      city: '',
+      category: '',
+      sort: 'name',
+    });
+  };
 
   // Fetch data on component mount
   useEffect(() => {
@@ -341,35 +436,73 @@ const BusinessDirectoryPage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        console.log('Starting to fetch data...');
         
         // Try to fetch from API first
         try {
+          console.log('Fetching businesses and cities...');
           const [businessesRes, citiesRes] = await Promise.all([
-            businessService.getAll(),
-            cityService.getAll()
+            businessService.getAll({ include: 'city,category' }),
+            cityService.getAll({ per_page: 100 })
           ]);
           
           if (!isMounted) return;
           
-          // Extract data from responses - handle the API response structure
-          const businessesData = businessesRes?.data?.data || [];
-          const citiesData = [];
+          // Log raw API responses for debugging
+          console.log('Raw businesses response:', businessesRes);
+          console.log('Raw cities response:', citiesRes);
           
-          // Extract unique cities from businesses
-          const cityMap = new Map();
+          // Extract data from responses - handle both nested and flat structures
+          let businessesData = [];
+          let citiesData = [];
+          
+          // Handle businesses data (could be in data.data or data.data.data)
+          if (businessesRes?.data?.data) {
+            businessesData = Array.isArray(businessesRes.data.data) 
+              ? businessesRes.data.data 
+              : businessesRes.data.data?.data || [];
+          }
+          
+          // Handle cities data
+          if (citiesRes?.data?.data) {
+            citiesData = Array.isArray(citiesRes.data.data) 
+              ? citiesRes.data.data 
+              : citiesRes.data.data?.data || [];
+          }
+          
+          console.log('Extracted businesses:', businessesData);
+          console.log('Extracted cities:', citiesData);
+          
+          // Extract unique categories from businesses
+          const categoryMap = new Map();
           businessesData.forEach(business => {
-            if (business.city && business.city.city_id) {
-              cityMap.set(business.city.city_id, business.city);
+            if (business?.category) {
+              categoryMap.set(business.category.category_id, business.category);
             }
           });
-          
-          const extractedCities = Array.from(cityMap.values());
+          const categoriesData = Array.from(categoryMap.values());
+            
+          console.log('Extracted categories:', categoriesData);
           
           if (Array.isArray(businessesData)) {
+            console.log('Setting businesses:', businessesData.length, 'items');
             setBusinesses(businessesData);
-            setCities(extractedCities);
+            
+            // Use cities from cities endpoint
+            if (citiesData.length > 0) {
+              console.log('Setting cities:', citiesData.length, 'cities');
+              setCities(citiesData);
+            }
+            
+            // Set categories from businesses
+            if (categoriesData.length > 0) {
+              console.log('Setting categories:', categoriesData.length, 'categories');
+              setCategories(categoriesData);
+            }
+            
             setUseMockData(false);
           } else {
+            console.error('Invalid businesses data format:', businessesData);
             throw new Error('Invalid businesses data format from API');
           }
         } catch (apiError) {
@@ -412,113 +545,49 @@ const BusinessDirectoryPage = () => {
     };
   }, [toast]);
 
-  // Extract unique categories from businesses
+  // Get unique categories from API response or fallback to extracting from businesses
   const uniqueCategories = useMemo(() => {
+    if (safeCategories.length > 0) {
+      return safeCategories.map(item => item.category).filter(Boolean);
+    }
+    
+    // Fallback: Extract from businesses if no categories from API
     const categoryMap = new Map();
-    businesses.forEach(business => {
+    safeBusinesses.forEach(business => {
       if (business?.category?.category_id) {
         categoryMap.set(business.category.category_id, business.category);
       }
     });
     return Array.from(categoryMap.values());
-  }, [businesses]);
+  }, [safeBusinesses, safeCategories]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  }, []);
-  
-  // Clear all filters
-  const clearFilters = useCallback(() => {
-    setFilters({
-      search: '',
-      city: '',
-      category: '',
-      sort: 'name',
-    });
-  }, []);
-
-  // Filter and sort businesses based on filters
-  const filteredBusinesses = useMemo(() => {
-    return safeBusinesses.filter((business) => {
-      const matchesSearch = !filters.search || 
-        (business.name && business.name.toLowerCase().includes(filters.search.toLowerCase())) ||
-        (business.description && business.description.toLowerCase().includes(filters.search.toLowerCase()));
+    console.log(`Filter changed - ${key}:`, value);
+    setFilters(prev => {
+      const newFilters = {
+        ...prev,
+        [key]: value
+      };
+      console.log('New filters:', newFilters);
       
-      const matchesCity = !filters.city || 
-        (business.city && (business.city.city_id === parseInt(filters.city) || business.city.city_id?.toString() === filters.city));
-      
-      const matchesCategory = !filters.category || 
-        (business.category && (business.category.category_id === parseInt(filters.category) || business.category.category_id?.toString() === filters.category));
-      
-      return matchesSearch && matchesCity && matchesCategory;
-    }).sort((a, b) => {
-      if (filters.sort === 'name_asc') {
-        return (a.name || '').localeCompare(b.name || '');
-      } else if (filters.sort === 'name_desc') {
-        return (b.name || '').localeCompare(a.name || '');
-      } else if (filters.sort === 'rating') {
-        return (b.avg_rating || 0) - (a.avg_rating || 0);
+      // Log the current state for debugging
+      console.log('Current businesses count:', safeBusinesses.length);
+      if (key === 'city' && value) {
+        const city = safeCities.find(c => c.city_id.toString() === value.toString());
+        console.log(`Filtering by city: ${city?.name || 'Unknown'} (${value})`);
       }
-      return 0;
+      if (key === 'category' && value) {
+        const category = safeCategories.find(c => c.category_id.toString() === value.toString());
+        console.log(`Filtering by category: ${category?.name || 'Unknown'} (${value})`);
+      }
+      
+      return newFilters;
     });
-  }, [safeBusinesses, filters]);
+  }, [safeBusinesses, safeCities, safeCategories]);
 
-  // Loading state
-  if (loading) {
-    return (
-      <Flex 
-        as={motion.div}
-        initial="initial"
-        animate="enter"
-        exit="exit"
-        variants={pageVariants}
-        justify="center" 
-        align="center" 
-        minH="60vh"
-        p={4}
-      >
-        <VStack spacing={6}>
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="brand.primary"
-            size="xl"
-          />
-          <Text color={textColor}>Loading businesses...</Text>
-        </VStack>
-      </Flex>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <Container 
-        as={motion.div}
-        initial="initial"
-        animate="enter"
-        exit="exit"
-        variants={pageVariants}
-        maxW="container.xl" 
-        py={10}
-      >
-        <Alert status="error" borderRadius="lg">
-          <AlertIcon />
-          <Box>
-            <AlertTitle>Error loading businesses</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Box>
-        </Alert>
-      </Container>
-    );
-  }
-
-  // Main render
+  // Main component return
+  // Main component return
   return (
     <Box minH="calc(100vh - 80px)" bg={bgColor}>
       {/* Hero Section */}
@@ -538,7 +607,7 @@ const BusinessDirectoryPage = () => {
           left={0}
           right={0}
           bottom={0}
-          bgImage="url('/images/morocco-hero.jpg')"
+          bgImage="url('https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')"
           bgSize="cover"
           bgPosition="center"
           bgAttachment="fixed"
@@ -562,408 +631,377 @@ const BusinessDirectoryPage = () => {
             textAlign={{ base: 'center', md: 'left' }}
             maxW="3xl"
           >
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Badge
+              px={4}
+              py={2}
+              borderRadius="full"
+              bg="rgba(255,255,255,0.15)"
+              color="white"
+              fontWeight="600"
+              fontSize="sm"
+              letterSpacing="wide"
+              textTransform="uppercase"
+              backdropFilter="blur(8px)"
             >
-              <Badge
-                px={4}
-                py={2}
-                borderRadius="full"
-                bg="rgba(255,255,255,0.15)"
-                color="white"
-                fontWeight="600"
-                fontSize="sm"
-                letterSpacing="wide"
-                textTransform="uppercase"
-                backdropFilter="blur(8px)"
-              >
-                Business Directory
-              </Badge>
-            </MotionBox>
+              Business Directory
+            </Badge>
+          </MotionBox>
 
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <Heading
-                as="h1"
-                size="3xl"
-                fontWeight="800"
-                lineHeight="1.1"
-                letterSpacing="tight"
-                maxW="2xl"
-                bgGradient="linear(to-r, white, blue.100)"
-                bgClip="text"
-              >
-                Discover the Best of Morocco
-              </Heading>
-            </MotionBox>
-
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Heading
+              as="h1"
+              size="3xl"
+              fontWeight="800"
+              lineHeight="1.1"
+              letterSpacing="tight"
               maxW="2xl"
+              bgGradient="linear(to-r, white, blue.100)"
+              bgClip="text"
             >
-              <Text
-                fontSize="xl"
-                color="gray.300"
-                lineHeight="taller"
-                fontWeight="400"
-              >
-                Explore our curated selection of the finest businesses and services across Morocco's most vibrant destinations
-              </Text>
-            </MotionBox>
+              Discover the Best of Morocco
+            </Heading>
+          </MotionBox>
 
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              pt={4}
-              w="100%"
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            maxW="2xl"
+          >
+            <Text
+              fontSize="xl"
+              color="gray.300"
+              lineHeight="taller"
+              fontWeight="400"
             >
+              Explore our curated selection of the finest businesses and services across Morocco's most vibrant destinations
+            </Text>
+          </MotionBox>
+
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            pt={4}
+            w="100%"
+          >
+            <Flex 
+              direction={{ base: 'column', md: 'row' }} 
+              gap={4} 
+              align="center"
+              justify="space-between"
+              w="100%"
+              maxW="container.lg"
+              mx="auto"
+            >
+              {/* Filter Buttons */}
               <Flex 
-                direction={{ base: 'column', md: 'row' }} 
+                direction={{ base: 'column', sm: 'row' }} 
                 gap={4} 
                 align="center"
-                justify="space-between"
-                w="100%"
-                maxW="container.lg"
-                mx="auto"
+                w={{ base: '100%', md: 'auto' }}
+                mt={{ base: 4, md: 0 }}
               >
-                {/* Search Bar */}
-                <Box
-                  bg="white"
-                  p={1.5}
-                  borderRadius="full"
-                  display="flex"
-                  flex="1"
-                  boxShadow="0 10px 30px rgba(0,0,0,0.15)"
-                  position="relative"
-                  zIndex="1"
-                  maxW={{ base: '100%', md: '600px' }}
-                  mr={{ base: 0, md: 4 }}
+                <Button
+                  leftIcon={<FilterIcon />}
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  variant={hasActiveFilters ? 'solid' : 'outline'}
+                  colorScheme={hasActiveFilters ? 'brand' : 'gray'}
                 >
-                  <InputGroup size="lg" flex={1}>
-                    <InputLeftElement pointerEvents="none">
-                      <Icon as={FaSearch} color="gray.400" />
-                    </InputLeftElement>
-                    <Input
-                      placeholder="Search businesses..."
-                      border="none"
-                      _focus={{ boxShadow: 'none' }}
-                      borderRadius="full"
-                      onChange={(e) => handleFilterChange('search', e.target.value)}
-                      value={filters.search}
-                    />
-                  </InputGroup>
-                  <Button
-                    colorScheme="green"
-                    size="lg"
-                    px={8}
-                    borderRadius="full"
-                    bg="brand.primary"
-                    _hover={{ bg: 'brand.secondary' }}
-                    onClick={() => {
-                      // Already handled by the useEffect
-                    }}
-                  >
-                    Search
-                  </Button>
-                </Box>
-
-                {/* Filter Buttons */}
-                <Flex 
-                  direction={{ base: 'column', sm: 'row' }} 
-                  gap={4} 
-                  align="center"
-                  w={{ base: '100%', md: 'auto' }}
-                  mt={{ base: 4, md: 0 }}
-                >
-                  <Button
-                    leftIcon={<Icon as={isFilterOpen ? FaTimes : FaFilter} />}
-                    variant="outline"
-                    onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    borderRadius="full"
-                    borderColor={borderColor}
-                    _hover={{ bg: 'gray.50', borderColor: 'gray.300' }}
-                    _active={{ bg: 'gray.100' }}
-                    size="lg"
-                    w={{ base: '100%', sm: 'auto' }}
-                  >
-                    {isFilterOpen ? 'Hide Filters' : 'Filters'}
-                  </Button>
-
-                  <Select
-                    value={filters.sort}
-                    onChange={(e) => handleFilterChange('sort', e.target.value)}
-                    maxW={{ base: '100%', sm: '200px' }}
-                    bg={inputBg}
-                    borderRadius="full"
-                    borderColor={borderColor}
-                    _hover={{ borderColor: 'gray.300' }}
-                    _focus={{
-                      borderColor: 'brand.primary',
-                      boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
-                    }}
-                    fontSize="md"
-                    size="lg"
-                    w={{ base: '100%', sm: 'auto' }}
-                  >
-                    <option value="name_asc">Sort: A to Z</option>
-                    <option value="name_desc">Sort: Z to A</option>
-                    <option value="rating_desc">Top Rated</option>
-                    <option value="reviews_desc">Most Reviewed</option>
-                  </Select>
-                </Flex>
+                  {isFilterOpen ? 'Hide Filters' : 'Filters'}
+                  {hasActiveFilters && (
+                    <Badge ml={2} colorScheme="red" borderRadius="full" px={2}>
+                      {[filters.city ? 1 : 0, filters.category ? 1 : 0].reduce((a, b) => a + b, 0)}
+                    </Badge>
+                  )}
+                </Button>
               </Flex>
-            </MotionBox>
-
-            <motion.div
-              initial={false}
-              animate={{ 
-                height: isFilterOpen ? 'auto' : 0,
-                opacity: isFilterOpen ? 1 : 0,
-                marginTop: isFilterOpen ? '1.5rem' : 0,
-                overflow: 'hidden'
-              }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-            >
-              <Box 
-                p={6} 
-                bg={filterPanelBg} 
-                borderRadius="xl"
-                border="1px solid"
-                borderColor={borderColor}
-              >
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                  <Box>
-                    <Text fontWeight="medium" mb={2} color={headingColor}>
-                      Category
-                    </Text>
-                    <Select
-                      placeholder="All Categories"
-                      value={filters.category}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
-                      bg={inputBg}
+              
+              {/* Filter Panel */}
+              <AnimatePresence>
+                {isFilterOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ width: '100%' }}
+                  >
+                    <Box 
+                      mt={4} 
+                      p={6} 
+                      bg={filterPanelBg}
+                      borderRadius="lg"
+                      borderWidth="1px"
                       borderColor={borderColor}
-                      _hover={{ borderColor: 'gray.300' }}
-                      _focus={{
-                        borderColor: 'brand.primary',
-                        boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
-                      }}
+                      boxShadow="md"
                     >
-                      {uniqueCategories.map((category) => (
-                        <option key={category.category_id} value={category.category_id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </Select>
-                  </Box>
-                  <Box>
-                    <Text fontWeight="medium" mb={2} color={headingColor}>
-                      City
-                    </Text>
-                    <Select
-                      placeholder="All Cities"
-                      value={filters.city}
-                      onChange={(e) => handleFilterChange('city', e.target.value)}
-                      bg={inputBg}
-                      borderColor={borderColor}
-                      _hover={{ borderColor: 'gray.300' }}
-                      _focus={{
-                        borderColor: 'brand.primary',
-                        boxShadow: '0 0 0 2px var(--chakra-colors-brand-primary-100)',
-                      }}
-                    >
-                      {safeCities.map((city) => (
-                        <option key={city.city_id} value={city.city_id}>
-                          {city.name}
-                        </option>
-                      ))}
-                    </Select>
-                  </Box>
-                </SimpleGrid>
-              </Box>
-            </motion.div>
-          </VStack>
-        </Container>
+                      <SimpleGrid columns={{ base: 1 }} spacing={6}>
+                        <Box>
+                          <Text 
+                            fontWeight="semibold" 
+                            mb={2} 
+                            color="gray.700"
+                            fontSize="sm"
+                            letterSpacing="wide"
+                          >
+                            Filter by City
+                          </Text>
+                          <Select
+                            placeholder="All Cities"
+                            placeholderTextColor="gray.500"
+                            value={filters.city || ''}
+                            onChange={(e) => handleFilterChange('city', e.target.value)}
+                            bg={inputBg}
+                            borderColor={borderColor}
+                            color="gray.800"
+                            _hover={{ 
+                              borderColor: 'gray.400',
+                              bg: 'white'
+                            }}
+                            _focus={{ 
+                              borderColor: 'brand.500', 
+                              boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                              bg: 'white'
+                            }}
+                            _placeholder={{ 
+                              color: 'gray.500',
+                              opacity: 1
+                            }}
+                            sx={{
+                              'option': {
+                                color: 'gray.800',
+                                bg: 'white',
+                                _hover: {
+                                  bg: 'brand.50',
+                                  color: 'brand.600'
+                                }
+                              },
+                              'option:checked': {
+                                bg: 'brand.100',
+                                color: 'brand.700',
+                                fontWeight: 'medium'
+                              }
+                            }}
+                          >
+                            
+                            {safeCities && safeCities.length > 0 ? (
+                              safeCities.map((city) => (
+                                <option 
+                                  key={city.city_id || city.id} 
+                                  value={city.city_id || city.id}
+                                  style={{ color: 'gray.800' }}
+                                >
+                                  {city.name}
+                                </option>
+                              ))
+                            ) : (
+                              <option disabled style={{ color: 'gray.500' }}>No cities available</option>
+                            )}
+                          </Select>
+                        </Box>
+                        
+                        {/* <Box>
+                          <Text 
+                            fontWeight="semibold" 
+                            mb={2} 
+                            color="gray.700"
+                            fontSize="sm"
+                            letterSpacing="wide"
+                          >
+                            Filter by Category
+                          </Text>
+                          <Select
+                            placeholder="All Categories"
+                            value={filters.category || ''}
+                            onChange={(e) => handleFilterChange('category', e.target.value)}
+                            bg={inputBg}
+                            borderColor={borderColor}
+                            color="gray.800"
+                            _hover={{ 
+                              borderColor: 'gray.400',
+                              bg: 'white'
+                            }}
+                            _focus={{ 
+                              borderColor: 'brand.500', 
+                              boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                              bg: 'white'
+                            }}
+                            _placeholder={{ 
+                              color: 'gray.500',
+                              opacity: 1
+                            }}
+                            sx={{
+                              'option': {
+                                color: 'gray.800',
+                                bg: 'white',
+                                _hover: {
+                                  bg: 'brand.50',
+                                  color: 'brand.600'
+                                }
+                              },
+                              'option:checked': {
+                                bg: 'brand.100',
+                                color: 'brand.700',
+                                fontWeight: 'medium'
+                              }
+                            }}
+                          >
+                            <option value="" style={{ color: 'gray.500' }}>All Categories</option>
+                            {safeCategories && safeCategories.length > 0 ? (
+                              safeCategories.map((category) => (
+                                <option 
+                                  key={category.category_id} 
+                                  value={category.category_id}
+                                  style={{ color: 'gray.800' }}
+                                >
+                                  {category.name}
+                                </option>
+                              ))
+                            ) : (
+                              <option disabled style={{ color: 'gray.500' }}>No categories available</option>
+                            )}
+                          </Select>
+                        </Box> */}
+                      </SimpleGrid>
+                      
+                      {hasActiveFilters && (
+                        <Button
+                          mt={4}
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="red"
+                          onClick={clearFilters}
+                          leftIcon={<CloseIcon />}
+                        >
+                          Clear All Filters
+                        </Button>
+                      )}
+                    </Box>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Flex>
+          </MotionBox>
+        </VStack>
+      </Container>
       </Box>
 
-      {/* Business List */}
+      {/* Business List Section */}
       <Container maxW="container.xl" py={16}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Flex justify="space-between" align="center" mb={8}>
-            <Box>
-              <Heading as="h2" size="xl" color={headingColor} mb={2}>
-                {safeBusinesses.length} {safeBusinesses.length === 1 ? 'Business' : 'Businesses'} Found
-              </Heading>
-              <Text color={textColor}>
-                {filters.search || filters.category || filters.city 
-                  ? 'Results match your search criteria' 
-                  : 'Showing all businesses'}
+        <Flex justify="space-between" align="center" mb={6}>
+          <VStack align="flex-start" spacing={1}>
+            <Heading as="h1" size="xl" color={headingColor}>
+              Business Directory
+            </Heading>
+            {hasActiveFilters && (
+              <Text fontSize="sm" color="gray.500">
+                {filteredBusinesses.length} business{filteredBusinesses.length !== 1 ? 'es' : ''} found
+                {filters.city && ` in ${safeCities.find(c => c.city_id.toString() === filters.city.toString())?.name || 'selected city'}`}
+                {filters.category && ` in ${safeCategories.find(c => c.category_id.toString() === filters.category.toString())?.name || 'selected category'}`}
               </Text>
-            </Box>
-            
-            {(filters.search || filters.category || filters.city) && (
+            )}
+          </VStack>
+          <HStack spacing={3}>
+            {hasActiveFilters && (
               <Button
+                onClick={clearFilters}
                 variant="ghost"
-                colorScheme="red"
                 size="sm"
-                rightIcon={<Icon as={FaTimes} />}
-                onClick={() => {
-                  setFilters({
-                    search: '',
-                    category: '',
-                    city: '',
-                    sort: 'name_asc',
-                  });
-                }}
+                colorScheme="red"
+                rightIcon={<CloseIcon boxSize={3} />}
               >
-                Clear All
+                Clear Filters
               </Button>
             )}
-          </Flex>
+          </HStack>
+        </Flex>
 
-          {loading ? (
-            <Flex justify="center" py={20}>
-              <Spinner size="xl" color="brand.primary" thickness="4px" emptyColor="gray.200" />
-            </Flex>
-          ) : error ? (
-            <Alert status="error" borderRadius="xl" variant="left-accent">
-              <AlertIcon />
-              <Box>
-                <AlertTitle>Error Loading Businesses</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Box>
-            </Alert>
-          ) : safeBusinesses.length === 0 ? (
-            <Box 
-              textAlign="center" 
-              py={20} 
-              bg={emptyStateBg} 
-              borderRadius="2xl"
-              border="1px dashed"
-              borderColor={borderColor}
-            >
-              <Box 
-                display="inline-block" 
-                p={4} 
-                mb={4} 
-                bg={emptyStateIconBg} 
-                borderRadius="full"
-                boxShadow="md"
-              >
-                <Icon as={FaSearch} fontSize="2xl" color="gray.400" />
-              </Box>
-              <Heading as="h2" size="lg" mb={4} color={headingColor}>
-                No businesses found
-              </Heading>
-              <Text color={textColor} maxW="md" mx="auto" mb={6}>
-                We couldn't find any businesses matching your search. Try adjusting your filters or search term.
-              </Text>
-              <Button
-                colorScheme="brand"
-                size="lg"
-                px={8}
-                borderRadius="full"
-                onClick={() => {
-                  setFilters({
-                    search: '',
-                    category: '',
-                    city: '',
-                    sort: 'name_asc',
-                  });
-                }}
-              >
-                Clear All Filters
-              </Button>
+        {loading ? (
+          <Flex justify="center" py={20}>
+            <Spinner size="xl" color="brand.primary" thickness="4px" emptyColor="gray.200" />
+          </Flex>
+        ) : error ? (
+          <Alert status="error" borderRadius="xl" variant="left-accent">
+            <AlertIcon />
+            <Box>
+              <AlertTitle>Error Loading Businesses</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Box>
-          ) : (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
-              {safeBusinesses.map((business, index) => (
+          </Alert>
+        ) : filteredBusinesses.length === 0 ? (
+          <Box 
+            textAlign="center" 
+            py={20} 
+            bg={emptyStateBg} 
+            borderRadius="2xl"
+            border="1px dashed"
+            borderColor={borderColor}
+          >
+            <Box 
+              display="inline-block" 
+              p={4} 
+              mb={4} 
+              bg={emptyStateIconBg} 
+              borderRadius="full"
+              boxShadow="md"
+            >
+              <Icon as={FaSearch} fontSize="2xl" color="gray.400" />
+            </Box>
+            <Heading as="h2" size="lg" mb={4} color={headingColor}>
+              No businesses found
+            </Heading>
+            <Text color={textColor} mb={6}>
+              Try adjusting your filters or check back later for new listings.
+            </Text>
+            <Button 
+              onClick={clearFilters}
+              colorScheme="brand"
+              variant="outline"
+            >
+              Clear all filters
+            </Button>
+          </Box>
+        ) : (
+          <SimpleGrid 
+            columns={{ base: 1, sm: 2, lg: 3, xl: 4 }} 
+            spacing={6}
+          >
+            <AnimatePresence>
+              {filteredBusinesses.map((business, index) => (
                 <motion.div
                   key={business.business_id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
+                  layout
                 >
                   <BusinessCard business={business} />
                 </motion.div>
               ))}
-            </SimpleGrid>
-          )}
+            </AnimatePresence>
+          </SimpleGrid>
+        )}
         </motion.div>
       </Container>
 
       {/* Call to Action */}
-      <Box bgGradient={bgGradient} color="white" py={20} mt={16} position="relative" overflow="hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          {/* Decorative elements */}
-          <Box 
-            position="absolute" 
-            left="10%" 
-            top="-50px" 
-            w="200px" 
-            h="200px" 
-            borderRadius="full" 
-            bg="rgba(255,255,255,0.05)" 
-          />
-          <Box 
-            position="absolute" 
-            right="5%" 
-            bottom="-50px" 
-            w="200px" 
-            h="200px" 
-            borderRadius="full" 
-            bg="rgba(255,255,255,0.1)" 
-          />
-
-          <Container maxW="container.lg" textAlign="center" position="relative" zIndex="1">
-            <Heading as="h2" size="2xl" mb={6} fontWeight="extrabold">
-              Own a Business in Morocco?
-            </Heading>
-            <Text fontSize="xl" mb={8} maxW="2xl" mx="auto" lineHeight="1.7" opacity={0.9}>
-              Join our platform to showcase your business to thousands of travelers 
-              looking for authentic Moroccan experiences.
-            </Text>
-            <Button 
-              as={RouterLink} 
-              to="/business-signup" 
-              colorScheme="white"
-              variant="outline"
-              size="lg"
-              px={8}
-              py={6}
-              borderRadius="full"
-              fontWeight="bold"
-              borderWidth={2}
-              _hover={{
-                bg: 'whiteAlpha.200',
-                transform: 'translateY(-2px)',
-              }}
-              _active={{
-                transform: 'translateY(0)',
-              }}
-              transition="all 0.2s"
-            >
-              List Your Business
-            </Button>
-          </Container>
-        </motion.div>
-      </Box>
+      
     </Box>
   );
 };

@@ -11,18 +11,18 @@ import {
   Link, 
   useToast,
   Container,
-  Image,
   Flex,
-  FormHelperText,
+  Stack,
   InputGroup,
   InputRightElement,
   IconButton,
   Select,
-  Stack
+  FormHelperText,
+  Image
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -36,23 +36,35 @@ const RegisterPage = () => {
     profile_picture: null
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const { register } = useAuth();
+  const { register } = useAuth() || {};
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  const handleChange = (field, value) => {
+    // Handle both direct value and event object
+    let fieldName = field;
+    let fieldValue = value;
+    
+    // If first argument is an event object (for file inputs)
+    if (field && field.target) {
+      const { name, value, files } = field.target;
+      fieldName = name;
+      fieldValue = files ? files[0] : value;
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [name]: files ? files[0] : value
+      [fieldName]: fieldValue
     }));
+    
     // Clear error when user types
-    if (errors[name]) {
+    if (errors[fieldName]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        [fieldName]: ''
       }));
     }
   };
@@ -96,17 +108,19 @@ const RegisterPage = () => {
       newErrors.role = 'Please select a role';
     }
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
+    if (isLoading) return;
+
+    const formErrors = validateForm();
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
       return;
     }
-    
+
     setIsLoading(true);
     
     try {
@@ -118,22 +132,16 @@ const RegisterPage = () => {
         phone: formData.phone.trim(),
         password: formData.password,
         password_confirmation: formData.password_confirmation,
-        role: formData.role
+        role: formData.role === 'business' ? 'business_owner' : formData.role,
       };
-      
+
       console.log('Sending registration data:', userData);
       
-      // Convert role to match backend expectations
-      if (userData.role === 'business') {
-        userData.role = 'business_owner';
-      }
-      
       const success = await register(userData);
-
       if (success) {
         toast({
           title: 'Registration successful!',
-          description: 'Your account has been created. Please log in.',
+          description: 'Your account has been created. You can now log in.',
           status: 'success',
           duration: 5000,
           isClosable: true,
@@ -155,172 +163,232 @@ const RegisterPage = () => {
   };
 
   return (
-    <Container maxW="container.xl" py={10}>
-      <Flex direction={{ base: 'column', md: 'row' }} align="center">
-        <Box flex="1" p={8}>
-          <Image 
-            src="https://source.unsplash.com/random/600x400/?morocco,travel" 
-            alt="Morocco Travel" 
-            borderRadius="md"
-            objectFit="cover"
+    <Container maxW="container.xl" py={16} mt={16}>
+      <Flex 
+        direction={{ base: 'column', lg: 'row' }} 
+        align="center"
+        minH="70vh"
+        boxShadow={{ base: 'none', lg: 'xl' }}
+        borderRadius={{ base: 'none', lg: '2xl' }}
+        overflow="hidden"
+        bg="white"
+      >
+        <Box 
+          flex="1" 
+          p={0}
+          w="100%"
+          h={{ base: '300px', lg: 'auto' }}
+          position="relative"
+        >
+          <Box
+            w="100%"
+            h="100%"
+            bgGradient="linear(to-br, teal.500, teal.300)"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            p={8}
+            color="white"
+          >
+            <VStack spacing={4} textAlign="center">
+              <Heading size="xl">Welcome to Morocco</Heading>
+              <Text fontSize="lg">Discover the beauty of Moroccan culture and landscapes</Text>
+            </VStack>
+          </Box>
+          <Box 
+            position="absolute" 
+            top={0} 
+            left={0} 
+            right={0} 
+            bottom={0}
+            bgGradient="linear(to-r, rgba(0,0,0,0.1), rgba(0,0,0,0.3))"
           />
         </Box>
         
         <Box 
           flex="1" 
-          p={8} 
-          boxShadow="lg" 
-          borderRadius="md"
-          bg="white"
+          p={{ base: 8, lg: 12 }}
+          w="100%"
+          maxW={{ base: '100%', lg: '500px' }}
+          mx="auto"
         >
-          <VStack spacing={6} align="stretch">
-            <Heading as="h1" size="xl" textAlign="center">
-              Create Your Account
-            </Heading>
-            
-            <Text fontSize="md" color="gray.600" textAlign="center">
-              Join Visit Morocco and start planning your dream journey
-            </Text>
+          <VStack spacing={8} align="stretch">
+            <Box textAlign="center">
+              <Heading as="h1" size="xl" mb={2} color="teal.600">
+                Create an Account
+              </Heading>
+              <Text fontSize="lg" color="gray.600">
+                Join our Visit Morocco community
+              </Text>
+            </Box>
             
             <form onSubmit={handleSubmit}>
-              <VStack spacing={4}>
-                <Stack direction={{ base: 'column', md: 'row' }} spacing={4} w="100%">
-                  <FormControl id="first_name" isRequired isInvalid={!!errors.first_name}>
-                    <FormLabel>First Name</FormLabel>
-                    <Input 
-                      type="text" 
-                      name="first_name"
-                      value={formData.first_name}
-                      onChange={handleChange}
-                      placeholder="John"
-                    />
-                    {errors.first_name && <Text color="red.500" fontSize="sm">{errors.first_name}</Text>}
-                  </FormControl>
-                  
-                  <FormControl id="last_name" isRequired isInvalid={!!errors.last_name}>
-                    <FormLabel>Last Name</FormLabel>
-                    <Input 
-                      type="text" 
-                      name="last_name"
-                      value={formData.last_name}
-                      onChange={handleChange}
-                      placeholder="Doe"
-                    />
-                    {errors.last_name && <Text color="red.500" fontSize="sm">{errors.last_name}</Text>}
-                  </FormControl>
-                </Stack>
-
-                <Stack direction={{ base: 'column', md: 'row' }} spacing={4} w="100%">
-                  <FormControl id="email" isRequired isInvalid={!!errors.email}>
-                    <FormLabel>Email address</FormLabel>
-                    <Input 
-                      type="email" 
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="your.email@example.com"
-                    />
-                    <FormHelperText>We'll never share your email.</FormHelperText>
-                    {errors.email && <Text color="red.500" fontSize="sm">{errors.email}</Text>}
-                  </FormControl>
-                  
-                  <FormControl id="phone" isRequired isInvalid={!!errors.phone}>
-                    <FormLabel>Phone Number</FormLabel>
-                    <Input 
-                      type="tel" 
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="+1234567890"
-                    />
-                    {errors.phone && <Text color="red.500" fontSize="sm">{errors.phone}</Text>}
-                  </FormControl>
-                </Stack>
-                
-                <Stack direction={{ base: 'column', md: 'row' }} spacing={4} w="100%">
-                  <FormControl id="password" isRequired isInvalid={!!errors.password}>
-                    <FormLabel>Password</FormLabel>
-                    <InputGroup>
-                      <Input 
-                        type={showPassword ? 'text' : 'password'} 
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="********"
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          size="sm"
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
-                          icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                          onClick={() => setShowPassword(!showPassword)}
-                          variant="ghost"
-                        />
-                      </InputRightElement>
-                    </InputGroup>
-                    <FormHelperText>At least 8 characters with numbers and symbols</FormHelperText>
-                    {errors.password && <Text color="red.500" fontSize="sm">{errors.password}</Text>}
-                  </FormControl>
-                  
-                  <FormControl id="password_confirmation" isRequired isInvalid={!!errors.password_confirmation}>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <Input 
-                      type={showPassword ? 'text' : 'password'} 
-                      name="password_confirmation"
-                      value={formData.password_confirmation}
-                      onChange={handleChange}
-                      placeholder="********"
-                    />
-                    {errors.password_confirmation && <Text color="red.500" fontSize="sm">{errors.password_confirmation}</Text>}
-                  </FormControl>
-                </Stack>
-                
-                <FormControl id="profile_picture">
-                  <FormLabel>Profile Picture (Optional)</FormLabel>
+              <VStack spacing={5}>
+                <FormControl id="first_name" isRequired isInvalid={!!errors.first_name}>
+                  <FormLabel>First Name</FormLabel>
                   <Input 
-                    type="file" 
-                    name="profile_picture"
-                    accept="image/*"
-                    onChange={handleChange}
-                    p={1}
+                    type="text" 
+                    value={formData.first_name}
+                    onChange={(e) => handleChange('first_name', e.target.value)}
+                    placeholder="Enter your first name"
+                    size="lg"
                   />
+                  {errors.first_name && (
+                    <Text color="red.500" fontSize="sm" mt={1}>{errors.first_name}</Text>
+                  )}
                 </FormControl>
-                
+
+                <FormControl id="last_name" isRequired isInvalid={!!errors.last_name}>
+                  <FormLabel>Last Name</FormLabel>
+                  <Input 
+                    type="text" 
+                    value={formData.last_name}
+                    onChange={(e) => handleChange('last_name', e.target.value)}
+                    placeholder="Enter your last name"
+                    size="lg"
+                  />
+                  {errors.last_name && (
+                    <Text color="red.500" fontSize="sm" mt={1}>{errors.last_name}</Text>
+                  )}
+                </FormControl>
+
+                <FormControl id="email" isRequired isInvalid={!!errors.email}>
+                  <FormLabel>Email address</FormLabel>
+                  <Input 
+                    type="email" 
+                    value={formData.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    placeholder="your.email@example.com"
+                    size="lg"
+                  />
+                  {errors.email && (
+                    <Text color="red.500" fontSize="sm" mt={1}>{errors.email}</Text>
+                  )}
+                </FormControl>
+
+                <FormControl id="phone" isRequired isInvalid={!!errors.phone}>
+                  <FormLabel>Phone Number</FormLabel>
+                  <Input 
+                    type="tel" 
+                    value={formData.phone}
+                    onChange={(e) => handleChange('phone', e.target.value)}
+                    placeholder="+212 6XX-XXXXXX"
+                    size="lg"
+                  />
+                  {errors.phone && (
+                    <Text color="red.500" fontSize="sm" mt={1}>{errors.phone}</Text>
+                  )}
+                </FormControl>
+
                 <FormControl id="role" isRequired isInvalid={!!errors.role}>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>I am a</FormLabel>
                   <Select 
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
                     placeholder="Select role"
+                    value={formData.role}
+                    onChange={(e) => handleChange('role', e.target.value)}
+                    size="lg"
                   >
                     <option value="tourist">Tourist</option>
-                    <option value="guide">Guide</option>
-                    <option value="business">Business</option>
+                    <option value="business_owner">Business Owner</option>
+                    <option value="guide">Tour Guide</option>
                   </Select>
-                  {errors.role && <Text color="red.500" fontSize="sm">{errors.role}</Text>}
+                  {errors.role && (
+                    <Text color="red.500" fontSize="sm" mt={1}>{errors.role}</Text>
+                  )}
                 </FormControl>
-                
+
+                <FormControl id="password" isRequired isInvalid={!!errors.password}>
+                  <FormLabel>Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={(e) => handleChange('password', e.target.value)}
+                      placeholder="••••••••"
+                      size="lg"
+                    />
+                    <InputRightElement h="full">
+                      <IconButton
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        variant="ghost"
+                        onClick={() => setShowPassword(!showPassword)}
+                        size="sm"
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                  <FormHelperText>At least 8 characters with a number and special character</FormHelperText>
+                  {errors.password && (
+                    <Text color="red.500" fontSize="sm" mt={1}>{errors.password}</Text>
+                  )}
+                </FormControl>
+
+                <FormControl id="password_confirmation" isRequired isInvalid={!!errors.password_confirmation}>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.password_confirmation}
+                      onChange={(e) => handleChange('password_confirmation', e.target.value)}
+                      placeholder="••••••••"
+                      size="lg"
+                    />
+                    <InputRightElement h="full">
+                      <IconButton
+                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                        icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        variant="ghost"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        size="sm"
+                      />
+                    </InputRightElement>
+                  </InputGroup>
+                  {errors.password_confirmation && (
+                    <Text color="red.500" fontSize="sm" mt={1}>{errors.password_confirmation}</Text>
+                  )}
+                </FormControl>
+
                 <Button 
                   type="submit" 
                   colorScheme="teal" 
                   size="lg" 
                   width="full"
+                  height="50px"
+                  fontSize="md"
+                  fontWeight="semibold"
+                  borderRadius="lg"
                   mt={4}
                   isLoading={isLoading}
-                  loadingText="Creating Account"
+                  loadingText="Creating account..."
+                  _hover={{
+                    transform: 'translateY(-2px)',
+                    boxShadow: 'lg',
+                  }}
+                  _active={{
+                    transform: 'translateY(0)',
+                  }}
+                  transition="all 0.2s"
                 >
-                  Register
+                  Create Account
                 </Button>
               </VStack>
             </form>
-            
-            <Text textAlign="center">
-              Already have an account?{' '}
-              <Link as={RouterLink} to="/login" color="teal.500">
-                Sign in
-              </Link>
-            </Text>
+
+              <Text textAlign="center" mt={4}>
+                Already have an account?{' '}
+                <Link 
+                  as={RouterLink} 
+                  to="/login" 
+                  color="teal.600"
+                  fontWeight="500"
+                  _hover={{
+                    color: 'teal.700',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Sign in
+                </Link>
+              </Text>
           </VStack>
         </Box>
       </Flex>

@@ -41,7 +41,7 @@ import {
   FaAward
 } from 'react-icons/fa';
 import { guideService } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import GuideServiceCard from '../components/guides/GuideServiceCard';
 import GuideReviewList from '../components/guides/GuideReviewList';
 import GuideReviewForm from '../components/guides/GuideReviewForm';

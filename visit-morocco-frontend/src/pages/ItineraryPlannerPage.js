@@ -43,7 +43,7 @@ import {
 import { FaPlus, FaTrash, FaSave, FaShareAlt, FaPrint, FaMapMarkedAlt } from 'react-icons/fa';
 import { FiGlobe, FiAward, FiDollarSign } from 'react-icons/fi';
 import { StarIcon } from '@chakra-ui/icons';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { itineraryService, attractionService, businessService, guideService } from '../services/api';
 import ItineraryMap from '../components/itinerary/ItineraryMap';
 import ItineraryDay from '../components/itinerary/ItineraryDay';
@@ -58,7 +58,7 @@ const ItineraryPlannerPage = () => {
   const [itinerary, setItinerary] = useState({
     title: 'My Morocco Trip',
     start_date: new Date().toISOString().split('T')[0],
-    end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    end_date: new Date(Date.now() + 0 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     days: [{ day_number: 1, items: [] }]
   });
   
@@ -365,11 +365,14 @@ const ItineraryPlannerPage = () => {
           // Build the image URL if available
           let imageUrl = null;
           if (primaryPhoto?.photo_url) {
-            // Remove any leading slashes to ensure proper URL construction
-            const cleanUrl = primaryPhoto.photo_url.startsWith('/') 
-              ? primaryPhoto.photo_url.substring(1) 
-              : primaryPhoto.photo_url;
-            imageUrl = `http://localhost:8000/storage/${cleanUrl}`;
+            // Check if the URL is already absolute
+            if (primaryPhoto.photo_url.startsWith('http')) {
+              imageUrl = primaryPhoto.photo_url;
+            } else {
+              // Remove any leading slashes to ensure proper URL construction
+              const cleanUrl = primaryPhoto.photo_url.replace(/^\/+/, '');
+              imageUrl = `http://localhost:8000/storage/${cleanUrl}`;
+            }
           }
           
           return {
@@ -720,7 +723,7 @@ const ItineraryPlannerPage = () => {
   };
 
   return (
-    <Box py={10}>
+    <Box pt={20} pb={10}>
       <Container maxW="container.xl">
         {/* Header Section */}
         <Flex 

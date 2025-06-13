@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { Box, Spinner, Center, Text, VStack } from '@chakra-ui/react';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {

@@ -17,6 +17,7 @@ import {
   useDisclosure,
   Container,
   useColorModeValue,
+  Link,
 } from "@chakra-ui/react"
 import { HamburgerIcon, CloseIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { useAuth } from "../../contexts/AuthContext"
@@ -54,7 +55,8 @@ const NAV_ITEMS = [
   },
   {
     label: "Plan Your Trip",
-    href: "/itinerary-planner"
+    href: "/itinerary-planner",
+    authRequired: true
   },
   {
     label: "Community",
@@ -75,11 +77,20 @@ const NAV_ITEMS = [
 
 // Desktop Navigation Item
 const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
-  const { label, children, href } = navItem
+  const { label, children, href, authRequired } = navItem
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const linkColor = isScrolled || !isHomePage ? "gray.700" : "white"
   const hoverColor = isScrolled || !isHomePage ? "brand.500" : "white"
   const bgHover = isHomePage && !isScrolled ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.05)'
   const textShadow = isHomePage && !isScrolled ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'
+
+  const handleClick = (e) => {
+    if (authRequired && !user) {
+      e.preventDefault()
+      navigate('/login', { state: { from: href, message: 'Please log in to plan your trip' } })
+    }
+  }
 
   if (children) {
     return (
@@ -111,6 +122,7 @@ const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
                 h="40px"
                 px={3}
                 borderRadius="md"
+                onClick={handleClick}
               >
                 {label}
               </Button>
@@ -163,6 +175,7 @@ const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
       h="40px"
       px={3}
       borderRadius="md"
+      onClick={handleClick}
     >
       {label}
     </Button>
@@ -249,7 +262,16 @@ const MobileNav = ({ isHomePage }) => {
 }
 
 // Mobile Navigation Item
-const MobileNavItem = ({ label, children, href, isHomePage }) => {
+const MobileNavItem = ({ label, children, href, isHomePage, authRequired }) => {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  
+  const handleClick = (e) => {
+    if (authRequired && !user) {
+      e.preventDefault()
+      navigate('/login', { state: { from: href, message: 'Please log in to plan your trip' } })
+    }
+  }
   const { isOpen, onToggle } = useDisclosure()
   const textColor = isHomePage ? 'white' : 'gray.700'
   const hoverColor = isHomePage ? 'white' : 'brand.600'
@@ -311,18 +333,23 @@ const MobileNavItem = ({ label, children, href, isHomePage }) => {
   }
 
   return (
-    <Box
+    <Link
       as={RouterLink}
       to={href}
       py={2}
-      color={textColor}
+      px={4}
+      onClick={(e) => {
+        if (children) onToggle()
+        handleClick(e)
+      }}
+      color={isHomePage ? 'white' : 'gray.700'}
       _hover={{
         textDecoration: 'none',
-        color: hoverColor,
+        bg: isHomePage ? 'rgba(255, 255, 255, 0.1)' : 'gray.100',
       }}
     >
       {label}
-    </Box>
+    </Link>
   )
 }
 
