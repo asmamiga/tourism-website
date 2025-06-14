@@ -24,6 +24,24 @@ class AttractionPhotoResource extends Resource
     protected static bool $shouldRedirectToListAfterCreate = true;
     protected static bool $shouldRedirectToListAfterSave = true;
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Store the original photo_url when loading the form
+        $this->record->setAttribute('current_photo_url', $this->record->photo_url);
+        
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // If no new photo was uploaded, keep the existing one
+        if (empty($data['photo_url']) && !empty($this->record->current_photo_url)) {
+            $data['photo_url'] = $this->record->current_photo_url;
+        }
+        
+        return $data;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -77,7 +95,9 @@ class AttractionPhotoResource extends Resource
                             'attraction-' . uniqid() . '.' . $file->getClientOriginalExtension()
                     )
                     ->columnSpanFull()
-                    ->helperText('Upload a new photo to replace the current one')
+                    ->helperText(fn ($record) => $record ? 'Leave empty to keep the current photo' : 'Upload a photo for this attraction')
+                    ->dehydrated(fn ($state) => $state !== null) // Don't update if no new file is uploaded
+                    ->preserveFilenames()
                     ->imageResizeMode('cover')
                     ->imageResizeTargetWidth(800)
                     ->imageResizeTargetHeight(600)

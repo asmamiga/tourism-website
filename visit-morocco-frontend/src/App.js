@@ -23,7 +23,6 @@ import BusinessDashboard from './pages/Dashboard/BusinessDashboard';
 import GuideDashboard from './pages/Dashboard/GuideDashboard';
 import TouristDashboard from './pages/Dashboard/TouristDashboard';
 import RegionsPage from './pages/RegionsPage';
-import ExperiencesPage from './pages/ExperiencesPage';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
@@ -94,7 +93,6 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/regions" element={<RegionsPage />} />
-            <Route path="/experiences" element={<ExperiencesPage />} />
             <Route
               path="/profile"
               element={

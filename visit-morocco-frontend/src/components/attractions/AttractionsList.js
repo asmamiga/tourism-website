@@ -16,7 +16,7 @@ import {
 import { attractionService } from '../../services/api';
 
 const AttractionsList = () => {
-  const [attractions, setAttractions] = useState([]);
+  const [attractions, setAttractions] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
@@ -78,6 +78,17 @@ const AttractionsList = () => {
     );
   }
 
+  // Ensure attractions is always an array
+  const attractionsList = Array.isArray(attractions) ? attractions : [];
+  
+  if (attractionsList.length === 0) {
+    return (
+      <Box textAlign="center" py={10}>
+        <Text>No attractions found. Please try again later.</Text>
+      </Box>
+    );
+  }
+
   return (
     <Container maxW="container.xl" py={8}>
       <Heading as="h1" size="xl" mb={8} textAlign="center">
@@ -85,7 +96,7 @@ const AttractionsList = () => {
       </Heading>
       
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-        {attractions.map((attraction) => {
+        {attractionsList.map((attraction) => {
           const primaryPhoto = attraction.photos?.find(p => p.is_primary) || attraction.photos?.[0];
           const imageUrl = primaryPhoto?.photo_url 
             ? `http://localhost:8000/storage/${primaryPhoto.photo_url}`

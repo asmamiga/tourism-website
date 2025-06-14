@@ -36,11 +36,6 @@ const NAV_ITEMS = [
         label: "Tourist Attractions",
         href: "/attractions",
         description: "Must-visit places in Morocco"
-      },
-      {
-        label: "Cultural Experiences",
-        href: "/experiences",
-        description: "Immerse in Moroccan culture"
       }
     ]
   },
