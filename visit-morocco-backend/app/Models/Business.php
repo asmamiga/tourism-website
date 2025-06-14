@@ -71,7 +71,7 @@ class Business extends Model
     /**
      * Get the business category of the business.
      */
-    public function category(): BelongsTo
+    public function businessCategory(): BelongsTo
     {
         return $this->belongsTo(BusinessCategory::class, 'category_id', 'category_id');
     }
@@ -85,9 +85,17 @@ class Business extends Model
     }
 
     /**
-     * Get the photos for the business.
+     * Get all photos for the business.
      */
     public function photos(): HasMany
+    {
+        return $this->hasMany(BusinessPhoto::class, 'business_id', 'business_id');
+    }
+    
+    /**
+     * Get only primary photos for the business.
+     */
+    public function primaryPhotos(): HasMany
     {
         return $this->hasMany(BusinessPhoto::class, 'business_id', 'business_id')
             ->where('is_primary', true);

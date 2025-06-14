@@ -19,8 +19,12 @@ class DashboardController extends Controller
     {
         $user = $request->user();
         
-        // Load role-specific data
-        $user->load(['guide', 'businessOwner']);
+        // Load only the relevant relationship based on user role
+        if ($user->isGuide()) {
+            $user->load('guide');
+        } elseif ($user->isBusinessOwner()) {
+            $user->load('businessOwner');
+        }
         
         $dashboardData = [
             'stats' => $this->getRoleBasedStats($user),
@@ -44,25 +48,31 @@ class DashboardController extends Controller
         
         switch ($user->role) {
             case 'guide':
+                if (!$user->guide) {
+                    return $this->getDefaultGuideStats();
+                }
                 return [
                     'upcoming_sessions' => $user->guide->bookings()
                         ->where('start_time', '>=', $now)
-                        ->count(),
+                        ->count() ?? 0,
                     'completed_sessions' => $user->guide->bookings()
                         ->where('end_time', '<', $now)
-                        ->count(),
-                    'total_earnings' => $user->guide->earnings,
+                        ->count() ?? 0,
+                    'total_earnings' => $user->guide->earnings ?? 0,
                     'average_rating' => $user->guide->reviews()->avg('rating') ?? 0,
                 ];
                 
             case 'business_owner':
+                if (!$user->businessOwner) {
+                    return $this->getDefaultBusinessOwnerStats();
+                }
                 return [
-                    'total_bookings' => $user->businessOwner->bookings()->count(),
+                    'total_bookings' => $user->businessOwner->bookings()->count() ?? 0,
                     'upcoming_bookings' => $user->businessOwner->bookings()
                         ->where('start_time', '>=', $now)
-                        ->count(),
+                        ->count() ?? 0,
                     'total_revenue' => $user->businessOwner->bookings()
-                        ->sum('total_amount'),
+                        ->sum('total_amount') ?? 0,
                     'average_rating' => $user->businessOwner->reviews()->avg('rating') ?? 0,
                 ];
                 
@@ -70,15 +80,41 @@ class DashboardController extends Controller
             default:
                 return [
                     'upcoming_trips' => $user->bookings()
-                        ->where('start_date', '>=', $now)
-                        ->count(),
+                        ?->where('start_date', '>=', $now)
+                        ->count() ?? 0,
                     'past_trips' => $user->bookings()
-                        ->where('end_date', '<', $now)
-                        ->count(),
-                    'saved_guides' => $user->savedGuides()->count(),
-                    'saved_businesses' => $user->savedBusinesses()->count(),
+                        ?->where('end_date', '<', $now)
+                        ->count() ?? 0,
+                    'saved_guides' => $user->savedGuides()?->count() ?? 0,
+                    'saved_businesses' => $user->savedBusinesses()?->count() ?? 0,
                 ];
         }
+    }
+    
+    /**
+     * Get default guide statistics
+     */
+    protected function getDefaultGuideStats()
+    {
+        return [
+            'upcoming_sessions' => 0,
+            'completed_sessions' => 0,
+            'total_earnings' => 0,
+            'average_rating' => 0,
+        ];
+    }
+    
+    /**
+     * Get default business owner statistics
+     */
+    protected function getDefaultBusinessOwnerStats()
+    {
+        return [
+            'total_bookings' => 0,
+            'upcoming_bookings' => 0,
+            'total_revenue' => 0,
+            'average_rating' => 0,
+        ];
     }
     
     /**
@@ -90,14 +126,20 @@ class DashboardController extends Controller
         
         switch ($user->role) {
             case 'guide':
+                if (!$user->guide) {
+                    return [];
+                }
                 return $user->guide->bookings()
                     ->with(['user', 'service'])
                     ->where('start_time', '>=', $now)
                     ->orderBy('start_time', 'asc')
                     ->take(5)
-                    ->get();
+                    ->get() ?? [];
                     
             case 'business_owner':
+                if (!$user->businessOwner) {
+                    return [];
+                }
                 return $user->businessOwner->bookings()
                     ->with(['user', 'service'])
                     ->where('start_time', '>=', $now)

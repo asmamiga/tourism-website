@@ -2,12 +2,15 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-interface User {
+export interface User {
   id: number;
   first_name: string;
   last_name: string;
   email: string;
   role: 'tourist' | 'guide' | 'business_owner' | 'admin';
+  profile_picture?: string;
+  created_at?: string;
+  updated_at?: string;
   // Add other user properties as needed
 }
 

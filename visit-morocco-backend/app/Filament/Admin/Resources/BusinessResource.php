@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -63,7 +64,13 @@ class BusinessResource extends Resource
                     ->searchable()
                     ->required(),
                 Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'name')
+                    ->relationship(
+                        name: 'businessCategory',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->orderBy('name')
+                    )
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Forms\Components\TextInput::make('name')
                     ->required()
@@ -73,7 +80,13 @@ class BusinessResource extends Resource
                 Forms\Components\Textarea::make('address')
                     ->columnSpanFull(),
                 Forms\Components\Select::make('city_id')
-                    ->relationship('city', 'name')
+                    ->relationship(
+                        name: 'city',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->orderBy('name')
+                    )
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Forms\Components\TextInput::make('phone')
                     ->tel()

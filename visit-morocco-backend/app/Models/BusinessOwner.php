@@ -65,6 +65,22 @@ class BusinessOwner extends Model
     }
     
     /**
+     * Get all bookings for businesses owned by this business owner.
+     * This uses a hasManyThrough relationship since bookings are made to businesses, not directly to the owner.
+     */
+    public function bookings()
+    {
+        return $this->hasManyThrough(
+            'App\Models\Booking',
+            'App\Models\Business',
+            'business_owner_id', // Foreign key on businesses table
+            'business_id',       // Foreign key on bookings table
+            'business_owner_id', // Local key on business_owners table
+            'business_id'        // Local key on businesses table
+        );
+    }
+    
+    /**
      * Get the display name for the business owner.
      * 
      * @return string

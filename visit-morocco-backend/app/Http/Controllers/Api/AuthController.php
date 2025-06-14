@@ -97,11 +97,26 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password_hash)) {
+        // Check if user exists and password is correct
+        if (!$user || !(
+            (isset($user->password) && Hash::check($request->password, $user->password)) ||
+            (isset($user->password_hash) && Hash::check($request->password, $user->password_hash))
+        )) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid login credentials'
+                'message' => 'Invalid login credentials',
+                'debug' => [
+                    'has_password' => isset($user->password),
+                    'has_password_hash' => isset($user->password_hash),
+                    'email_found' => $user !== null
+                ]
             ], 401);
+        }
+        
+        // If password_hash is empty but password is set, update it for backward compatibility
+        if (empty($user->password_hash) && !empty($user->password)) {
+            $user->password_hash = $user->password;
+            $user->save();
         }
 
         // Update last login timestamp
@@ -110,12 +125,21 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Load any relationships if needed
+        if ($user->role === 'business_owner') {
+            $user->load('businessOwner');
+        } elseif ($user->role === 'guide') {
+            $user->load('guide');
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'User logged in successfully',
             'user' => $user,
-            'token' => $token
-        ]);
+            'token' => $token,
+            'token_type' => 'Bearer'
+        ])->header('Access-Control-Allow-Credentials', 'true')
+          ->header('Access-Control-Allow-Origin', config('cors.allowed_origins')[0] ?? '*');
     }
 
     /**

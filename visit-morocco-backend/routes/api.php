@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\{
     AdminController,
@@ -95,8 +96,13 @@ Route::get('/cities', 'App\Http\Controllers\Api\CityController@index');
 Route::get('/cities/{id}', 'App\Http\Controllers\Api\CityController@show');
 Route::get('/attractions', 'App\Http\Controllers\Api\AttractionController@index');
 Route::get('/attractions/{id}', 'App\Http\Controllers\Api\AttractionController@show');
+// Business routes
 Route::get('/businesses', 'App\Http\Controllers\Api\BusinessController@index');
 Route::get('/businesses/{id}', 'App\Http\Controllers\Api\BusinessController@show');
+
+// Business categories routes
+Route::get('/business-categories', 'App\Http\Controllers\Api\BusinessCategoryController@index');
+Route::get('/business-categories/{id}', 'App\Http\Controllers\Api\BusinessCategoryController@show');
 Route::get('/guides', 'App\Http\Controllers\Api\GuideController@index');
 Route::get('/guides/{id}', 'App\Http\Controllers\Api\GuideController@show');
 Route::get('/blog-posts', 'App\Http\Controllers\Api\BlogPostController@index');
@@ -106,8 +112,17 @@ Route::get('/blog-posts/{id}', 'App\Http\Controllers\Api\BlogPostController@show
 Route::middleware('auth:sanctum')->group(function () {
     // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/profile', [AuthController::class, 'profile']);
-    Route::put('/profile', [AuthController::class, 'updateProfile']);
+    
+    // Business routes
+    Route::post('/businesses', 'App\Http\Controllers\Api\BusinessController@store');
+    
+    // User profile routes
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [AppUserController::class, 'showProfile']);
+        Route::put('/', [AppUserController::class, 'updateProfile']);
+        Route::put('/password', [AppUserController::class, 'updatePassword']);
+        Route::post('/picture', [AppUserController::class, 'uploadProfilePicture']);
+    });
     
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);

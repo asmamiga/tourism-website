@@ -4,8 +4,13 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: 'http://localhost:8000/api',
   headers: {
+    'Accept': 'application/json',
     'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
+  withCredentials: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
 // Add a request interceptor to include the auth token in all requests
@@ -50,7 +55,32 @@ export const authService = {
 export const businessService = {
   getAll: (params) => api.get('/businesses', { params }),
   getById: (id) => api.get(`/businesses/${id}`),
-  create: (data) => api.post('/businesses', data),
+  getCategories: () => api.get('/business-categories'),
+  create: async (data) => {
+    // If data is FormData, don't set Content-Type header to let the browser set it with the correct boundary
+    const isFormData = data instanceof FormData;
+    const config = {
+      headers: {},
+      withCredentials: true
+    };
+
+    // Only set Content-Type for non-FormData requests
+    if (!isFormData) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+
+    // Get CSRF token from cookies
+    const csrfToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('XSRF-TOKEN='))
+      ?.split('=')[1];
+
+    if (csrfToken) {
+      config.headers['X-XSRF-TOKEN'] = decodeURIComponent(csrfToken);
+    }
+
+    return api.post('/businesses', data, config);
+  },
   update: (id, data) => api.put(`/businesses/${id}`, data),
   delete: (id) => api.delete(`/businesses/${id}`),
   addPhoto: (id, photoData) => {

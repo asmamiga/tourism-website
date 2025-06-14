@@ -194,7 +194,7 @@ class BusinessPhotoSeeder extends Seeder
             $this->command->info("Processing photos for: {$business->name}");
 
             // Get the appropriate photo set based on business category
-            $categoryName = $business->category->name;
+            $categoryName = $business->businessCategory->name;
             $photos = $photoSets[$categoryName] ?? [];
 
             if (empty($photos)) {

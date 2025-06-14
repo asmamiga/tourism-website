@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Heading, Text, useColorModeValue, Container, Spinner, useToast } from '@chakra-ui/react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import api from '../../services/api';
 

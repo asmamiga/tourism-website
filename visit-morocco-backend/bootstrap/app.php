@@ -12,7 +12,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Disable CSRF for API routes
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+            'sanctum/*',
+            'login',
+            'logout',
+            'register',
+            'password/*'
+        ]);
+        
+        // Add CORS middleware to all routes
+        $middleware->append(\App\Http\Middleware\Cors::class);
+        
+        // Trust all proxies (useful if using a load balancer or proxy)
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

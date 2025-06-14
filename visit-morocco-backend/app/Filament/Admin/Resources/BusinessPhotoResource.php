@@ -29,7 +29,11 @@ class BusinessPhotoResource extends Resource
             ->schema([
                 Forms\Components\Select::make('business_id')
                     ->label('Business')
-                    ->relationship('business', 'name')
+                    ->relationship(
+                        name: 'business',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->orderBy('name')
+                    )
                     ->required()
                     ->searchable()
                     ->preload()
@@ -68,38 +72,38 @@ class BusinessPhotoResource extends Resource
                     ->visible(fn ($record) => $record?->photo_url),
                     
                 // File upload field
-                // Forms\Components\FileUpload::make('photo_url')
-                //     ->label(fn ($record) => $record ? 'Change Photo' : 'Upload Photo')
-                //     ->image()
-                //     ->disk('public')
-                //     ->directory('attractions/photos')
-                //     ->visibility('public')
-                //     ->required(fn (string $context): bool => $context === 'create')
-                //     ->imageEditor()
-                //     ->imagePreviewHeight(150)
-                //     ->panelLayout('compact')
-                //     ->openable()
-                //     ->downloadable()
-                //     ->previewable(true)
-                //     ->loadingIndicatorPosition('left')
-                //     ->removeUploadedFileButtonPosition('right')
-                //     ->uploadButtonPosition('right')
-                //     ->uploadProgressIndicatorPosition('left')
-                //     ->getUploadedFileNameForStorageUsing(
-                //         fn (TemporaryUploadedFile $file): string => 
-                //             'business-' . uniqid() . '.' . $file->getClientOriginalExtension()
-                //     )
-                //     ->columnSpanFull()
-                //     ->helperText('Upload a new photo to replace the current one')
-                //     ->imageResizeMode('cover')
-                //     ->imageResizeTargetWidth(800)
-                //     ->imageResizeTargetHeight(600)
-                //     ->imageEditorAspectRatios([
-                //         null,
-                //         '16:9',
-                //         '4:3',
-                //         '1:1',
-                //     ]),
+                Forms\Components\FileUpload::make('photo_url')
+                    ->label(fn ($record) => $record ? 'Change Photo' : 'Upload Photo')
+                    ->image()
+                    ->disk('public')
+                    ->directory('attractions/photos')
+                    ->visibility('public')
+                    ->required(fn (string $context): bool => $context === 'create')
+                    ->imageEditor()
+                    ->imagePreviewHeight(150)
+                    ->panelLayout('compact')
+                    ->openable()
+                    ->downloadable()
+                    ->previewable(true)
+                    ->loadingIndicatorPosition('left')
+                    ->removeUploadedFileButtonPosition('right')
+                    ->uploadButtonPosition('right')
+                    ->uploadProgressIndicatorPosition('left')
+                    ->getUploadedFileNameForStorageUsing(
+                        fn (TemporaryUploadedFile $file): string => 
+                            'business-' . uniqid() . '.' . $file->getClientOriginalExtension()
+                    )
+                    ->columnSpanFull()
+                    ->helperText('Upload a new photo to replace the current one')
+                    ->imageResizeMode('cover')
+                    ->imageResizeTargetWidth(800)
+                    ->imageResizeTargetHeight(600)
+                    ->imageEditorAspectRatios([
+                        null,
+                        '16:9',
+                        '4:3',
+                        '1:1',
+                    ]),
 
                 Forms\Components\TextInput::make('caption')
                     ->maxLength(255),
@@ -176,8 +180,9 @@ class BusinessPhotoResource extends Resource
                     ->url(fn ($record) => $record->photo_url)
                     ->defaultImageUrl(asset('images/placeholder.jpg')),
                 Tables\Columns\TextColumn::make('business.name')
-                    ->searchable()
-                    ->sortable(),
+                    ->label('Business')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('caption')
                     ->searchable()
                     ->limit(30)
@@ -192,26 +197,31 @@ class BusinessPhotoResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('business')
-                    ->relationship('business', 'name')
+                Tables\Filters\SelectFilter::make('business_id')
+                    ->relationship(
+                        name: 'business',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (\Illuminate\Database\Eloquent\Builder $query) => $query->orderBy('name')
+                    )
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->label('Business'),
                 Tables\Filters\TernaryFilter::make('is_primary')
                     ->label('Primary Photo Only'),
                 Tables\Filters\Filter::make('upload_date')
                     ->form([
-                        Forms\Components\DatePicker::make('uploaded_from'),
-                        Forms\Components\DatePicker::make('uploaded_until'),
+                        Forms\Components\DatePicker::make('from'),
+                        Forms\Components\DatePicker::make('until'),
                     ])
-                    ->query(function ($query, array $data) {
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data): \Illuminate\Database\Eloquent\Builder {
                         return $query
                             ->when(
-                                $data['uploaded_from'],
-                                fn ($query) => $query->whereDate('upload_date', '>=', $data['uploaded_from'])
+                                $data['from'],
+                                fn (\Illuminate\Database\Eloquent\Builder $query, $date): \Illuminate\Database\Eloquent\Builder => $query->whereDate('upload_date', '>=', $date),
                             )
                             ->when(
-                                $data['uploaded_until'],
-                                fn ($query) => $query->whereDate('upload_date', '<=', $data['uploaded_until'])
+                                $data['until'],
+                                fn (\Illuminate\Database\Eloquent\Builder $query, $date): \Illuminate\Database\Eloquent\Builder => $query->whereDate('upload_date', '<=', $date),
                             );
                     }),
             ])
