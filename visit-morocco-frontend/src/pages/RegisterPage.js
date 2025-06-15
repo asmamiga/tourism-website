@@ -39,7 +39,8 @@ const RegisterPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const { register } = useAuth() || {};
+  const auth = useAuth();
+  const register = auth?.register;
   const toast = useToast();
   const navigate = useNavigate();
 
