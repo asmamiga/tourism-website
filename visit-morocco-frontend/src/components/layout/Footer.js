@@ -78,7 +78,7 @@ export default function Footer() {
           >
             <Stack spacing={6}>
               <Text fontSize="lg" fontWeight="bold" color="white">
-                Visit Morocco
+                MoroccoExplorer
               </Text>
               <Text fontSize="sm" color="gray.400">
                 Discover authentic Moroccan experiences with our comprehensive tourism platform. Connect with local
@@ -234,7 +234,7 @@ export default function Footer() {
           zIndex={2}
         >
           <Text fontSize="sm" color="gray.400">
-            © {new Date().getFullYear()} Visit Morocco. All rights reserved
+            © {new Date().getFullYear()} MoroccoExplorer. All rights reserved
           </Text>
           <Stack direction="row" spacing={6}>
             <Link
