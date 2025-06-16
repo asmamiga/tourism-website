@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import loginImage from '../assets/images/morocco-login.jpg';
+const loginImage = process.env.PUBLIC_URL + '/images/login-bg-new.jpg';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -85,9 +85,10 @@ const LoginPage = () => {
             src="/images/logo-white.png.jpg" 
             alt="Morocco Travel Logo"
             width="100%"
-            maxW="70%"
-            maxH="70%"
+            maxW="90%"
+            maxH="90%"
             objectFit="contain"
+            style={{ transform: 'scale(0.9)' }}
           />
         </Box>
         

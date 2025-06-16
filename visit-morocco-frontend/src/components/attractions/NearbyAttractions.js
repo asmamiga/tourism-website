@@ -26,7 +26,7 @@ const AttractionCard = ({ attraction, index }) => {
   const cardBg = useColorModeValue("white", "gray.800")
   const borderColor = useColorModeValue("gray.200", "gray.600")
   const textColor = useColorModeValue("gray.800", "white")
-  const mutedTextColor = useColorModeValue("gray.600", "gray.300")
+  const mutedTextColor = useColorModeValue("gray.700", "gray.600")
   const hoverBg = useColorModeValue("gray.50", "gray.700")
 
   return (
@@ -132,13 +132,13 @@ const AttractionCard = ({ attraction, index }) => {
 
           {/* Description */}
           {attraction.description && (
-            <Text fontSize="sm" color={mutedTextColor} noOfLines={2} lineHeight="1.5">
+            <Text color="black" noOfLines={2} lineHeight="1.5">
               {attraction.description}
             </Text>
           )}
 
           {/* Additional Info */}
-          <HStack spacing={4} fontSize="xs" color={mutedTextColor}>
+          <HStack spacing={4} fontSize="xs" color="black">
             {attraction.visitTime && (
               <HStack spacing={1}>
                 <Icon as={FiClock} />
@@ -205,7 +205,7 @@ const AttractionCard = ({ attraction, index }) => {
 
 const NearbyAttractions = ({ attractions = [], title = "Nearby Attractions" }) => {
   const headingColor = useColorModeValue("gray.800", "white")
-  const textColor = useColorModeValue("gray.600", "gray.300")
+  const textColor = useColorModeValue("gray.800", "gray.900")
   const sectionBg = useColorModeValue("gray.50", "gray.900")
   const isMobile = useBreakpointValue({ base: true, md: false })
 
@@ -227,7 +227,7 @@ const NearbyAttractions = ({ attractions = [], title = "Nearby Attractions" }) =
           <Heading size="md" color={headingColor}>
             No nearby attractions found
           </Heading>
-          <Text color={textColor} maxW="md" lineHeight="tall">
+          <Text color="black" maxW="md" lineHeight="tall">
             We couldn't find any attractions near this location. Try exploring other areas or check back later for
             updates.
           </Text>
@@ -256,7 +256,7 @@ const NearbyAttractions = ({ attractions = [], title = "Nearby Attractions" }) =
               <Heading size="lg" color={headingColor} fontWeight="700">
                 {title}
               </Heading>
-              <Text color={textColor} fontSize="sm">
+              <Text color="black" fontSize="sm">
                 {attractions.length} {attractions.length === 1 ? "attraction" : "attractions"} nearby
               </Text>
             </VStack>

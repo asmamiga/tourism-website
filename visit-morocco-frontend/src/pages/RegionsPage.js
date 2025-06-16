@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { 
   Box, 
   Container, 
@@ -482,10 +483,18 @@ const RegionDetailModal = ({ isOpen, onClose, region }) => {
                   Discover the best of {region.name} with our curated experiences and local guides.
                 </Text>
                 <Button 
+                  as={RouterLink}
+                  to="/itinerary-planner"
                   colorScheme="blue" 
                   w="full"
                   size="lg"
                   rightIcon={<FiChevronRight />}
+                  _hover={{
+                    textDecoration: 'none',
+                    transform: 'translateY(-2px)',
+                    boxShadow: 'lg'
+                  }}
+                  transition="all 0.2s"
                 >
                   Plan Your Trip
                 </Button>

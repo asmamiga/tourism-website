@@ -396,8 +396,8 @@ const AttractionsPage = () => {
   const filterButtonActiveHoverBorder = useColorModeValue("blue.300", "blue.500")
   const filterButtonActiveFocusBorder = useColorModeValue("blue.500", "blue.400")
   const filterButtonActiveFocusBoxShadow = "0 0 0 1px var(--chakra-colors-blue-500)"
-  const headingColor = useColorModeValue("gray.800", "white")
-  const subTextColor = useColorModeValue("gray.600", "gray.300")
+  const headingColor = useColorModeValue("gray.900", "gray.900")
+  const subTextColor = useColorModeValue("gray.800", "gray.700")
   const mapBg = useColorModeValue("white", "gray.800")
   const mapBorderColor = useColorModeValue("gray.200", "gray.700")
 
@@ -1228,12 +1228,12 @@ const AttractionsPage = () => {
                 >
                   Interactive Experience
                 </Badge>
-                <Heading as="h3" size="xl" color={headingColor}>
+                <Heading as="h3" size="xl" color="black">
                   Explore Attractions on the Map
                 </Heading>
                 <Text
                   fontSize="lg"
-                  color={subTextColor}
+                  color="black"
                   maxW="2xl"
                   mx="auto"
                   lineHeight="tall"
@@ -1241,25 +1241,7 @@ const AttractionsPage = () => {
                   Discover attractions near your location or plan your route between multiple sites. Find hidden gems
                   across Morocco's diverse landscapes.
                 </Text>
-                <Button
-                  as={RouterLink}
-                  to="/attractions-map"
-                  size="lg"
-                  colorScheme="blue"
-                  rightIcon={<FiMapPin />}
-                  _hover={{
-                    transform: "translateY(-3px)",
-                    boxShadow: "lg",
-                  }}
-                  borderRadius="xl"
-                  px={8}
-                  py={6}
-                  fontSize="lg"
-                  fontWeight="600"
-                  transition="all 0.3s ease"
-                >
-                  Open Interactive Map
-                </Button>
+                
               </VStack>
             </Box>
           </motion.div>

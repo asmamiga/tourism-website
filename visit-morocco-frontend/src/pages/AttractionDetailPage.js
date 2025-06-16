@@ -329,8 +329,8 @@ const AttractionDetailPage = () => {
         justifyContent="center"
       >
         <VStack spacing={4}>
-          <Spinner thickness="4px" speed="0.65s" emptyColor="rgba(255, 255, 255, 0.2)" color="white" size="xl" />
-          <Text color="white" fontSize="lg">
+          <Spinner thickness="4px" speed="0.65s" emptyColor="rgba(0, 0, 0, 0.2)" color="black" size="xl" />
+          <Text color="black" fontSize="lg">
             Loading attraction details...
           </Text>
         </VStack>
@@ -381,8 +381,8 @@ const AttractionDetailPage = () => {
           <HStack
             spacing={2}
             mb={6}
-            color="rgba(255, 255, 255, 0.8)"
-            bg="rgba(255, 255, 255, 0.1)"
+            color="rgba(0, 0, 0, 0.8)"
+            bg="rgba(255, 255, 255, 0.8)"
             p={4}
             borderRadius="xl"
             backdropFilter="blur(10px)"
@@ -413,25 +413,13 @@ const AttractionDetailPage = () => {
             >
               <Box flex={1}>
                 <Flex align="center" gap={4} mb={4}>
-                  <Heading as="h1" size="2xl" color="white" fontWeight="800">
+                  <Heading as="h1" size="2xl" color="black" fontWeight="800">
                     {attraction.name}
                   </Heading>
-                  {attraction.is_featured && (
-                    <Badge
-                      bg="linear-gradient(135deg, #ffd89b 0%, #19547b 100%)"
-                      color="white"
-                      px={4}
-                      py={2}
-                      borderRadius="full"
-                      fontSize="sm"
-                      fontWeight="bold"
-                    >
-                      ✨ Featured
-                    </Badge>
-                  )}
+                  
                 </Flex>
 
-                <Flex align="center" mb={4} color="rgba(255, 255, 255, 0.9)">
+                <Flex align="center" mb={4} color="rgba(0, 0, 0, 0.9)">
                   <Icon as={FaMapMarkerAlt} mr={3} color="#ffd89b" />
                   <Text fontSize="lg">
                     {attraction.city?.name}, {attraction.region?.name}
@@ -445,15 +433,15 @@ const AttractionDetailPage = () => {
                         <Icon
                           key={i}
                           as={FaStar}
-                          color={i < Math.floor(attraction.avg_rating || 0) ? "#ffd89b" : "rgba(255, 255, 255, 0.3)"}
+                          color={i < Math.floor(attraction.avg_rating || 0) ? "#ffd89b" : "rgba(0, 0, 0, 0.3)"}
                           mr={1}
                         />
                       ))}
                     </Flex>
-                    <Text color="white" fontWeight="bold" fontSize="lg">
+                    <Text color="black" fontWeight="bold" fontSize="lg">
                       {attraction.avg_rating ? attraction.avg_rating.toFixed(1) : "No ratings"}
                     </Text>
-                    <Text color="rgba(255, 255, 255, 0.7)">({attraction.reviews_count || 0} reviews)</Text>
+                    <Text color="rgba(0, 0, 0, 0.7)">({attraction.reviews_count || 0} reviews)</Text>
                   </Flex>
                 </Flex>
 
@@ -509,13 +497,12 @@ const AttractionDetailPage = () => {
                   href={`https://www.google.com/maps/dir/?api=1&destination=${attraction.latitude},${attraction.longitude}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  bg="linear-gradient(135deg, #ffd89b 0%, #19547b 100%)"
+                  bg="linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)"
                   color="white"
-                  size="lg"
                   leftIcon={<FaDirections />}
                   _hover={{
                     transform: "translateY(-2px)",
-                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+                    boxShadow: "0 10px 30px white",
                   }}
                   borderRadius="xl"
                   px={8}
@@ -539,17 +526,14 @@ const AttractionDetailPage = () => {
             border="1px solid rgba(255, 255, 255, 0.2)"
           >
             <Tabs colorScheme="blue" variant="enclosed">
-              <TabList bg="rgba(255, 255, 255, 0.05)" borderBottom="1px solid rgba(255, 255, 255, 0.1)">
-                <Tab color="rgba(255, 255, 255, 0.8)" _selected={{ color: "white", bg: "rgba(255, 255, 255, 0.1)" }}>
+              <TabList bg="rgba(0, 0, 0, 0.05)" borderBottom="1px solid rgba(0, 0, 0, 0.1)">
+                <Tab color="rgba(0, 0, 0, 0.8)" _selected={{ color: "black", bg: "rgba(0, 0, 0, 0.1)" }}>
                   Overview
                 </Tab>
-                <Tab color="rgba(255, 255, 255, 0.8)" _selected={{ color: "white", bg: "rgba(255, 255, 255, 0.1)" }}>
+                <Tab color="rgba(0, 0, 0, 0.8)" _selected={{ color: "black", bg: "rgba(0, 0, 0, 0.1)" }}>
                   Details
                 </Tab>
-                <Tab color="rgba(255, 255, 255, 0.8)" _selected={{ color: "white", bg: "rgba(255, 255, 255, 0.1)" }}>
-                  Location
-                </Tab>
-                <Tab color="rgba(255, 255, 255, 0.8)" _selected={{ color: "white", bg: "rgba(255, 255, 255, 0.1)" }}>
+                <Tab color="rgba(0, 0, 0, 0.8)" _selected={{ color: "black", bg: "rgba(0, 0, 0, 0.1)" }}>
                   Visitor Tips
                 </Tab>
               </TabList>
@@ -559,36 +543,36 @@ const AttractionDetailPage = () => {
                 <TabPanel p={8}>
                   <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={10}>
                     <Box>
-                      <Heading as="h3" size="lg" mb={6} color="white">
+                      <Heading as="h3" size="lg" mb={6} color="black">
                         About {attraction.name}
                       </Heading>
                       <Text
                         mb={8}
                         whiteSpace="pre-line"
-                        color="rgba(255, 255, 255, 0.9)"
+                        color="rgba(0, 0, 0, 0.9)"
                         lineHeight="tall"
                         fontSize="lg"
                       >
                         {attraction.long_description || attraction.description}
                       </Text>
 
-                      <Heading as="h3" size="lg" mb={6} color="white">
+                      <Heading as="h3" size="lg" mb={6} color="black">
                         History
                       </Heading>
-                      <Text mb={6} color="rgba(255, 255, 255, 0.9)" lineHeight="tall" fontSize="lg">
+                      <Text mb={6} color="rgba(0, 0, 0, 0.9)" lineHeight="tall" fontSize="lg">
                         {attraction.history || "No historical information available."}
                       </Text>
                     </Box>
 
                     <Box>
-                      <Heading as="h3" size="lg" mb={6} color="white">
+                      <Heading as="h3" size="lg" mb={6} color="black">
                         Visitor Information
                       </Heading>
                       <VStack spacing={6} align="stretch">
                         <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
                           <Flex align="center" mb={4}>
                             <Icon as={FaClock} color="#ffd89b" mr={4} fontSize="xl" />
-                            <Text fontWeight="bold" color="white" fontSize="lg">
+                            <Text fontWeight="bold" color="black" fontSize="lg">
                               Opening Hours
                             </Text>
                           </Flex>
@@ -596,26 +580,26 @@ const AttractionDetailPage = () => {
                             <VStack spacing={2} align="stretch">
                               {Object.entries(attraction.opening_hours).map(([day, hours]) => (
                                 <Flex key={day} justify="space-between">
-                                  <Text fontWeight="medium" color="rgba(255, 255, 255, 0.8)">
+                                  <Text fontWeight="medium" color="rgba(0, 0, 0, 0.8)">
                                     {day}:
                                   </Text>
-                                  <Text color="white">{hours}</Text>
+                                  <Text color="black">{hours}</Text>
                                 </Flex>
                               ))}
                             </VStack>
                           ) : (
-                            <Text color="white">{attraction.opening_hours}</Text>
+                            <Text color="black">{attraction.opening_hours}</Text>
                           )}
                         </Box>
 
                         <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
                           <Flex align="center" mb={4}>
                             <Icon as={FaMoneyBillWave} color="#ffd89b" mr={4} fontSize="xl" />
-                            <Text fontWeight="bold" color="white" fontSize="lg">
+                            <Text fontWeight="bold" color="black" fontSize="lg">
                               Entrance Fee
                             </Text>
                           </Flex>
-                          <Text color="white" fontSize="lg">
+                          <Text color="black" fontSize="lg">
                             {attraction.entrance_fee || "Free"}
                           </Text>
                         </Box>
@@ -624,7 +608,7 @@ const AttractionDetailPage = () => {
                           <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
                             <Flex align="center" mb={4}>
                               <Icon as={FaGlobe} color="#ffd89b" mr={4} fontSize="xl" />
-                              <Text fontWeight="bold" color="white" fontSize="lg">
+                              <Text fontWeight="bold" color="black" fontSize="lg">
                                 Website
                               </Text>
                             </Flex>
@@ -643,23 +627,23 @@ const AttractionDetailPage = () => {
                         <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
                           <Flex align="center" mb={4}>
                             <Icon as={FaMapMarkerAlt} color="#ffd89b" mr={4} fontSize="xl" />
-                            <Text fontWeight="bold" color="white" fontSize="lg">
+                            <Text fontWeight="bold" color="black" fontSize="lg">
                               Address
                             </Text>
                           </Flex>
-                          <Text color="white" fontSize="lg">
+                          <Text color="black" fontSize="lg">
                             {attraction.address || "Address not available"}
                           </Text>
                         </Box>
                       </VStack>
 
                       <Box mt={8}>
-                        <Heading as="h3" size="lg" mb={4} color="white">
+                        <Heading as="h3" size="lg" mb={4} color="black">
                           Category
                         </Heading>
                         <Badge
-                          bg="linear-gradient(135deg, #ffd89b 0%, #19547b 100%)"
-                          color="white"
+                          bg="linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)"
+                          color="black"
                           fontSize="lg"
                           px={6}
                           py={3}
@@ -676,35 +660,35 @@ const AttractionDetailPage = () => {
                 {/* Details Tab */}
                 <TabPanel p={8}>
                   <Box mb={8}>
-                    <Heading as="h3" size="lg" mb={6} color="white">
+                    <Heading as="h3" size="lg" mb={6} color="black">
                       What to Expect
                     </Heading>
-                    <Text mb={8} whiteSpace="pre-line" color="rgba(255, 255, 255, 0.9)" lineHeight="tall" fontSize="lg">
+                    <Text mb={8} whiteSpace="pre-line" color="rgba(0, 0, 0, 0.9)" lineHeight="tall" fontSize="lg">
                       {attraction.long_description || attraction.description}
                     </Text>
 
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8} mb={8}>
                       <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
-                        <Heading as="h4" size="md" mb={4} color="white">
+                        <Heading as="h4" size="md" mb={4} color="black">
                           Best Time to Visit
                         </Heading>
-                        <Text color="rgba(255, 255, 255, 0.9)" lineHeight="tall">
+                        <Text color="rgba(0, 0, 0, 0.9)" lineHeight="tall">
                           {attraction.best_time_to_visit ||
                             "Early morning or late afternoon is generally recommended to avoid crowds and enjoy better lighting for photography."}
                         </Text>
                       </Box>
 
                       <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
-                        <Heading as="h4" size="md" mb={4} color="white">
+                        <Heading as="h4" size="md" mb={4} color="black">
                           Estimated Duration
                         </Heading>
-                        <Text color="rgba(255, 255, 255, 0.9)" lineHeight="tall">
+                        <Text color="rgba(0, 0, 0, 0.9)" lineHeight="tall">
                           {attraction.duration || "Plan to spend 1-2 hours exploring this attraction thoroughly."}
                         </Text>
                       </Box>
                     </SimpleGrid>
 
-                    <Heading as="h3" size="lg" mb={6} color="white">
+                    <Heading as="h3" size="lg" mb={6} color="black">
                       Nearby Attractions
                     </Heading>
 
@@ -712,79 +696,12 @@ const AttractionDetailPage = () => {
                   </Box>
                 </TabPanel>
 
-                {/* Location Tab */}
-                <TabPanel p={8}>
-                  <Box mb={8}>
-                    <Heading as="h3" size="lg" mb={6} color="white">
-                      Location
-                    </Heading>
-
-                    <Text mb={6} color="rgba(255, 255, 255, 0.9)" fontSize="lg">
-                      {attraction.address}, {attraction.city?.name}, {attraction.region?.name}
-                    </Text>
-
-                    <Box
-                      height="400px"
-                      borderRadius="2xl"
-                      overflow="hidden"
-                      boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-                      mb={8}
-                    >
-                      {attraction.latitude && attraction.longitude ? (
-                        <AttractionMap
-                          latitude={attraction.latitude}
-                          longitude={attraction.longitude}
-                          attractionName={attraction.name}
-                        />
-                      ) : (
-                        <Flex
-                          justify="center"
-                          align="center"
-                          height="100%"
-                          bg="rgba(255, 255, 255, 0.1)"
-                          backdropFilter="blur(10px)"
-                        >
-                          <Text color="white" fontSize="lg">
-                            Map location not available
-                          </Text>
-                        </Flex>
-                      )}
-                    </Box>
-
-                    <Heading as="h3" size="lg" mb={6} color="white">
-                      Getting There
-                    </Heading>
-                    <Text mb={8} color="rgba(255, 255, 255, 0.9)" lineHeight="tall" fontSize="lg">
-                      {attraction.getting_there ||
-                        `${attraction.name} is located in ${attraction.city?.name}. You can reach it by taxi, public transportation, or as part of a guided tour. From the city center, it's approximately a 15-minute drive.`}
-                    </Text>
-
-                    <Button
-                      as="a"
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${attraction.latitude},${attraction.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      bg="linear-gradient(135deg, #ffd89b 0%, #19547b 100%)"
-                      color="white"
-                      size="lg"
-                      leftIcon={<FaDirections />}
-                      _hover={{
-                        transform: "translateY(-2px)",
-                        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-                      }}
-                      borderRadius="xl"
-                      px={8}
-                      fontWeight="bold"
-                    >
-                      Get Directions
-                    </Button>
-                  </Box>
-                </TabPanel>
+               
 
                 {/* Visitor Tips Tab */}
                 <TabPanel p={8}>
                   <Box mb={8}>
-                    <Heading as="h3" size="lg" mb={6} color="white">
+                    <Heading as="h3" size="lg" mb={6} color="black">
                       Visitor Tips
                     </Heading>
 
@@ -805,7 +722,7 @@ const AttractionDetailPage = () => {
                               backdropFilter="blur(10px)"
                             >
                               <Icon as={FaInfoCircle} color="#ffd89b" mt={1} mr={4} fontSize="xl" />
-                              <Text color="rgba(255, 255, 255, 0.9)" lineHeight="tall" fontSize="lg">
+                              <Text color="rgba(0, 0, 0, 0.9)" lineHeight="tall" fontSize="lg">
                                 {tip}
                               </Text>
                             </Flex>
@@ -813,19 +730,19 @@ const AttractionDetailPage = () => {
                         ))}
                       </VStack>
                     ) : (
-                      <Text mb={8} color="rgba(255, 255, 255, 0.9)" fontSize="lg">
+                      <Text mb={8} color="rgba(0, 0, 0, 0.9)" fontSize="lg">
                         No specific tips available for this attraction.
                       </Text>
                     )}
 
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                       <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
-                        <Heading as="h3" size="md" mb={4} color="white">
+                        <Heading as="h3" size="md" mb={4} color="black">
                           Photography
                         </Heading>
                         <Flex align="flex-start">
                           <Icon as={FaCamera} color="#ffd89b" mt={1} mr={4} fontSize="xl" />
-                          <Text color="rgba(255, 255, 255, 0.9)" lineHeight="tall">
+                          <Text color="rgba(0, 0, 0, 0.9)" lineHeight="tall">
                             {attraction.photography_info ||
                               "Photography is generally allowed in outdoor areas. Some indoor exhibits may have restrictions. Always respect local customs and any posted signs regarding photography."}
                           </Text>
@@ -833,12 +750,12 @@ const AttractionDetailPage = () => {
                       </Box>
 
                       <Box bg="rgba(255, 255, 255, 0.1)" p={6} borderRadius="2xl" backdropFilter="blur(10px)">
-                        <Heading as="h3" size="md" mb={4} color="white">
+                        <Heading as="h3" size="md" mb={4} color="black">
                           Best Time to Visit
                         </Heading>
                         <Flex align="flex-start">
                           <Icon as={FaCalendarAlt} color="#ffd89b" mt={1} mr={4} fontSize="xl" />
-                          <Text color="rgba(255, 255, 255, 0.9)" lineHeight="tall">
+                          <Text color="rgba(0, 0, 0, 0.9)" lineHeight="tall">
                             {attraction.best_time ||
                               "Early morning (8-10 AM) or late afternoon (3-5 PM) typically offers the best experience with fewer crowds and pleasant lighting for photography. Weekdays are generally less crowded than weekends."}
                           </Text>
@@ -868,10 +785,10 @@ const AttractionDetailPage = () => {
               position="relative"
               overflow="hidden"
             >
-              <Heading as="h3" size="xl" mb={6} color="white">
+              <Heading as="h3" size="xl" mb={6} color="black">
                 Planning to Visit?
               </Heading>
-              <Text fontSize="lg" mb={8} color="rgba(255, 255, 255, 0.9)" maxW="2xl" mx="auto">
+              <Text fontSize="lg" mb={8} color="rgba(0, 0, 0, 0.9)" maxW="2xl" mx="auto">
                 Add {attraction.name} to your Morocco itinerary and discover other nearby attractions. Create your
                 perfect journey through Morocco's wonders.
               </Text>
@@ -879,7 +796,7 @@ const AttractionDetailPage = () => {
                 as={RouterLink}
                 to="/itinerary-planner"
                 size="lg"
-                bg="linear-gradient(135deg, #ffd89b 0%, #19547b 100%)"
+                bg="linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)"
                 color="white"
                 _hover={{
                   transform: "translateY(-3px)",

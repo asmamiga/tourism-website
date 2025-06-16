@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Link as RouterLink } from "react-router-dom"
 import {
@@ -48,31 +46,38 @@ import {
 } from "react-icons/fa"
 import { motion, AnimatePresence } from "framer-motion"
 
-// Floating particles component
+// Enhanced floating particles with more dynamic movement
 const FloatingParticles = () => {
   return (
     <Box position="absolute" top={0} left={0} right={0} bottom={0} overflow="hidden" pointerEvents="none">
-      {[...Array(25)].map((_, i) => (
+      {[...Array(35)].map((_, i) => (
         <motion.div
           key={i}
           style={{
             position: "absolute",
-            width: Math.random() * 4 + 2,
-            height: Math.random() * 4 + 2,
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            width: Math.random() * 6 + 3,
+            height: Math.random() * 6 + 3,
+            background: i % 3 === 0 
+              ? "linear-gradient(45deg, rgba(255, 216, 155, 0.4), rgba(25, 84, 123, 0.4))" 
+              : i % 3 === 1 
+              ? "linear-gradient(45deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4))"
+              : "linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1))",
             borderRadius: "50%",
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
+            filter: "blur(1px)",
           }}
           animate={{
-            y: [0, -30, 0],
-            x: [0, Math.random() * 20 - 10, 0],
-            opacity: [0.3, 0.8, 0.3],
+            y: [0, -50, 0],
+            x: [0, Math.random() * 30 - 15, 0],
+            opacity: [0.2, 0.8, 0.2],
+            scale: [0.5, 1.2, 0.5],
           }}
           transition={{
-            duration: Math.random() * 3 + 2,
-            repeat: Number.POSITIVE_INFINITY,
+            duration: Math.random() * 4 + 3,
+            repeat: Infinity,
             ease: "easeInOut",
+            delay: Math.random() * 2,
           }}
         />
       ))}
@@ -80,33 +85,107 @@ const FloatingParticles = () => {
   )
 }
 
+// Enhanced background with animated gradients
+const AnimatedBackground = () => {
+  return (
+    <Box 
+      position="fixed" 
+      top={0} 
+      left={0} 
+      right={0} 
+      bottom={0} 
+      zIndex={-1}
+      overflow="hidden"
+    >
+      {/* Primary gradient background */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+        }}
+        animate={{
+          background: [
+            "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+            "linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #667eea 100%)",
+            "linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #764ba2 100%)",
+            "linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)",
+          ]
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+      
+      {/* Overlay gradients for depth */}
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)"
+      />
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        bg="radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.1) 0%, transparent 50%)"
+      />
+    </Box>
+  )
+}
+
 // Helper function to get attraction image
 const getAttractionImage = (attraction) => {
-  if (attraction.photos?.length > 0) {
+  if (attraction?.photos?.[0]?.photo_url) {
     return attraction.photos[0].photo_url
   }
+  
+  if (attraction?.image_url) {
+    return attraction.image_url
+  }
 
-  const images = [
-    "1539020140153-e8c237425f2d",
-    "1539072692047-3bd38673d8ce",
-    "1548240693-c7d69e8c2583",
-    "1595991209486-01c05fa9e812",
-    "15454240-049a21ef9eea",
+  const defaultImages = [
+    '1539020140153-e8c237425f2d',
+    '1539072692047-3bd38673d8ce',
+    '1548240693-c7d69e8c2583',
+    '1595991209486-01c05fa9e812',
+    '15454240-049a21ef9eea',
+    '1573346145020-1d9c5c9d0a8d',
+    '1559561721-1c65d8e9d9b6',
+    '1564507589426-5a3223c5e9b7'
   ]
 
-  const randomIndex = Math.floor(Math.random() * images.length)
-  return `https://images.unsplash.com/photo-${images[randomIndex]}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`
+  const getConsistentIndex = (str) => {
+    if (!str) return 0
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    return Math.abs(hash) % defaultImages.length
+  }
+  
+  const index = attraction?.id ? getConsistentIndex(attraction.id) : 
+                  attraction?.name ? getConsistentIndex(attraction.name) :
+                  Math.floor(Math.random() * defaultImages.length)
+  
+  return `https://images.unsplash.com/photo-${defaultImages[index]}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`
 }
 
 const MotionBox = motion(Box)
-const MotionGrid = motion(SimpleGrid)
 
+// Enhanced attraction card with better visual hierarchy
 const AttractionCard = ({ attraction, onFavoriteToggle, isFavorite }) => {
   const toast = useToast()
-  const cardBg = useColorModeValue("rgba(255, 255, 255, 0.95)", "rgba(26, 32, 44, 0.95)")
-  const borderColor = useColorModeValue("rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.1)")
-  const textColor = useColorModeValue("gray.800", "white")
-  const mutedTextColor = useColorModeValue("gray.600", "gray.300")
+  const [isHovered, setIsHovered] = useState(false)
 
   const handleFavoriteClick = (e) => {
     e.preventDefault()
@@ -149,31 +228,77 @@ const AttractionCard = ({ attraction, onFavoriteToggle, isFavorite }) => {
 
   return (
     <MotionBox
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -8, scale: 1.02 }}
-      transition={{ duration: 0.3 }}
-      bg={cardBg}
-      backdropFilter="blur(20px)"
-      borderRadius="2xl"
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      whileHover={{ 
+        y: -12, 
+        scale: 1.03,
+        rotateY: 2,
+        rotateX: 2,
+      }}
+      transition={{ 
+        duration: 0.4,
+        type: "spring",
+        stiffness: 100,
+        damping: 15
+      }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      bg="rgba(255, 255, 255, 0.08)"
+      backdropFilter="blur(25px)"
+      borderRadius="3xl"
       overflow="hidden"
-      boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-      border="1px solid"
-      borderColor={borderColor}
+      boxShadow="0 30px 60px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+      border="1px solid rgba(255, 255, 255, 0.15)"
       height="100%"
       display="flex"
       flexDirection="column"
       position="relative"
+      transformOrigin="center"
+      style={{
+        transformStyle: "preserve-3d"
+      }}
       _hover={{
-        boxShadow: "0 35px 60px -12px rgba(0, 0, 0, 0.3)",
+        boxShadow: "0 40px 80px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.2)",
       }}
     >
-      {/* Image Container */}
-      <Box position="relative" h="240px" overflow="hidden">
+      {/* Animated border gradient */}
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderRadius: "24px",
+          padding: "2px",
+          background: isHovered 
+            ? "linear-gradient(45deg, rgba(255, 216, 155, 0.6), rgba(102, 126, 234, 0.6), rgba(25, 84, 123, 0.6))"
+            : "transparent",
+          zIndex: -1,
+        }}
+        animate={{
+          background: isHovered 
+            ? [
+                "linear-gradient(45deg, rgba(255, 216, 155, 0.6), rgba(102, 126, 234, 0.6), rgba(25, 84, 123, 0.6))",
+                "linear-gradient(45deg, rgba(102, 126, 234, 0.6), rgba(25, 84, 123, 0.6), rgba(255, 216, 155, 0.6))",
+                "linear-gradient(45deg, rgba(25, 84, 123, 0.6), rgba(255, 216, 155, 0.6), rgba(102, 126, 234, 0.6))"
+              ]
+            : "transparent"
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
+
+      {/* Image Container with enhanced effects */}
+      <Box position="relative" h="280px" overflow="hidden">
         <AspectRatio ratio={16 / 9} w="100%" h="100%">
           <motion.div
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.4 }}
+            whileHover={{ scale: 1.15 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             style={{ width: "100%", height: "100%" }}
           >
             <Image
@@ -182,224 +307,275 @@ const AttractionCard = ({ attraction, onFavoriteToggle, isFavorite }) => {
               objectFit="cover"
               w="100%"
               h="100%"
-              fallbackSrc="https://images.unsplash.com/photo-1539020140153-e8c237425f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+              fallbackSrc="https://images.unsplash.com/photo-1539020140153-e8c237425f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+              filter={isHovered ? "brightness(1.1) contrast(1.05)" : "brightness(1)"}
+              transition="filter 0.3s ease"
             />
           </motion.div>
         </AspectRatio>
 
-        {/* Gradient Overlay */}
+        {/* Enhanced gradient overlays */}
         <Box
           position="absolute"
           top={0}
           left={0}
           right={0}
           bottom={0}
-          bgGradient="linear(to-t, rgba(0,0,0,0.6) 0%, transparent 50%)"
+          bgGradient="linear(to-t, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 40%, transparent 70%)"
+        />
+        
+        <motion.div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%)",
+            opacity: 0,
+          }}
+          animate={{
+            opacity: isHovered ? 0.8 : 0,
+          }}
+          transition={{ duration: 0.3 }}
         />
 
-        {/* Featured Badge */}
-        {attraction.is_featured && (
+       
+
+        {/* Enhanced Action Buttons */}
+        <HStack position="absolute" top={5} left={5} spacing={3}>
           <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Badge
-              position="absolute"
-              top={4}
-              right={4}
-              bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-              color="white"
-              px={3}
-              py={1}
+            <IconButton
+              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              icon={isFavorite ? <FaHeart /> : <FaRegHeart />}
+              size="sm"
+              bg="rgba(255, 255, 255, 0.95)"
+              color={isFavorite ? "red.500" : "gray.600"}
+              backdropFilter="blur(15px)"
               borderRadius="full"
-              fontSize="xs"
-              fontWeight="bold"
-              textTransform="uppercase"
-              letterSpacing="wider"
-              boxShadow="0 4px 15px rgba(102, 126, 234, 0.4)"
-            >
-              ✨ Featured
-            </Badge>
+              _hover={{
+                bg: "white",
+                color: "red.500",
+                transform: "scale(1.1)",
+              }}
+              onClick={handleFavoriteClick}
+              boxShadow="0 8px 25px rgba(0, 0, 0, 0.2)"
+              border="1px solid rgba(0, 0, 0, 0.3)"
+            />
           </motion.div>
-        )}
 
-        {/* Action Buttons */}
-        <HStack position="absolute" top={4} left={4} spacing={2}>
-          <IconButton
-            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            icon={isFavorite ? <FaHeart /> : <FaRegHeart />}
-            size="sm"
-            bg="rgba(255, 255, 255, 0.9)"
-            color={isFavorite ? "red.500" : "gray.600"}
-            backdropFilter="blur(10px)"
-            borderRadius="full"
-            _hover={{
-              bg: "rgba(255, 255, 255, 1)",
-              color: "red.500",
-              transform: "scale(1.1)",
-            }}
-            onClick={handleFavoriteClick}
-            boxShadow="0 4px 15px rgba(0, 0, 0, 0.1)"
-          />
-
-          <IconButton
-            aria-label="Share attraction"
-            icon={<FaShare />}
-            size="sm"
-            bg="rgba(255, 255, 255, 0.9)"
-            color="gray.600"
-            backdropFilter="blur(10px)"
-            borderRadius="full"
-            _hover={{
-              bg: "rgba(255, 255, 255, 1)",
-              color: "blue.500",
-              transform: "scale(1.1)",
-            }}
-            onClick={handleShare}
-            boxShadow="0 4px 15px rgba(0, 0, 0, 0.1)"
-          />
+          <motion.div
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <IconButton
+              aria-label="Share attraction"
+              icon={<FaShare />}
+              size="sm"
+              bg="rgba(255, 255, 255, 0.95)"
+              color="gray.600"
+              backdropFilter="blur(15px)"
+              borderRadius="full"
+              _hover={{
+                bg: "white",
+                color: "blue.500",
+                transform: "scale(1.1)",
+              }}
+              onClick={handleShare}
+              boxShadow="0 8px 25px rgba(0, 0, 0, 0.2)"
+              border="1px solid rgba(0, 0, 0, 0.3)"
+            />
+          </motion.div>
         </HStack>
 
-        {/* Category Badge */}
-        <Badge
-          position="absolute"
-          bottom={4}
-          left={4}
-          bg="rgba(0, 0, 0, 0.7)"
-          color="white"
-          px={3}
-          py={1}
-          borderRadius="full"
-          fontSize="xs"
-          fontWeight="medium"
-          backdropFilter="blur(10px)"
+        {/* Enhanced Category Badge */}
+        <motion.div
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
         >
-          {attraction.category || "Attraction"}
-        </Badge>
+          <Badge
+            position="absolute"
+            bottom={5}
+            left={5}
+            bg="rgba(0, 0, 0, 0.8)"
+            color="white"
+            px={4}
+            py={2}
+            borderRadius="full"
+            fontSize="xs"
+            fontWeight="medium"
+            backdropFilter="blur(15px)"
+            border="1px solid rgba(0, 0, 0, 0.2)"
+          >
+            {attraction.category || "Attraction"}
+          </Badge>
+        </motion.div>
       </Box>
 
-      {/* Content */}
+      {/* Enhanced Content Section */}
       <Box p={6} flexGrow={1} display="flex" flexDirection="column">
-        {/* Title and Rating */}
-        <Flex justify="space-between" align="flex-start" mb={3}>
+        {/* Title and Rating with better spacing */}
+        <Flex justify="space-between" align="flex-start" mb={5} gap={3}>
           <Heading
             as="h3"
-            size="md"
-            fontWeight="bold"
-            color={textColor}
+            size="lg"
+            fontWeight="800"
+            color="black"
             noOfLines={2}
-            lineHeight="short"
+            lineHeight="1.3"
             flex={1}
-            mr={2}
+            textShadow="0 1px 2px rgba(0,0,0,0.1)"
+            letterSpacing="tight"
+            fontSize="xl"
           >
             {attraction.name}
           </Heading>
 
-          <Flex
-            align="center"
-            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            color="white"
-            px={2}
-            py={1}
-            borderRadius="lg"
-            minW="60px"
-            justifyContent="center"
-            boxShadow="0 4px 15px rgba(102, 126, 234, 0.3)"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Icon as={FaStar} mr={1} />
-            <Text fontSize="sm" fontWeight="bold">
-              {attraction.avg_rating ? attraction.avg_rating.toFixed(1) : "4.8"}
+            <Flex
+              align="center"
+              bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+              color="black"
+              px={4}
+              py={2.5}
+              borderRadius="xl"
+              minW="80px"
+              justifyContent="center"
+              boxShadow="0 6px 20px rgba(102, 126, 234, 0.4)"
+              flexShrink={0}
+              border="1px solid rgba(0, 0, 0, 0.2)"
+            >
+              <Icon as={FaStar} mr={2} boxSize={4} />
+              <Text fontSize="md" fontWeight="bold">
+                {attraction.avg_rating ? attraction.avg_rating.toFixed(1) : "4.8"}
+              </Text>
+            </Flex>
+          </motion.div>
+        </Flex>
+
+        {/* Enhanced Location */}
+        <motion.div
+          whileHover={{ x: 5 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Flex 
+            align="center" 
+            color="black" 
+            fontSize="md" 
+            mb={5}
+            bg="gray.50"
+            px={4}
+            py={3}
+            borderRadius="xl"
+            borderWidth="1px"
+            borderColor="gray.200"
+            boxShadow="sm"
+          >
+            <Icon as={FaMapMarkerAlt} mr={3} color="#ffd89b" boxSize={4} />
+            <Text noOfLines={1} fontWeight="medium">
+              {attraction.city?.name || "Morocco"}{attraction.region?.name ? `, ${attraction.region.name}` : ''}
             </Text>
           </Flex>
-        </Flex>
+        </motion.div>
 
-        {/* Location */}
-        <Flex align="center" color={mutedTextColor} fontSize="sm" mb={3}>
-          <Icon as={FaMapMarkerAlt} mr={2} color="blue.400" />
-          <Text noOfLines={1}>
-            {attraction.city?.name || "Morocco"}, {attraction.region?.name || ""}
+        {/* Enhanced Description */}
+        <Box 
+          bg="white" 
+          p={5} 
+          borderRadius="xl"
+          mb={5}
+          flexGrow={1}
+          borderWidth="1px"
+          borderColor="rgba(0, 0, 0, 0.1)"
+          backdropFilter="blur(10px)"
+        >
+          <Text 
+            color="black" 
+            fontSize="sm" 
+            noOfLines={4} 
+            lineHeight="1.6"
+            fontWeight="normal"
+          >
+            {attraction.description || "Discover this amazing attraction in Morocco with its unique cultural and historical significance."}
           </Text>
-        </Flex>
+        </Box>
 
-        {/* Description */}
-        <Text color={textColor} fontSize="sm" mb={4} noOfLines={3} flexGrow={1} lineHeight="tall">
-          {attraction.description || "Discover this amazing attraction in Morocco."}
-        </Text>
-
-        {/* Tags */}
+        {/* Enhanced Tags */}
         {attraction.tags && attraction.tags.length > 0 && (
-          <Wrap spacing={2} mb={4}>
+          <Wrap spacing={2} mb={5}>
             {attraction.tags.slice(0, 3).map((tag, index) => (
               <WrapItem key={index}>
-                <Tag
-                  size="sm"
-                  bg="rgba(102, 126, 234, 0.1)"
-                  color="blue.600"
-                  borderRadius="full"
-                  px={3}
-                  py={1}
-                  fontSize="xs"
-                  fontWeight="medium"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 * index }}
                 >
-                  {tag}
-                </Tag>
+                  <Tag
+                    size="sm"
+                    bg="rgba(255, 216, 155, 0.2)"
+                    color="#ffd89b"
+                    borderRadius="full"
+                    px={3}
+                    py={1.5}
+                    fontSize="xs"
+                    fontWeight="semibold"
+                    border="1px solid rgba(0, 0, 0, 0.3)"
+                  >
+                    {tag}
+                  </Tag>
+                </motion.div>
               </WrapItem>
             ))}
           </Wrap>
         )}
-
-        {/* Entrance Fee and Hours */}
-        <VStack spacing={2} mb={4} align="stretch">
-          {attraction.entrance_fee && (
-            <Flex align="center" fontSize="sm" color={mutedTextColor}>
-              <Icon as={FaMoneyBillWave} mr={2} color="green.400" />
-              <Text>{attraction.entrance_fee}</Text>
-            </Flex>
-          )}
-
-          {attraction.opening_hours && (
-            <Flex align="center" fontSize="sm" color={mutedTextColor}>
-              <Icon as={FaClock} mr={2} color="orange.400" />
-              <Text noOfLines={1}>
-                {typeof attraction.opening_hours === "string" ? attraction.opening_hours : "Check opening hours"}
-              </Text>
-            </Flex>
-          )}
-        </VStack>
-
-        {/* Actions */}
-        <Flex justify="space-between" align="center" mt="auto" pt={4} borderTopWidth="1px" borderColor={borderColor}>
+        {/* Enhanced Actions */}
+        <Flex justify="space-between" align="center" mt="auto" pt={5} borderTopWidth="1px" borderColor="gray.200">
           <Badge
-            bg="rgba(102, 126, 234, 0.1)"
-            color="blue.600"
-            px={3}
-            py={1}
+            bg="rgba(255, 216, 155, 0.15)"
+            color="#ffd89b"
+            px={4}
+            py={2}
             borderRadius="full"
             fontSize="xs"
-            fontWeight="medium"
+            fontWeight="semibold"
+            border="1px solid rgba(0, 0, 0, 0.25)"
           >
             {attraction.category || "Uncategorized"}
           </Badge>
 
-          <Button
-            as={RouterLink}
-            to={`/attractions/${attraction.attraction_id}`}
-            size="sm"
-            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            color="white"
-            _hover={{
-              transform: "translateY(-2px)",
-              boxShadow: "0 8px 25px rgba(102, 126, 234, 0.4)",
-            }}
-            borderRadius="full"
-            px={6}
-            fontWeight="medium"
-            transition="all 0.3s"
-            leftIcon={<FaEye />}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Explore
-          </Button>
+            <Button
+              as={RouterLink}
+              to={`/attractions/${attraction.attraction_id}`}
+              size="sm"
+              bg="linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)"
+              color="black"
+              _hover={{
+                transform: "translateY(-2px)",
+                boxShadow: "0 12px 30px rgba(0, 0, 0, 0.3)",
+              }}
+              borderRadius="full"
+              px={6}
+              py={2}
+              fontWeight="bold"
+              transition="all 0.3s"
+              leftIcon={<FaEye />}
+              border="1px solid rgba(0, 0, 0, 0.2)"
+            >
+              Explore
+            </Button>
+          </motion.div>
         </Flex>
       </Box>
     </MotionBox>
@@ -419,7 +595,6 @@ const AllAttractionsPage = () => {
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCity, setSelectedCity] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [sortBy, setSortBy] = useState("name")
@@ -459,7 +634,6 @@ const AllAttractionsPage = () => {
             name: "Jardin Majorelle",
             description:
               "A two and half acre garden designed by French artist Jacques Majorelle in the 1920s and 1930s, with a stunning cobalt blue villa. Later owned by Yves Saint Laurent, it houses the Islamic Art Museum of Marrakech.",
-            city: { city_id: 1, name: "Marrakech" },
             region: { region_id: 1, name: "Marrakech-Safi" },
             category: "Garden",
             tags: ["Garden", "Museum", "Art"],
@@ -477,7 +651,6 @@ const AllAttractionsPage = () => {
             name: "Hassan II Mosque",
             description:
               "A stunning mosque on the coast of Casablanca, featuring the world's tallest minaret at 210 meters. It's one of the few mosques in Morocco open to non-Muslims, offering guided tours of its breathtaking interior.",
-            city: { city_id: 2, name: "Casablanca" },
             region: { region_id: 2, name: "Casablanca-Settat" },
             category: "Religious Site",
             tags: ["Mosque", "Architecture", "Landmark"],
@@ -495,7 +668,6 @@ const AllAttractionsPage = () => {
             name: "Chefchaouen Blue City",
             description:
               'Known as the "Blue Pearl of Morocco," this mountain town is famous for its striking blue-washed buildings. Wander through its picturesque streets, shop for local crafts, and enjoy the relaxed atmosphere of this unique destination.',
-            city: { city_id: 3, name: "Chefchaouen" },
             region: { region_id: 3, name: "Tangier-Tetouan-Al Hoceima" },
             category: "Historic City",
             tags: ["Blue City", "Photography", "Shopping"],
@@ -513,7 +685,6 @@ const AllAttractionsPage = () => {
             name: "Bahia Palace",
             description:
               'A late 19th-century palace built for the personal use of Si Moussa, grand vizier of the sultan. The name means "brilliance" and it features stunning examples of Moroccan and Islamic architecture and garden design.',
-            city: { city_id: 1, name: "Marrakech" },
             region: { region_id: 1, name: "Marrakech-Safi" },
             category: "Palace",
             tags: ["Architecture", "History", "Palace"],
@@ -531,7 +702,6 @@ const AllAttractionsPage = () => {
             name: "Erg Chebbi Dunes",
             description:
               "Spectacular sand dunes reaching heights of up to 150 meters, offering a quintessential Sahara Desert experience. Visitors can enjoy camel treks, overnight stays in desert camps, and stunning sunrise/sunset views.",
-            city: { city_id: 4, name: "Merzouga" },
             region: { region_id: 4, name: "Drâa-Tafilalet" },
             category: "Natural Wonder",
             tags: ["Desert", "Sahara", "Adventure"],
@@ -549,7 +719,6 @@ const AllAttractionsPage = () => {
             name: "Fes El Bali (Old Medina)",
             description:
               "The ancient walled city of Fes, founded in the 9th century and home to the world's oldest university. This UNESCO World Heritage site contains thousands of narrow streets, historic buildings, and traditional artisan workshops.",
-            city: { city_id: 5, name: "Fes" },
             region: { region_id: 5, name: "Fès-Meknès" },
             category: "Medina",
             tags: ["UNESCO", "History", "Shopping"],
@@ -567,7 +736,6 @@ const AllAttractionsPage = () => {
             name: "Ait Benhaddou",
             description:
               "A fortified village along the former caravan route between the Sahara and Marrakech. This UNESCO World Heritage site is one of Morocco's most spectacular kasbahs and has been featured in numerous Hollywood films.",
-            city: { city_id: 6, name: "Ouarzazate" },
             region: { region_id: 4, name: "Drâa-Tafilalet" },
             category: "Historic Site",
             tags: ["UNESCO", "Kasbah", "Film Location"],
@@ -585,7 +753,6 @@ const AllAttractionsPage = () => {
             name: "Essaouira Medina",
             description:
               "A charming coastal city with a well-preserved medina, beautiful beaches, and a vibrant arts scene. Known for its Portuguese and French colonial architecture and as a windsurfing destination.",
-            city: { city_id: 7, name: "Essaouira" },
             region: { region_id: 1, name: "Marrakech-Safi" },
             category: "Coastal City",
             tags: ["Beach", "Medina", "Arts", "Windsurfing"],
@@ -606,14 +773,6 @@ const AllAttractionsPage = () => {
         const uniqueCategories = [...new Set(mockAttractions.map((attraction) => attraction.category))]
         setCategories(uniqueCategories)
 
-        const uniqueCities = [
-          ...new Map(
-            mockAttractions
-              .map((attraction) => [attraction.city?.city_id, attraction.city])
-              .filter(([_, city]) => city),
-          ).values(),
-        ]
-
         const uniqueRegions = [
           ...new Map(
             mockAttractions
@@ -622,7 +781,6 @@ const AllAttractionsPage = () => {
           ).values(),
         ]
 
-        setCities(uniqueCities)
         setRegions(uniqueRegions)
         setLoading(false)
       } catch (err) {
@@ -645,12 +803,8 @@ const AllAttractionsPage = () => {
         (attraction) =>
           attraction.name.toLowerCase().includes(searchLower) ||
           (attraction.description && attraction.description.toLowerCase().includes(searchLower)) ||
-          (attraction.city?.name && attraction.city.name.toLowerCase().includes(searchLower)),
+          (attraction.region?.name && attraction.region.name.toLowerCase().includes(searchLower)),
       )
-    }
-
-    if (selectedCity) {
-      results = results.filter((attraction) => attraction.city?.city_id === Number.parseInt(selectedCity))
     }
 
     if (selectedRegion) {
@@ -675,11 +829,10 @@ const AllAttractionsPage = () => {
     })
 
     setFilteredAttractions(results)
-  }, [attractions, searchTerm, selectedCity, selectedRegion, selectedCategory, sortBy])
+  }, [attractions, searchTerm, selectedRegion, selectedCategory, sortBy])
 
   const handleReset = () => {
     setSearchTerm("")
-    setSelectedCity("")
     setSelectedRegion("")
     setSelectedCategory("")
     setSortBy("name")
@@ -730,15 +883,15 @@ const AllAttractionsPage = () => {
                 py={3}
                 borderRadius="full"
                 bg="rgba(255, 255, 255, 0.15)"
-                color="white"
+                color="black"
                 fontWeight="600"
                 fontSize="sm"
                 letterSpacing="wider"
                 textTransform="uppercase"
                 backdropFilter="blur(20px)"
-                border="1px solid rgba(255, 255, 255, 0.2)"
+                border="1px solid rgba(0, 0, 0, 0.2)"
               >
-                🌟 Complete Collection
+                &#x2728; Complete Collection
               </Badge>
 
               <Heading
@@ -747,7 +900,7 @@ const AllAttractionsPage = () => {
                 fontWeight="800"
                 lineHeight="1.1"
                 letterSpacing="tight"
-                color="white"
+                color="black"
                 textShadow="0 4px 20px rgba(0, 0, 0, 0.3)"
               >
                 All Morocco's
@@ -756,7 +909,7 @@ const AllAttractionsPage = () => {
                 </Text>
               </Heading>
 
-              <Text fontSize="xl" color="rgba(255, 255, 255, 0.9)" lineHeight="tall" fontWeight="400" maxW="3xl">
+              <Text fontSize="xl" color="black" lineHeight="tall" fontWeight="400" maxW="3xl">
                 Explore our complete collection of Morocco's most breathtaking destinations. From ancient medinas to
                 stunning natural wonders, discover every corner of this magical kingdom.
               </Text>
@@ -778,7 +931,7 @@ const AllAttractionsPage = () => {
             p={8}
             borderRadius="3xl"
             boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-            border="1px solid rgba(255, 255, 255, 0.2)"
+            border="1px solid rgba(0, 0, 0, 0.2)"
             mb={12}
           >
             {/* Main Search Bar */}
@@ -810,11 +963,11 @@ const AllAttractionsPage = () => {
                 leftIcon={<Icon as={isFilterOpen ? FaTimes : FaFilter} />}
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 bg="rgba(255, 255, 255, 0.2)"
-                color="white"
+                color="black"
                 _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
                 borderRadius="xl"
                 backdropFilter="blur(10px)"
-                border="1px solid rgba(255, 255, 255, 0.2)"
+                border="1px solid rgba(0, 0, 0, 0.2)"
               >
                 {isFilterOpen ? "Hide Filters" : "Show Filters"}
               </Button>
@@ -834,16 +987,13 @@ const AllAttractionsPage = () => {
                     p={6}
                     borderRadius="2xl"
                     backdropFilter="blur(10px)"
-                    border="1px solid rgba(255, 255, 255, 0.1)"
+                    border="1px solid rgba(0, 0, 0, 0.1)"
                   >
                     <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={4} mb={4}>
                       <Select
                         placeholder="All Regions"
                         value={selectedRegion}
-                        onChange={(e) => {
-                          setSelectedRegion(e.target.value)
-                          setSelectedCity("")
-                        }}
+                        onChange={(e) => setSelectedRegion(e.target.value)}
                         bg="rgba(255, 255, 255, 0.9)"
                         borderRadius="xl"
                         border="none"
@@ -853,24 +1003,6 @@ const AllAttractionsPage = () => {
                             {region.name}
                           </option>
                         ))}
-                      </Select>
-
-                      <Select
-                        placeholder="All Cities"
-                        value={selectedCity}
-                        onChange={(e) => setSelectedCity(e.target.value)}
-                        isDisabled={!selectedRegion}
-                        bg="rgba(255, 255, 255, 0.9)"
-                        borderRadius="xl"
-                        border="none"
-                      >
-                        {cities
-                          .filter((city) => !selectedRegion || city.region_id === Number.parseInt(selectedRegion))
-                          .map((city) => (
-                            <option key={city.city_id} value={city.city_id}>
-                              {city.name}
-                            </option>
-                          ))}
                       </Select>
 
                       <Select
@@ -936,15 +1068,15 @@ const AllAttractionsPage = () => {
               borderRadius="3xl"
               border="1px solid rgba(255, 255, 255, 0.2)"
             >
-              <Heading size="lg" color="white" mb={4}>
+              <Heading size="lg" color="black" mb={4}>
                 No attractions found
               </Heading>
-              <Text color="rgba(255, 255, 255, 0.8)" mb={6}>
+              <Text color="black" mb={6}>
                 Try adjusting your search criteria to discover more attractions.
               </Text>
               <Button
                 onClick={handleReset}
-                bg="linear-gradient(135deg, #ffd89b 0%, #19547b 100%)"
+                bg="linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)"
                 color="white"
                 size="lg"
                 borderRadius="xl"
@@ -962,18 +1094,18 @@ const AllAttractionsPage = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <Flex justify="space-between" align="center" mb={8}>
                 <Box>
-                  <Heading size="lg" color="white" mb={2}>
+                  <Heading size="lg" color="black" mb={2}>
                     {filteredAttractions.length} Incredible{" "}
                     {filteredAttractions.length === 1 ? "Attraction" : "Attractions"}
                   </Heading>
-                  <Text color="rgba(255, 255, 255, 0.8)">
-                    {searchTerm || selectedCity || selectedRegion || selectedCategory
+                  <Text color="black">
+                    {searchTerm || selectedRegion || selectedCategory
                       ? "Filtered results matching your criteria"
                       : "Discover the complete collection of Morocco's wonders"}
                   </Text>
                 </Box>
 
-                {(searchTerm || selectedCity || selectedRegion || selectedCategory) && (
+                {(searchTerm || selectedRegion || selectedCategory) && (
                   <Button
                     onClick={handleReset}
                     variant="outline"
@@ -1005,7 +1137,7 @@ const AllAttractionsPage = () => {
               initial="hidden"
               animate="show"
             >
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={8}>
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
                 {filteredAttractions.map((attraction, index) => (
                   <motion.div
                     key={attraction.attraction_id}
@@ -1043,19 +1175,19 @@ const AllAttractionsPage = () => {
             border="1px solid rgba(255, 255, 255, 0.2)"
             textAlign="center"
           >
-            <Heading as="h3" size="xl" color="white" mb={6}>
+            <Heading as="h3" size="xl" color="black" mb={6}>
               Explore All Attractions on the Map
             </Heading>
-            <Text fontSize="lg" color="rgba(255, 255, 255, 0.9)" mb={8} maxW="2xl" mx="auto">
+            <Text fontSize="lg" color="black" mb={8} maxW="2xl" mx="auto">
               Visualize all attractions across Morocco on our interactive map. Plan your perfect route and discover
               hidden gems along the way.
             </Text>
             <HStack spacing={4} justify="center">
               <Button
                 as={RouterLink}
-                to="/attractions-map"
+                to="/itinerary-planner"
                 size="lg"
-                bg="linear-gradient(135deg, #ffd89b 0%, #19547b 100%)"
+                bg="linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)"
                 color="white"
                 _hover={{
                   transform: "translateY(-3px)",
@@ -1068,29 +1200,10 @@ const AllAttractionsPage = () => {
                 fontSize="lg"
                 fontWeight="bold"
               >
-                Open Interactive Map
-              </Button>
-
-              <Button
-                as={RouterLink}
-                to="/itinerary-planner"
-                size="lg"
-                variant="outline"
-                color="white"
-                borderColor="rgba(255, 255, 255, 0.3)"
-                _hover={{
-                  bg: "rgba(255, 255, 255, 0.1)",
-                  borderColor: "rgba(255, 255, 255, 0.5)",
-                  transform: "translateY(-3px)",
-                }}
-                borderRadius="xl"
-                px={8}
-                py={6}
-                fontSize="lg"
-                fontWeight="bold"
-              >
                 Plan Your Journey
               </Button>
+
+              
             </HStack>
           </Box>
         </motion.div>

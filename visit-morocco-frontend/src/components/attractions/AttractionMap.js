@@ -12,12 +12,31 @@ import {
   Heading,
   IconButton,
   useBreakpointValue,
+  Tooltip,
+  keyframes,
 } from "@chakra-ui/react"
 import { motion } from "framer-motion"
-import { FiMapPin, FiNavigation, FiMaximize2, FiExternalLink, FiGlobe, FiCompass } from "react-icons/fi"
+import { FiMapPin, FiNavigation, FiMaximize2, FiExternalLink, FiGlobe, FiCompass, FiMap, FiStar } from "react-icons/fi"
 
 const MotionBox = motion(Box)
 const MotionButton = motion(Button)
+
+// Enhanced keyframes for animations
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+`
+
+const shimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`
 
 const AttractionMap = ({
   latitude,
@@ -32,10 +51,14 @@ const AttractionMap = ({
   const borderColor = useColorModeValue("gray.200", "gray.600")
   const textColor = useColorModeValue("gray.600", "gray.300")
   const headingColor = useColorModeValue("gray.800", "white")
-  const mapBg = useColorModeValue("blue.50", "blue.900")
+  const mapBg = useColorModeValue(
+    "linear-gradient(135deg, #f8faff 0%, #e8f4fd 50%, #d6f2ff 100%)",
+    "linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%)"
+  )
   const isMobile = useBreakpointValue({ base: true, md: false })
   const badgeBgColor = useColorModeValue("blue.100", "blue.800")
   const badgeTextColor = useColorModeValue("blue.800", "blue.100")
+  const glowColor = useColorModeValue("rgba(102, 126, 234, 0.4)", "rgba(102, 126, 234, 0.6)")
 
   const handleGetDirections = () => {
     if (latitude && longitude) {
@@ -53,77 +76,180 @@ const AttractionMap = ({
 
   return (
     <MotionBox
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
       width="100%"
       height={height}
       bg={bgColor}
-      borderRadius="2xl"
+      borderRadius="3xl"
       overflow="hidden"
-      boxShadow="lg"
+      boxShadow="0 20px 60px -10px rgba(0, 0, 0, 0.15), 0 8px 25px -5px rgba(0, 0, 0, 0.1)"
       position="relative"
       _hover={{
-        boxShadow: "2xl",
-        transform: "translateY(-4px)",
+        boxShadow: `0 30px 80px -10px rgba(0, 0, 0, 0.25), 0 15px 35px -5px rgba(0, 0, 0, 0.15), 0 0 0 1px ${glowColor}`,
+        transform: "translateY(-8px)",
       }}
-      transition="all 0.3s ease"
+      transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+      _before={{
+        content: '""',
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `linear-gradient(135deg, ${glowColor} 0%, transparent 70%)`,
+        opacity: 0,
+        transition: "opacity 0.4s ease",
+        zIndex: -1,
+        borderRadius: "3xl",
+      }}
+      _after={{
+        content: '""',
+        position: "absolute",
+        top: "-2px",
+        left: "-2px",
+        right: "-2px",
+        bottom: "-2px",
+        background: "linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent)",
+        borderRadius: "3xl",
+        zIndex: -2,
+        opacity: 0,
+        transition: "opacity 0.4s ease",
+      }}
+      sx={{
+        "&:hover::before": {
+          opacity: 0.1,
+        },
+        "&:hover::after": {
+          opacity: 1,
+        },
+      }}
     >
-      {/* Header */}
+      {/* Enhanced Header with Gradient Overlay */}
       <Box
-        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        bg="linear-gradient(135deg, #667eea 0%, #764ba2 60%, #f093fb 100%)"
         color="white"
         p={6}
         position="relative"
         overflow="hidden"
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.1) 75%), linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.1) 75%)",
+          backgroundSize: "20px 20px",
+          backgroundPosition: "0 0, 10px 10px",
+          opacity: 0.3,
+        }}
       >
-        {/* Background Pattern */}
+        {/* Animated Background Particles */}
         <Box
           position="absolute"
           top={0}
           left={0}
           right={0}
           bottom={0}
-          opacity={0.1}
-          bgImage="url('data:image/svg+xml,<svg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;><g fill=&quot;none&quot; fillRule=&quot;evenodd&quot;><g fill=&quot;%23ffffff&quot; fillOpacity=&quot;0.4&quot;><circle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;2&quot;/></g></g></svg>')"
-        />
+          opacity={0.2}
+        >
+          {[...Array(6)].map((_, i) => (
+            <Box
+              key={i}
+              position="absolute"
+              width="4px"
+              height="4px"
+              bg="white"
+              borderRadius="full"
+              top={`${Math.random() * 100}%`}
+              left={`${Math.random() * 100}%`}
+              animation={`${float} ${3 + Math.random() * 2}s ease-in-out infinite`}
+              animationDelay={`${Math.random() * 2}s`}
+            />
+          ))}
+        </Box>
 
         <Flex justify="space-between" align="center" position="relative" zIndex={2}>
-          <VStack align="flex-start" spacing={2}>
-            <HStack spacing={2}>
-              <Icon as={FiMapPin} fontSize="lg" />
+          <VStack align="flex-start" spacing={3}>
+            <HStack spacing={3}>
+              <MotionBox
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+              >
+                <Icon as={FiMapPin} fontSize="xl" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />
+              </MotionBox>
               <Badge
-                px={3}
-                py={1}
+                px={4}
+                py={2}
                 borderRadius="full"
                 bg="whiteAlpha.200"
                 color="white"
-                fontWeight="600"
+                fontWeight="700"
                 fontSize="xs"
                 textTransform="uppercase"
                 letterSpacing="wider"
+                backdropFilter="blur(10px)"
+                border="1px solid"
+                borderColor="whiteAlpha.300"
+                _hover={{ bg: "whiteAlpha.300" }}
+                transition="all 0.3s ease"
               >
-                Location
+                <Icon as={FiStar} mr={1} fontSize="xs" />
+                Premium Location
               </Badge>
             </HStack>
-            <Heading size="md" fontWeight="700" noOfLines={1}>
+            <Heading 
+              size="lg" 
+              fontWeight="800" 
+              noOfLines={1}
+              textShadow="0 2px 10px rgba(0,0,0,0.3)"
+              color="white"
+            >
               {attractionName || "Attraction Location"}
             </Heading>
           </VStack>
 
-          <IconButton
-            aria-label="Expand map"
-            icon={<FiMaximize2 />}
-            size="sm"
-            variant="ghost"
-            color="white"
-            _hover={{ bg: "whiteAlpha.200" }}
-            onClick={handleOpenInMaps}
-          />
+          <Tooltip label="Open in full screen" placement="left">
+            <MotionBox
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <IconButton
+                aria-label="Expand map"
+                icon={<FiMaximize2 />}
+                size="lg"
+                variant="ghost"
+                color="white"
+                _hover={{ bg: "whiteAlpha.300", transform: "rotate(90deg)" }}
+                onClick={handleOpenInMaps}
+                borderRadius="xl"
+                transition="all 0.3s ease"
+                backdropFilter="blur(10px)"
+                border="1px solid"
+                borderColor="whiteAlpha.300"
+              />
+            </MotionBox>
+          </Tooltip>
         </Flex>
+
+        {/* Shimmer Effect */}
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          background="linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)"
+          backgroundSize="200% 100%"
+          animation={`${shimmer} 3s ease-in-out infinite`}
+          opacity={0.5}
+          pointerEvents="none"
+        />
       </Box>
 
-      {/* Map Content Area */}
+      {/* Enhanced Map Content Area */}
       <Box
         flex={1}
         bg={mapBg}
@@ -132,125 +258,270 @@ const AttractionMap = ({
         alignItems="center"
         justifyContent="center"
         minH="250px"
+        overflow="hidden"
       >
-        {/* Decorative Map Grid */}
+        {/* Enhanced Grid Pattern */}
         <Box
           position="absolute"
           top={0}
           left={0}
           right={0}
           bottom={0}
-          opacity={0.1}
-          bgImage="linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px)"
-          bgSize="20px 20px"
+          opacity={0.15}
+          bgImage="radial-gradient(circle at 2px 2px, rgba(102, 126, 234, 0.3) 1px, transparent 0)"
+          bgSize="30px 30px"
+          animation={`${float} 20s ease-in-out infinite`}
         />
 
-        <VStack spacing={6} textAlign="center" position="relative" zIndex={2}>
+        {/* Floating Geometric Shapes */}
+        <Box position="absolute" top={0} left={0} right={0} bottom={0} overflow="hidden">
+          {[...Array(8)].map((_, i) => (
+            <Box
+              key={i}
+              position="absolute"
+              width={`${20 + Math.random() * 40}px`}
+              height={`${20 + Math.random() * 40}px`}
+              bg="linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1))"
+              borderRadius={Math.random() > 0.5 ? "50%" : "20%"}
+              top={`${Math.random() * 100}%`}
+              left={`${Math.random() * 100}%`}
+              animation={`${float} ${4 + Math.random() * 3}s ease-in-out infinite`}
+              animationDelay={`${Math.random() * 3}s`}
+              transform={`rotate(${Math.random() * 360}deg)`}
+            />
+          ))}
+        </Box>
+
+        <VStack spacing={8} textAlign="center" position="relative" zIndex={2}>
           <MotionBox
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.4, type: "spring", stiffness: 200, damping: 15 }}
+            whileHover={{ scale: 1.1, rotate: 360 }}
           >
-            <Box p={4} bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" borderRadius="full" boxShadow="lg">
-              <Icon as={FiCompass} fontSize="3xl" color="white" />
+            <Box 
+              p={6} 
+              bg="linear-gradient(135deg, #667eea 0%, #764ba2 60%, #f093fb 100%)" 
+              borderRadius="50%" 
+              boxShadow="0 15px 35px rgba(102, 126, 234, 0.4), 0 5px 15px rgba(0, 0, 0, 0.12)"
+              position="relative"
+              _before={{
+                content: '""',
+                position: "absolute",
+                top: "-4px",
+                left: "-4px",
+                right: "-4px",
+                bottom: "-4px",
+                background: "linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea)",
+                borderRadius: "50%",
+                zIndex: -1,
+                animation: `${pulse} 2s ease-in-out infinite`,
+              }}
+            >
+              <Icon as={FiCompass} fontSize="4xl" color="white" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />
             </Box>
           </MotionBox>
 
-          <VStack spacing={3}>
-            <Heading size="md" color={headingColor} textAlign="center">
-              Interactive Map View
-            </Heading>
+          <VStack spacing={4}>
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Heading 
+                size="lg" 
+                color={headingColor} 
+                textAlign="center"
+                fontWeight="800"
+              >
+                Interactive Map Experience
+              </Heading>
+            </MotionBox>
 
             {address && (
-              <Text fontSize="sm" color={textColor} maxW="300px" textAlign="center" lineHeight="tall">
-                {address}
-              </Text>
+              <MotionBox
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                <Text 
+                  fontSize="md" 
+                  color={textColor} 
+                  maxW="350px" 
+                  textAlign="center" 
+                  lineHeight="tall"
+                  fontWeight="500"
+                  bg={useColorModeValue("white", "gray.700")}
+                  px={4}
+                  py={2}
+                  borderRadius="lg"
+                  boxShadow="md"
+                  border="1px solid"
+                  borderColor={useColorModeValue("gray.200", "gray.600")}
+                >
+                  <Icon as={FiMap} mr={2} />
+                  {address}
+                </Text>
+              </MotionBox>
             )}
 
             {latitude && longitude && (
-              <HStack spacing={2}>
-                <Badge
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                  bg={badgeBgColor}
-                  color={badgeTextColor}
-                  fontFamily="mono"
-                  fontSize="xs"
-                >
-                  {latitude.toFixed(4)}°N
-                </Badge>
-                <Badge
-                  px={3}
-                  py={1}
-                  borderRadius="full"
-                  bg={badgeBgColor}
-                  color={badgeTextColor}
-                  fontFamily="mono"
-                  fontSize="xs"
-                >
-                  {longitude.toFixed(4)}°W
-                </Badge>
-              </HStack>
+              <MotionBox
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.0, type: "spring", stiffness: 200 }}
+              >
+                <HStack spacing={3}>
+                  <Badge
+                    px={4}
+                    py={2}
+                    borderRadius="xl"
+                    bg={useColorModeValue("white", "gray.700")}
+                    color={useColorModeValue("blue.600", "blue.300")}
+                    fontFamily="mono"
+                    fontSize="sm"
+                    fontWeight="700"
+                    border="2px solid"
+                    borderColor={useColorModeValue("blue.200", "blue.500")}
+                    boxShadow="md"
+                    _hover={{ transform: "scale(1.05)" }}
+                    transition="all 0.3s ease"
+                  >
+                    📍 {latitude.toFixed(4)}°N
+                  </Badge>
+                  <Badge
+                    px={4}
+                    py={2}
+                    borderRadius="xl"
+                    bg={useColorModeValue("white", "gray.700")}
+                    color={useColorModeValue("blue.600", "blue.300")}
+                    fontFamily="mono"
+                    fontSize="sm"
+                    fontWeight="700"
+                    border="2px solid"
+                    borderColor={useColorModeValue("blue.200", "blue.500")}
+                    boxShadow="md"
+                    _hover={{ transform: "scale(1.05)" }}
+                    transition="all 0.3s ease"
+                  >
+                    🌐 {longitude.toFixed(4)}°W
+                  </Badge>
+                </HStack>
+              </MotionBox>
             )}
           </VStack>
         </VStack>
 
-        {/* Interactive Map Badge */}
-        <Badge
+        {/* Enhanced Interactive Map Badge */}
+        <MotionBox
           position="absolute"
           top={4}
           right={4}
-          px={3}
-          py={2}
-          borderRadius="lg"
-          bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-          color="white"
-          fontWeight="600"
-          fontSize="xs"
-          textTransform="uppercase"
-          letterSpacing="wider"
-          boxShadow="md"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
         >
-          <Icon as={FiGlobe} mr={1} />
-          Live Map
-        </Badge>
+          <Badge
+            px={4}
+            py={3}
+            borderRadius="2xl"
+            bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            color="white"
+            fontWeight="700"
+            fontSize="xs"
+            textTransform="uppercase"
+            letterSpacing="wider"
+            boxShadow="0 8px 25px rgba(102, 126, 234, 0.4)"
+            backdropFilter="blur(10px)"
+            border="1px solid"
+            borderColor="whiteAlpha.300"
+            _hover={{ 
+              transform: "scale(1.05)",
+              boxShadow: "0 12px 35px rgba(102, 126, 234, 0.6)"
+            }}
+            transition="all 0.3s ease"
+          >
+            <Icon as={FiGlobe} mr={2} />
+            Live Map
+          </Badge>
+        </MotionBox>
       </Box>
 
-      {/* Action Buttons */}
+      {/* Enhanced Action Buttons */}
       {showDirections && latitude && longitude && (
-        <Box p={6} bg={bgColor} borderTop="1px solid" borderColor={borderColor}>
-          <HStack spacing={3} justify="center">
-            <MotionButton
-              leftIcon={<FiNavigation />}
-              colorScheme="blue"
-              size="md"
-              onClick={handleGetDirections}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              flex={1}
-              maxW="200px"
-              fontWeight="600"
-            >
-              Get Directions
-            </MotionButton>
+        <Box 
+          p={6} 
+          bg={bgColor} 
+          borderTop="1px solid" 
+          borderColor={borderColor}
+          position="relative"
+          _before={{
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "60px",
+            height: "4px",
+            bg: "linear-gradient(135deg, #667eea, #764ba2)",
+            borderRadius: "full",
+          }}
+        >
+          <HStack spacing={4} justify="center" pt={2}>
+            <Tooltip label="Get turn-by-turn directions" placement="top">
+              <MotionButton
+                leftIcon={<FiNavigation />}
+                bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                color="white"
+                size="lg"
+                onClick={handleGetDirections}
+                whileHover={{ y: -3, scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                flex={1}
+                maxW="220px"
+                fontWeight="700"
+                borderRadius="xl"
+                boxShadow="0 8px 25px rgba(102, 126, 234, 0.4)"
+                _hover={{
+                  bg: "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",
+                  boxShadow: "0 12px 35px rgba(102, 126, 234, 0.6)",
+                }}
+                _active={{
+                  bg: "linear-gradient(135deg, #4c51bf 0%, #553c9a 100%)",
+                }}
+              >
+                Get Directions
+              </MotionButton>
+            </Tooltip>
 
-            <MotionButton
-              leftIcon={<FiExternalLink />}
-              variant="outline"
-              colorScheme="blue"
-              size="md"
-              onClick={handleOpenInMaps}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              flex={1}
-              maxW="200px"
-              fontWeight="600"
-            >
-              Open in Maps
-            </MotionButton>
+            <Tooltip label="Open in Google Maps" placement="top">
+              <MotionButton
+                leftIcon={<FiExternalLink />}
+                variant="outline"
+                bg={useColorModeValue("white", "gray.700")}
+                color={useColorModeValue("blue.600", "blue.300")}
+                size="lg"
+                onClick={handleOpenInMaps}
+                whileHover={{ y: -3, scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                flex={1}
+                maxW="220px"
+                fontWeight="700"
+                borderRadius="xl"
+                border="2px solid"
+                borderColor={useColorModeValue("blue.200", "blue.500")}
+                boxShadow="md"
+                _hover={{
+                  bg: useColorModeValue("blue.50", "gray.600"),
+                  borderColor: useColorModeValue("blue.300", "blue.400"),
+                  boxShadow: "lg",
+                }}
+              >
+                Open in Maps
+              </MotionButton>
+            </Tooltip>
           </HStack>
         </Box>
       )}
