@@ -36,7 +36,7 @@ const LoginPage = () => {
     setIsLoading(true);
     
     try {
-      const success = await login(email, password);
+      const success = await login({ email, password });
       if (success) {
         toast({
           title: 'Login successful',

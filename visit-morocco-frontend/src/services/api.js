@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: 'http://localhost:8000', // Full backend URL
+  baseURL: 'http://localhost:8000', // Base URL without /api as it's handled by interceptor
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',

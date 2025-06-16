@@ -59,6 +59,41 @@ interface DashboardCardProps {
   isLoading?: boolean;
 }
 
+interface QuickActionProps {
+  title: string;
+  icon: React.ElementType;
+  to: string;
+  color: string;
+  description?: string;
+}
+
+// Move formatUserData function to the top, before it's used
+const formatUserData = (user: any): UserData => {
+  const profilePicture = user?.profile_picture_url || user?.profile_picture || user?.avatar;
+  
+  return {
+    user_id: user?.user_id || user?.id || 0,
+    first_name: user?.first_name || '',
+    last_name: user?.last_name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    profile_picture: profilePicture,
+    role: user?.role || 'business_owner',
+    is_verified: user?.is_verified || false,
+    created_at: user?.created_at || new Date().toISOString(),
+    updated_at: user?.updated_at || new Date().toISOString(),
+    last_login: user?.last_login,
+    verification_code: user?.verification_code,
+    reset_token: user?.reset_token,
+    reset_token_expires: user?.reset_token_expires,
+    business_name: user?.business_name,
+    business_description: user?.business_description,
+    bio: user?.bio,
+    specialties: user?.specialties || [],
+    languages: user?.languages || []
+  };
+};
+
 // Helper function to safely convert value to string
 const safeToString = (value: string | number | undefined): string => {
   if (value === undefined) return '0';
@@ -93,7 +128,6 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
       </Card>
     );
   }
-
 
   return (
     <Card 
@@ -196,14 +230,6 @@ const QuickAction: React.FC<QuickActionProps> = ({
   );
 };
 
-interface QuickActionProps {
-  title: string;
-  icon: React.ElementType;
-  to: string;
-  color: string;
-  description?: string;
-}
-
 const BusinessDashboard: React.FC = () => {
   const { user: authUser } = useAuth();
   const navigate = useNavigate();
@@ -223,7 +249,7 @@ const BusinessDashboard: React.FC = () => {
     new_password_confirmation: ''
   });
   
-  // User data state
+  // User data state - now formatUserData is available
   const [userData, setUserData] = useState<UserData>(() => formatUserData(authUser));
   const [editData, setEditData] = useState<UserData>(() => formatUserData(authUser));
   
@@ -232,32 +258,6 @@ const BusinessDashboard: React.FC = () => {
     active_listings: 0,
     pending_approvals: 0
   });
-  
-  const formatUserData = (user: any): UserData => {
-    const profilePicture = user?.profile_picture_url || user?.profile_picture || user?.avatar;
-    
-    return {
-      user_id: user?.user_id || user?.id || 0,
-      first_name: user?.first_name || '',
-      last_name: user?.last_name || '',
-      email: user?.email || '',
-      phone: user?.phone || '',
-      profile_picture: profilePicture,
-      role: user?.role || 'business_owner',
-      is_verified: user?.is_verified || false,
-      created_at: user?.created_at || new Date().toISOString(),
-      updated_at: user?.updated_at || new Date().toISOString(),
-      last_login: user?.last_login,
-      verification_code: user?.verification_code,
-      reset_token: user?.reset_token,
-      reset_token_expires: user?.reset_token_expires,
-      business_name: user?.business_name,
-      business_description: user?.business_description,
-      bio: user?.bio,
-      specialties: user?.specialties || [],
-      languages: user?.languages || []
-    };
-  };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -559,51 +559,6 @@ const BusinessDashboard: React.FC = () => {
 
   // Fetch business data on component mount
   useEffect(() => {
-    const fetchBusinessData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch business owner's data
-        const businessOwnerResponse = await axios.get('/api/business-owner/profile');
-        const businessData = businessOwnerResponse.data;
-        
-        // Fetch business statistics
-        const statsResponse = await axios.get('/api/business-owner/stats');
-        
-        // Update state with real data
-        setBusinessData({
-          total_businesses: statsResponse.data.total_businesses || 0,
-          active_listings: statsResponse.data.active_listings || 0,
-          pending_approvals: statsResponse.data.pending_approvals || 0
-        });
-        
-        // Update user data with the latest from the server
-        if (businessData.user) {
-          const formattedUser = formatUserData(businessData.user);
-          setUserData(formattedUser);
-          setEditData(formattedUser);
-        }
-        
-      } catch (error) {
-        console.error('Error fetching business data:', error);
-        
-        let errorMessage = 'Failed to load business data';
-        if (axios.isAxiosError(error)) {
-          errorMessage = error.response?.data?.message || error.message || errorMessage;
-        }
-        
-        toast({
-          title: 'Error',
-          description: errorMessage,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchBusinessData();
   }, [toast]);
 
@@ -629,7 +584,6 @@ const BusinessDashboard: React.FC = () => {
       color: 'purple',
       description: 'Update your profile information'
     },
-    
   ];
 
   // Color mode values
