@@ -67,12 +67,17 @@ const NAV_ITEMS = [
         description: "Connect with fellow travelers"
       }
     ]
+  },
+  {
+    label: "Flights",
+    href: "http://localhost:3001",
+    isExternal: true
   }
 ]
 
 // Desktop Navigation Item
 const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
-  const { label, children, href, authRequired } = navItem
+  const { label, children, href, authRequired, isExternal } = navItem
   const { user } = useAuth()
   const navigate = useNavigate()
   const linkColor = isScrolled || !isHomePage ? "gray.700" : "white"
@@ -149,6 +154,33 @@ const DesktopNavItem = ({ navItem, isScrolled, isHomePage }) => {
           </Box>
         )}
       </Popover>
+    )
+  }
+
+  if (isExternal) {
+    return (
+      <Button
+        as="a"
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        variant="ghost"
+        color={linkColor}
+        _hover={{
+          color: hoverColor,
+          bg: isScrolled || !isHomePage ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)',
+        }}
+        _active={{
+          bg: isScrolled || !isHomePage ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)',
+        }}
+        fontWeight={500}
+        fontSize="md"
+        h="40px"
+        px={3}
+        borderRadius="md"
+      >
+        {label}
+      </Button>
     )
   }
 

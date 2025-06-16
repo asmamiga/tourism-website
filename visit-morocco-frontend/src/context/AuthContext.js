@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -21,12 +21,13 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async (token) => {
     try {
       setLoading(true);
-      // Set the authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
       // Fetch user profile from backend
       console.log('Fetching user profile...');
-      const response = await axios.get('http://localhost:8000/api/profile');
+      const response = await api.get('/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('Profile API response:', response.data);
       
       if (response.data) {
@@ -65,7 +66,6 @@ export const AuthProvider = ({ children }) => {
       console.error('Error fetching user profile:', err);
       // If token is invalid or expired, remove it
       localStorage.removeItem('token');
-      axios.defaults.headers.common['Authorization'] = '';
       setError('Session expired. Please login again.');
     } finally {
       setLoading(false);
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post('http://localhost:8000/api/login', {
+      const response = await api.post('/login', {
         email,
         password
       });
@@ -86,10 +86,7 @@ export const AuthProvider = ({ children }) => {
         // Save token to localStorage
         localStorage.setItem('token', response.data.token);
         
-        // Set axios default header
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-        
-        // Fetch user profile
+        // Fetch user profile with the new token
         await fetchUserProfile(response.data.token);
         
         return true;
@@ -112,12 +109,7 @@ export const AuthProvider = ({ children }) => {
       
       console.log('Sending registration request with data:', JSON.stringify(userData, null, 2));
       
-      const response = await axios.post('http://localhost:8000/api/register', userData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
+      const response = await api.post('/register', userData);
       
       console.log('Registration response:', response.data);
       
@@ -125,10 +117,7 @@ export const AuthProvider = ({ children }) => {
         // Save token to localStorage
         localStorage.setItem('token', response.data.token);
         
-        // Set axios default header
-        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-        
-        // Fetch user profile
+        // Fetch user profile with the new token
         await fetchUserProfile(response.data.token);
         
         return true;
@@ -166,8 +155,8 @@ export const AuthProvider = ({ children }) => {
     // Remove token from localStorage
     localStorage.removeItem('token');
     
-    // Remove authorization header
-    axios.defaults.headers.common['Authorization'] = '';
+    // Clear any stored tokens
+    localStorage.removeItem('token');
     
     // Clear user state
     setUser(null);
@@ -178,7 +167,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.put('http://localhost:8000/api/profile', profileData);
+      const response = await api.put('/profile', profileData);
       
       if (response.data) {
         setUser(response.data);

@@ -28,7 +28,7 @@ import {
   NumberDecrementStepper,
   Image,
   Flex,
-  Icon
+  Iconmak
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { businessService, cityService } from '../../services/api';

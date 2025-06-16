@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import loginImage from '../assets/images/morocco-login.jpg';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -75,35 +76,18 @@ const LoginPage = () => {
           p={0}
           w="100%"
           h={{ base: '300px', lg: 'auto' }}
-          position="relative"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          bg="white"
         >
-          <Box
-            w="100%"
-            h="100%"
-            bgGradient="linear(to-br, teal.500, teal.300)"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            p={8}
-            color="white"
-          >
-            <VStack spacing={4} textAlign="center">
-              <Heading size="xl">Welcome to Morocco</Heading>
-              <Text fontSize="lg">Discover the beauty of Moroccan culture and landscapes</Text>
-              {state?.from && (
-                <Text fontSize="md" mt={4} p={3} bg="rgba(255,255,255,0.2)" borderRadius="md">
-                  {authMessage}
-                </Text>
-              )}
-            </VStack>
-          </Box>
-          <Box 
-            position="absolute" 
-            top={0} 
-            left={0} 
-            right={0} 
-            bottom={0}
-            bgGradient="linear(to-r, rgba(0,0,0,0.1), rgba(0,0,0,0.3))"
+          <Image 
+            src="/images/logo-white.png.jpg" 
+            alt="Morocco Travel Logo"
+            width="100%"
+            maxW="70%"
+            maxH="70%"
+            objectFit="contain"
           />
         </Box>
         

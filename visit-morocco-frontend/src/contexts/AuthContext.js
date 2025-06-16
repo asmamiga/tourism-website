@@ -99,14 +99,25 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post('/register', userData);
+      const response = await axios.post('/api/register', userData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        withCredentials: true
+      });
       
       if (response.data) {
         // Automatically log in the user after successful registration
-        // The backend might return the user data directly or in a data.user property
-        const userData = response.data.user || response.data;
-        setUser(userData);
+        // The backend returns the user data and token in the response
+        const { user: userData, token } = response.data;
+        
+        // Store token and user data
+        localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userData));
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setUser(userData);
+        
         return true;
       }
       return false;

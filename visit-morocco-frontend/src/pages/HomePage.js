@@ -22,6 +22,22 @@ const MotionHeading = motion(Heading)
 const MotionText = motion(Text)
 const MotionButton = motion(Button)
 
+// Helper function to get navigation path based on feature title
+const getNavigationPath = (title) => {
+  switch(title) {
+    case 'Discover Places':
+      return '/cities-and-regions';
+    case 'Find Accommodations':
+      return '/businesses';
+    case 'Meet Local Guides':
+      return '/guides';
+    case 'Plan Your Journey':
+      return '/plan-your-trip';
+    default:
+      return '/';
+  }
+};
+
 const Feature = ({ title, text, icon, delay, index }) => {
   // Different themes for each feature card
   const themes = [
@@ -175,6 +191,8 @@ const Feature = ({ title, text, icon, delay, index }) => {
           {/* Enhanced CTA button */}
           <Box mt="auto">
             <Button
+              as={RouterLink}
+              to={getNavigationPath(title)}
               size="sm"
               bg={`linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`}
               color="white"
@@ -186,6 +204,7 @@ const Feature = ({ title, text, icon, delay, index }) => {
                 bg: `linear-gradient(135deg, ${theme.secondary} 0%, ${theme.accent} 100%)`,
                 transform: "translateY(-2px)",
                 boxShadow: `0 10px 25px ${theme.primary}40`,
+                textDecoration: 'none'
               }}
               _active={{
                 transform: "translateY(0)",

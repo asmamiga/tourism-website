@@ -488,13 +488,25 @@ const GuidesPage = () => {
         {/* Hero section with Moroccan styling */}
         <Box 
           mb={10}
-          py={8}
+          py={16}
           px={6}
           borderRadius="xl"
-          bgGradient="linear(to-r, rgba(255,255,255,0.8), rgba(255,255,255,0.9), rgba(255,255,255,0.8))"
-          boxShadow="sm"
+          backgroundImage="url('/images/hero/morocco-hero.jpg')"
+          backgroundSize="cover"
+          backgroundPosition="center"
+          backgroundRepeat="no-repeat"
           position="relative"
           overflow="hidden"
+          _before={{
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bg: 'rgba(0, 0, 0, 0.3)',
+            zIndex: 1,
+          }}
         >
           <Box 
             position="absolute" 
@@ -503,28 +515,35 @@ const GuidesPage = () => {
             right="0" 
             height="4px" 
             bgGradient="linear(to-r, brand.primary, brand.accent)" 
+            zIndex="2"
           />
           
-          <Heading 
-            as="h1" 
-            size="2xl" 
-            mb={4} 
-            color="brand.primary" 
-            textShadow="0 1px 2px rgba(0,0,0,0.1)"
-            textAlign="center"
-          >
-            Professional Local Guides
-          </Heading>
-          <Text 
-            fontSize="lg" 
-            mb={4} 
-            maxW="container.md" 
-            mx="auto" 
-            textAlign="center"
-            color="gray.700"
-          >
-            Connect with experienced guides for authentic Moroccan experiences and unforgettable journeys across the kingdom
-          </Text>
+          <Box position="relative" zIndex="2">
+            <Heading 
+              as="h1" 
+              size="2xl" 
+              mb={4} 
+              color="white" 
+              textShadow="0 2px 4px rgba(0,0,0,0.3)"
+              textAlign="center"
+              fontWeight="bold"
+              letterSpacing="wide"
+            >
+              Discover Morocco's Diverse Regions
+            </Heading>
+            <Text 
+              fontSize="xl" 
+              mb={4} 
+              maxW="container.md" 
+              mx="auto" 
+              textAlign="center"
+              color="white"
+              textShadow="0 1px 2px rgba(0,0,0,0.2)"
+              fontWeight="medium"
+            >
+              Connect with experienced guides for authentic Moroccan experiences and unforgettable journeys across the kingdom
+            </Text>
+          </Box>
         </Box>
         
         {/* Filters */}

@@ -12,6 +12,7 @@ import {
   useToast,
   Container,
   Flex,
+  Stack,
   InputGroup,
   InputRightElement,
   IconButton,
@@ -22,7 +23,6 @@ import {
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useAuth } from '../contexts/AuthContext';
-const registerImage = '/images/login-bg-new.jpg';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -163,28 +163,22 @@ const RegisterPage = () => {
   };
 
   return (
-    <Container maxW="container.xl" py={16}>
+    <Container maxW="container.xl" py={16} mt={16}>
       <Flex 
         direction={{ base: 'column', lg: 'row' }} 
+        align="center"
         minH="70vh"
-        boxShadow="xl"
-        borderRadius="2xl"
+        boxShadow={{ base: 'none', lg: 'xl' }}
+        borderRadius={{ base: 'none', lg: '2xl' }}
         overflow="hidden"
         bg="white"
-        alignItems="center"
-        justifyContent="center"
       >
         {/* Left side - Image */}
         <Box 
           flex="1"
           position="relative"
-          minH={{ base: '200px', lg: '500px' }}
-          maxH="80vh"
-          w={{ base: '100%', lg: '50%' }}
-          overflow="hidden"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+          minH={{ base: '300px', lg: 'auto' }}
+          w="100%"
         >
           <Image
             src={registerImage}
@@ -194,10 +188,33 @@ const RegisterPage = () => {
             objectFit="cover"
             objectPosition="center"
           />
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            bg="rgba(0, 0, 0, 0.4)"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            p={8}
+            color="white"
+            textAlign="center"
+          >
+            <VStack spacing={4}>
+              <Heading size="xl" textShadow="0 2px 4px rgba(0,0,0,0.3)">
+                Join Our Community
+              </Heading>
+              <Text fontSize="lg" textShadow="0 1px 3px rgba(0,0,0,0.3)">
+                Discover the magic of Morocco with us
+              </Text>
+            </VStack>
+          </Box>
         </Box>
         
         {/* Right side - Form */}
-        <Box flex="1" p={{ base: 6, md: 10 }} maxW={{ lg: '600px' }} w="100%" overflowY="auto">
+        <Box flex="1" p={{ base: 6, md: 10 }} maxW={{ lg: '600px' }} w="100%">
           <VStack spacing={6} align="stretch">
             <Box>
               <Heading as="h1" size="xl" color="teal.600" mb={2}>

@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         
         // Add CORS middleware to all routes
-        $middleware->append(\App\Http\Middleware\Cors::class);
+        $middleware->append(\App\Http\Middleware\HandleCors::class);
         
         // Trust all proxies (useful if using a load balancer or proxy)
         $middleware->trustProxies(at: '*');

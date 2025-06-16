@@ -15,6 +15,7 @@ import AttractionDetailPage from './pages/AttractionDetailPage';
 import ItineraryPlannerPage from './pages/ItineraryPlannerPage';
 import CommunityForumPage from './pages/CommunityForumPage';
 import TravelStoriesPage from './pages/TravelStoriesPage';
+import StoryDetailPage from './pages/StoryDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -88,8 +89,9 @@ function App() {
             <Route path="/attractions/explore" element={<AttractionsPage />} />
             <Route path="/attractions/:id" element={<AttractionDetailPage />} />
             <Route path="/itinerary-planner" element={<ItineraryPlannerPage />} />
-            <Route path="/community" element={<CommunityForumPage />} />
-            <Route path="/stories" element={<TravelStoriesPage />} />
+            <Route path="/community-forum" element={<CommunityForumPage />} />
+            <Route path="/travel-stories" element={<TravelStoriesPage />} />
+            <Route path="/stories/:id" element={<StoryDetailPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/regions" element={<RegionsPage />} />

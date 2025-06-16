@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: 'http://localhost:8000', // Full backend URL
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -11,7 +11,35 @@ const api = axios.create({
   withCredentials: true,
   xsrfCookieName: 'XSRF-TOKEN',
   xsrfHeaderName: 'X-XSRF-TOKEN',
+  timeout: 10000, // 10 seconds timeout
 });
+
+// Add request interceptor to ensure consistent API paths
+api.interceptors.request.use(config => {
+  // Only modify the URL if it's a relative path
+  if (config.url && config.url.startsWith('/')) {
+    // Ensure the URL starts with /api
+    if (!config.url.startsWith('/api/')) {
+      config.url = `/api${config.url.startsWith('/') ? '' : '/'}${config.url}`;
+    }
+  }
+  return config;
+});
+
+// Add CORS headers to all responses
+api.interceptors.response.use(
+  (response) => {
+    // Add CORS headers to successful responses
+    if (response.headers) {
+      response.headers['Access-Control-Allow-Origin'] = window.location.origin;
+      response.headers['Access-Control-Allow-Credentials'] = 'true';
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Add a request interceptor to include the auth token in all requests
 api.interceptors.request.use(
@@ -153,8 +181,122 @@ export const guideService = {
 
 // Attraction services
 export const attractionService = {
-  getAll: (params) => api.get('/attractions', { params }),
-  getById: (id) => api.get(`/attractions/${id}`),
+  // Get all attractions with optional filtering and pagination
+  getAll: (params = {}) => {
+    // Default parameters
+    const defaultParams = {
+      per_page: 12,
+      page: 1,
+      include: 'city,region,photos',
+    };
+    
+    // Merge default params with provided params
+    const mergedParams = { ...defaultParams, ...params };
+    
+    return api.get('/attractions', { params: mergedParams });
+  },
+  
+  // Get a single attraction by ID
+  getById: (id) => {
+    return api.get(`/attractions/${id}`, {
+      params: {
+        include: 'city,region,photos,reviews.user',
+      },
+    });
+  },
+  
+  // Get attraction categories
+  getCategories: () => api.get('/attraction-categories'),
+  
+  // Create a new attraction (admin only)
+  create: (data) => {
+    const formData = new FormData();
+    
+    // Append all fields to form data
+    Object.keys(data).forEach(key => {
+      if (key === 'photos' && Array.isArray(data[key])) {
+        // Handle multiple photos
+        data[key].forEach(photo => {
+          if (photo instanceof File) {
+            formData.append('photos[]', photo);
+          }
+        });
+      } else if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    });
+    
+    return api.post('/attractions', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  
+  // Update an attraction (admin only)
+  update: (id, data) => {
+    const formData = new FormData();
+    
+    // Append all fields to form data
+    Object.keys(data).forEach(key => {
+      if (key === 'photos' && Array.isArray(data[key])) {
+        // Handle multiple photos
+        data[key].forEach(photo => {
+          if (photo instanceof File) {
+            formData.append('photos[]', photo);
+          } else if (photo && typeof photo === 'object') {
+            formData.append('photos_attributes[]', JSON.stringify(photo));
+          }
+        });
+      } else if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
+    });
+    
+    return api.post(`/attractions/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      params: {
+        _method: 'PUT', // For Laravel to handle as PUT request
+      },
+    });
+  },
+  
+  // Delete an attraction (admin only)
+  delete: (id) => api.delete(`/attractions/${id}`),
+  
+  // Add a photo to an attraction
+  addPhoto: (id, photoData) => {
+    const formData = new FormData();
+    formData.append('photo', photoData);
+    
+    return api.post(`/attractions/${id}/photos`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  
+  // Delete a photo from an attraction
+  deletePhoto: (attractionId, photoId) => {
+    return api.delete(`/attractions/${attractionId}/photos/${photoId}`);
+  },
+  
+  // Get reviews for an attraction
+  getReviews: (attractionId, params = {}) => {
+    return api.get(`/attractions/${attractionId}/reviews`, { params });
+  },
+  
+  // Add a review to an attraction
+  addReview: (attractionId, reviewData) => {
+    return api.post(`/attractions/${attractionId}/reviews`, reviewData);
+  },
+  
+  // Get nearby attractions
+  getNearby: (attractionId, params = {}) => {
+    return api.get(`/attractions/${attractionId}/nearby`, { params });
+  },
 };
 
 // Region and city services
