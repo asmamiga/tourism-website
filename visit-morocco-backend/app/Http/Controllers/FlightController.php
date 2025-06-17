@@ -202,7 +202,8 @@ class FlightController extends Controller
     {
         $flight = Flight::with([
             'airline',
-            'flightSegments',
+            'flightSegments.originAirport',
+            'flightSegments.destinationAirport',
             'flightClasses.facilities',
             'flightSeats'
         ])->findOrFail($id);
@@ -488,45 +489,135 @@ class FlightController extends Controller
             'departure_date' => 'required|date_format:Y-m-d',
         ]);
 
-        Log::debug('Starting flight search', $request->all());
+        Log::debug('Starting flight search', [
+            'request' => $request->all(),
+            'timestamp' => now()->toDateTimeString()
+        ]);
+        
+        // Log all flights and their segments for debugging
+        $allFlights = Flight::with([
+            'airline',
+            'flightSegments.originAirport',
+            'flightSegments.destinationAirport',
+            'flightClasses.facilities'
+        ])->get();
+        
+        Log::debug('All available flights with segments:', [
+            'count' => $allFlights->count(),
+            'flights' => $allFlights->map(function($flight) {
+                return [
+                    'id' => $flight->id,
+                    'flight_number' => $flight->flight_number,
+                    'segments' => $flight->flightSegments->map(function($segment) {
+                        return [
+                            'id' => $segment->id,
+                            'origin_airport_id' => $segment->origin_airport_id,
+                            'destination_airport_id' => $segment->destination_airport_id,
+                            'departure_time' => $segment->departure_time,
+                            'arrival_time' => $segment->arrival_time,
+                            'sequence' => $segment->sequence
+                        ];
+                    })->toArray()
+                ];
+            })->toArray()
+        ]);
 
         // Find flights with a full route matching the search criteria
-        $validFlights = Flight::with([
-            'airline',
-            'flightSegments.airport',
-            'flightClasses.facilities'
-        ])->get()->filter(function ($flight) use ($request) {
+        $validFlights = $allFlights->filter(function ($flight) use ($request) {
+            Log::debug('Processing flight:', [
+                'flight_id' => $flight->id,
+                'flight_number' => $flight->flight_number,
+                'segment_count' => $flight->flightSegments->count()
+            ]);
             // Sort segments by sequence
             $segments = $flight->flightSegments->sortBy('sequence');
+            
+            Log::debug('Flight segments:', [
+                'flight_id' => $flight->id,
+                'segments' => $segments->map(function($s) {
+                    return [
+                        'id' => $s->id,
+                        'origin' => $s->origin_airport_id,
+                        'destination' => $s->destination_airport_id,
+                        'departure' => $s->departure_time,
+                        'sequence' => $s->sequence
+                    ];
+                })->toArray()
+            ]);
 
             // Find all segments that match departure and arrival airports
             $departureSegments = $segments->filter(function ($segment) use ($request) {
-                return $segment->airport_id == $request->departure_airport_id && 
-                    date('Y-m-d', strtotime($segment->time)) == $request->departure_date;
+                $matches = $segment->origin_airport_id == $request->departure_airport_id && 
+                    date('Y-m-d', strtotime($segment->departure_time)) == $request->departure_date;
+                
+                if ($matches) {
+                    Log::debug('Found matching departure segment:', [
+                        'segment_id' => $segment->id,
+                        'origin' => $segment->origin_airport_id,
+                        'departure_time' => $segment->departure_time,
+                        'requested_date' => $request->departure_date
+                    ]);
+                }
+                
+                return $matches;
             });
 
             $arrivalSegments = $segments->filter(function ($segment) use ($request) {
-                return $segment->airport_id == $request->arrival_airport_id;
+                $matches = $segment->destination_airport_id == $request->arrival_airport_id;
+                
+                if ($matches) {
+                    Log::debug('Found matching arrival segment:', [
+                        'segment_id' => $segment->id,
+                        'destination' => $segment->destination_airport_id,
+                        'requested_destination' => $request->arrival_airport_id
+                    ]);
+                }
+                
+                return $matches;
             });
 
             // Check if we have valid departure and arrival segments
-            if ($departureSegments->isEmpty() || $arrivalSegments->isEmpty()) {
+            if ($departureSegments->isEmpty()) {
+                Log::debug('No matching departure segments found for flight', ['flight_id' => $flight->id]);
+                return false;
+            }
+            
+            if ($arrivalSegments->isEmpty()) {
+                Log::debug('No matching arrival segments found for flight', ['flight_id' => $flight->id]);
                 return false;
             }
 
             // Ensure there's a valid route (departure before arrival)
+            $hasValidRoute = false;
             foreach ($departureSegments as $departureSegment) {
                 foreach ($arrivalSegments as $arrivalSegment) {
                     if ($departureSegment->sequence < $arrivalSegment->sequence) {
-                        return true;
+                        Log::debug('Found valid route:', [
+                            'flight_id' => $flight->id,
+                            'departure_segment' => $departureSegment->id,
+                            'departure_sequence' => $departureSegment->sequence,
+                            'arrival_segment' => $arrivalSegment->id,
+                            'arrival_sequence' => $arrivalSegment->sequence
+                        ]);
+                        $hasValidRoute = true;
+                        break 2; // Found a valid route, no need to check more
                     }
                 }
             }
+            
+            if (!$hasValidRoute) {
+                Log::debug('No valid route found (departure not before arrival)', ['flight_id' => $flight->id]);
+            }
+            
+            return $hasValidRoute;
 
             return false;
         });
 
-        Log::debug('Valid flights after filtering', ['count' => $validFlights->count()]);
+        Log::debug('Valid flights after filtering', [
+            'count' => $validFlights->count(),
+            'flight_ids' => $validFlights->pluck('id')->toArray()
+        ]);
 
         // Format the flights (e.g., image URLs)
         $formattedFlights = $validFlights->map(function ($flight) {

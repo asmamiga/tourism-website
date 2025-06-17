@@ -52,7 +52,7 @@ class Flight extends Model
 
     public function flightSeats()
     {
-        return $this->hasManyThrough(FlightSeat::class, FlightClass::class);
+        return $this->hasMany(FlightSeat::class);
     }
 
     public function transactions()
